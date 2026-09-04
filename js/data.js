@@ -1,4 +1,4 @@
-/*
+﻿/*
  * Abyss Echo - game content data
  * All name/desc fields are {zh, en} pairs. Purely declarative.
  */
@@ -298,7 +298,8 @@ ABYSS.DATA = {
     endless_30:    { name: { zh: "深渊化身", en: "Abyss Incarnate" },      desc: { zh: "在无尽深渊到达第 30 层", en: "Reach floor 30 in the endless abyss" } },
     echo_killer:   { name: { zh: "回响猎手", en: "Echo Hunter" },          desc: { zh: "击败 3 个回响 Boss", en: "Slay 3 echo bosses" } },
     rune_user:     { name: { zh: "符文觉醒", en: "Rune Awakened" },        desc: { zh: "使用 5 个战斗符文", en: "Use 5 combat runes" } },
-    echo_collector:  { name: { zh: "回响收藏家", en: "Echo Collector" },        desc: { zh: "集齐 3 件回声遗物", en: "Collect all 3 echo relics" } }
+    echo_collector:  { name: { zh: "回响收藏家", en: "Echo Collector" },        desc: { zh: "集齐 3 件回声遗物", en: "Collect all 3 echo relics" } },
+    abyss_clear:   { name: { zh: "深渊征服者", en: "Abyss Conqueror" },      desc: { zh: "在深渊难度下击败深渊之主", en: "Defeat the Abyss Lord on Abyss difficulty" } }
   },
 
   /* ---------- ENDINGS ---------- */
@@ -323,6 +324,7 @@ ABYSS.DATA = {
 if (typeof module !== "undefined" && module.exports) {
   module.exports = { ABYSS: ABYSS };
 }
+
 
 
 

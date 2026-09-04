@@ -734,6 +734,7 @@ ABYSS.Logic = (function () {
       endless_30: function () { return (st.bestEndless || 0) >= 30; },
       echo_killer: function () { return (st.echoKills || 0) >= 3; },
       rune_user: function () { return (st.runeUses || 0) >= 5; },
+      abyss_clear: function () { return st.difficultyClears && st.difficultyClears.abyss; },
       echo_collector: function () {
         var relics = ["relic_echo", "relic_shroud", "relic_crown"];
         var got = 0;
@@ -924,6 +925,12 @@ ABYSS.Logic = (function () {
     prestige: prestige,
     endlessSetup: endlessSetup,
     difficultyFx: difficultyFx,
+    markDifficultyClear: function (state) {
+      state.stats.difficultyClears = state.stats.difficultyClears || {};
+      if (state.settings && state.settings.difficulty) {
+        state.stats.difficultyClears[state.settings.difficulty] = true;
+      }
+    },
     startQuest: startQuest,
     questProgress: questProgress,
     checkQuest: checkQuest,
@@ -941,6 +948,7 @@ ABYSS.Logic = (function () {
 if (typeof module !== "undefined" && module.exports) {
   module.exports = { ABYSS: ABYSS };
 }
+
 
 
 

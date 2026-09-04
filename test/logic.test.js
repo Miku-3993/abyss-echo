@@ -251,7 +251,7 @@ test("all data references are valid", () => {
   }
   /* every event id exists; every fragment source is reachable */
   assert.equal(Object.keys(D.events).length, 17);
-  assert.equal(Object.keys(D.achievements).length, 30);
+  assert.equal(Object.keys(D.achievements).length, 31);
   assert.equal(Object.keys(D.endings).length, 2);
   assert.equal(Object.keys(D.fragments).length, 3);
   assert.equal(D.QUESTS.length, 5);
@@ -497,6 +497,23 @@ test("difficulty multipliers apply across the game", () => {
   s.run.combat.enemyHp = 999;
   const es2 = Logic.enemyStats(s);
   assert.ok(es2.atk > base.atk, "abyss raises enemy attack");
+});
+
+test("abyss clear achievement tracks difficulty clears", () => {
+  const s = Logic.freshState();
+  s.settings.difficulty = "abyss";
+  Logic.markDifficultyClear(s);
+  const evs = [];
+  Logic.checkAchievements(s, evs);
+  assert.ok(evs.some((e) => e.type === "achievement" && e.id === "abyss_clear"));
+  assert.ok(s.stats.difficultyClears.abyss);
+  /* easy clears do not grant it */
+  const s2 = Logic.freshState();
+  s2.settings.difficulty = "easy";
+  Logic.markDifficultyClear(s2);
+  const evs2 = [];
+  Logic.checkAchievements(s2, evs2);
+  assert.ok(!evs2.some((e) => e.type === "achievement" && e.id === "abyss_clear"));
 });
 
 test("legacy saves normalize cleanly", () => {

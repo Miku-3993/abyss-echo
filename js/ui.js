@@ -1019,6 +1019,7 @@ ABYSS.UI = (function () {
     var box = $("scene");
     box.innerHTML = "";
     var en = D.endings[endingId];
+    Logic.markDifficultyClear(state);
     if (state.run.daily || state.run.endless) {
       recordDailyBest();
       ABYSS.Save.setSlot("main");
@@ -1782,6 +1783,7 @@ ABYSS.UI = (function () {
 if (typeof module !== "undefined" && module.exports) {
   module.exports = { ABYSS: ABYSS };
 }
+
 
 
 
