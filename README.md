@@ -37,7 +37,7 @@ A **zero-dependency, pure front-end** text-based dungeon RPG. Dark cosmic-fantas
 - 🌟 **精英怪** — 15% 概率出现，属性 ×1.5、双倍奖励、必掉一件额外战利品 / elite monsters: 1.5x stats, 2x rewards, guaranteed bonus loot
 - 💀 **5 个 Boss + 回响 Boss** — 每 3 层一位区域 Boss，第 12 层后开启「深渊核心」最终战 / 5 bosses, final boss unlocked after floor 12
 - 📜 **12 种随机事件** — 商人、喷泉、祭坛、神龛、矿脉、雕像、蛛巢、占卜师、深渊图书馆…… / merchants, fountains, altars, shrines, fortune tellers…
-- 🏆 **30 个成就** — 探索、击杀、等级、收藏、精英猎手、隐藏目标 / achievements for exploration, kills, levels, elites, collection
+- 🏆 **33 个成就** — 探索、击杀、等级、收藏、精英猎手、隐藏目标 / achievements for exploration, kills, levels, elites, collection
 - 💠 **隐藏真结局** — 收集 3 枚「真相碎片」，在深渊核心做出你的选择 / true ending via 3 fragments of truth
 - 🌀 **转生系统** — 达成结局后可转生，永久获得「深渊刻印」：全属性 +4%/级、金币 +5%/级 / rebirth system granting permanent abyss marks
 - 🗡️ **32 件物品** — 武器/护甲/饰品/消耗品（含经验典籍、万灵药），BOSS 固定掉落传说装备 / weapons, armor, trinkets, consumables, boss-only legendaries
@@ -71,7 +71,7 @@ A **zero-dependency, pure front-end** text-based dungeon RPG. Dark cosmic-fantas
 npm test        # node --test
 ```
 
-59 个单元测试覆盖：状态、属性计算、装备加成、战斗结算、状态异常、技能冷却、掉落、精英怪、转生与难度曲线、图鉴记录、每日挑战规则、委托任务、符文系统、无尽模式与回响 Boss、最终 Boss 流程、升级、房间生成、成就、存档模拟全流程。
+70 个单元测试覆盖：状态、属性计算、装备加成、战斗结算、状态异常、技能冷却、掉落、精英怪、转生与难度曲线、图鉴记录、每日挑战规则、委托任务、符文系统、无尽模式与回响 Boss、最终 Boss 流程、升级、房间生成、成就、存档模拟全流程。
 
 ## 🏗 项目结构 / Structure
 
@@ -111,6 +111,7 @@ npm test              # 运行测试
 ## 📄 许可 / License
 
 [MIT](LICENSE) © 2026 Miku-3993
+
 
 
 
