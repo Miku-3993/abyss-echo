@@ -225,7 +225,9 @@ ABYSS.LANG = {
     "ms_25": { zh: "里程碑：无尽第 {n} 层！", en: "Milestone: endless floor {n}!" },
     "echo_next": { zh: "下一层将遭遇回响 Boss——做好准备！", en: "An echo boss awaits on the next floor — prepare!" },
     "difficulty": { zh: "难度", en: "Difficulty" },
-    "difficulty_set": { zh: "难度已设为：{n}（新旅程生效）", en: "Difficulty set to {n} (applies to new journeys)" }
+    "difficulty_set": { zh: "难度已设为：{n}（新旅程生效）", en: "Difficulty set to {n} (applies to new journeys)" },
+    "daily_streak": { zh: "最佳连续挑战 {n} 天", en: "Best daily streak {n} days" },
+    "daily_streak_now": { zh: "当前 {n} 天", en: "currently {n}" }
   }
 };
 
@@ -256,6 +258,7 @@ ABYSS.LANG.desc = function (entry) {
 if (typeof module !== "undefined" && module.exports) {
   module.exports = { ABYSS: ABYSS };
 }
+
 
 
 

@@ -1191,6 +1191,17 @@ ABYSS.UI = (function () {
       if (!prev || prev.date !== cur.date || cur.depth > prev.depth || (cur.depth === prev.depth && cur.kills > prev.kills)) {
         localStorage.setItem("abyss-echo-daily-best", JSON.stringify(cur));
       }
+      /* daily streak tracking */
+      try {
+        var streak = JSON.parse(localStorage.getItem("abyss-echo-daily-streak") || "null");
+        var yesterday = new Date();
+        yesterday.setDate(yesterday.getDate() - 1);
+        var yStr = yesterday.getFullYear() + "-" + String(yesterday.getMonth() + 1).padStart(2, "0") + "-" + String(yesterday.getDate()).padStart(2, "0");
+        var n = 1;
+        if (streak && streak.lastDate === yStr) n = streak.current + 1;
+        else if (streak && streak.lastDate === cur.date) n = streak.current;
+        localStorage.setItem("abyss-echo-daily-streak", JSON.stringify({ current: n, best: Math.max(n, streak ? streak.best || 0 : 0), lastDate: cur.date }));
+      } catch (e) { /* ignore */ }
       /* keep a rolling 14-day history */
       var hist = [];
       try { hist = JSON.parse(localStorage.getItem("abyss-echo-daily-history") || "[]"); } catch (e) { hist = []; }
@@ -1217,6 +1228,13 @@ ABYSS.UI = (function () {
           lines.push("▸ " + h.date + " · " + T("floor", { n: h.depth }) + " · " + T("kills") + " " + h.kills);
         });
       }
+      /* daily streak badge */
+      try {
+        var streak = JSON.parse(localStorage.getItem("abyss-echo-daily-streak") || "null");
+        if (streak && streak.best >= 2) {
+          lines.push("🔥 " + T("daily_streak", { n: streak.best }) + " · " + T("daily_streak_now", { n: streak.current }));
+        }
+      } catch (e) { /* ignore */ }
       /* achievement completion */
       var mainSaved = ABYSS.Save.load();
       var achUnlocked = mainSaved && mainSaved.stats ? (mainSaved.stats.achievements || []).length : 0;
@@ -1783,6 +1801,8 @@ ABYSS.UI = (function () {
 if (typeof module !== "undefined" && module.exports) {
   module.exports = { ABYSS: ABYSS };
 }
+
+
 
 
 
