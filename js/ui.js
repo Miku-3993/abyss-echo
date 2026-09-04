@@ -423,6 +423,9 @@ ABYSS.UI = (function () {
         if (state.run.endless && state.run.depth > 0 && state.run.depth % 25 === 0) {
           pushLog("🎉 " + T("ms_25", { n: state.run.depth }), "log-gold");
           ABYSS.Audio.achievement();
+          if (state.run.depth % 50 === 0) {
+            pushToast(T("ms_50", { n: state.run.depth }), T("ms_50_sub"), "🏆");
+          }
         }
         saveAndRender();
       });
@@ -1985,6 +1988,7 @@ ABYSS.UI = (function () {
 if (typeof module !== "undefined" && module.exports) {
   module.exports = { ABYSS: ABYSS };
 }
+
 
 
 

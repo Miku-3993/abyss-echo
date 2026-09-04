@@ -230,6 +230,8 @@ ABYSS.LANG = {
     "daily": { zh: "每日挑战", en: "Daily" },
     "boss_felled": { zh: "被 Boss 讨伐", en: "Felled by a boss" },
     "dies_to": { zh: "死于 {n} 之手", en: "Slain by {n}" },
+    "ms_50": { zh: "深渊权柄：无尽第 {n} 层！", en: "Abyss Authority: endless floor {n}!" },
+    "ms_50_sub": { zh: "你的名字回荡在深渊的每一层", en: "Your name echoes through every floor" },
     "ev_vault_left": { zh: "打开左边的黑匣", en: "Open the left chest" },
     "ev_vault_middle": { zh: "打开中间的黑匣", en: "Open the middle chest" },
     "ev_vault_right": { zh: "打开右边的黑匣", en: "Open the right chest" },
@@ -276,6 +278,7 @@ ABYSS.LANG.desc = function (entry) {
 if (typeof module !== "undefined" && module.exports) {
   module.exports = { ABYSS: ABYSS };
 }
+
 
 
 
