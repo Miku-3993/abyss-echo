@@ -1,4 +1,4 @@
-﻿/*
+/*
  * Abyss Echo - UI rendering & interaction layer
  * Consumes ABYSS.Logic events, renders DOM, wires game feel.
  */
@@ -1119,10 +1119,15 @@ ABYSS.UI = (function () {
     var box = $("scene");
     box.innerHTML = "";
     if (state.run.daily || state.run.endless) {
-      recordDailyBest();
+      var wasDaily = !!state.run.daily;
+      var rec = recordDailyBest();
       ABYSS.Save.setSlot("main");
       state.run.daily = null;
       state.run.endless = false;
+      if (wasDaily) {
+        if (rec.newBest) pushToast(T("daily_record"), T("daily_record_sub"), "🎉");
+        else if (rec.gap > 0) pushLog(T("daily_gap", { n: rec.gap }), "log-event");
+      }
     }
     var t = document.createElement("div");
     t.className = "scene-title gameover";
@@ -1171,10 +1176,15 @@ ABYSS.UI = (function () {
     var en = D.endings[endingId];
     Logic.markDifficultyClear(state);
     if (state.run.daily || state.run.endless) {
-      recordDailyBest();
+      var wasDaily = !!state.run.daily;
+      var rec = recordDailyBest();
       ABYSS.Save.setSlot("main");
       state.run.daily = null;
       state.run.endless = false;
+      if (wasDaily) {
+        if (rec.newBest) pushToast(T("daily_record"), T("daily_record_sub"), "🎉");
+        else if (rec.gap > 0) pushLog(T("daily_gap", { n: rec.gap }), "log-event");
+      }
     }
     state.stats.endings = state.stats.endings || [];
     if (state.stats.endings.indexOf(endingId) < 0) state.stats.endings.push(endingId);
@@ -1335,11 +1345,16 @@ ABYSS.UI = (function () {
   }
 
   function recordDailyBest() {
+    var out = { newBest: false, gap: 0 };
     try {
       var cur = { date: todayStr(), depth: state.stats.bestDepth, kills: state.stats.totalKills };
       var prev = JSON.parse(localStorage.getItem("abyss-echo-daily-best") || "null");
-      if (!prev || prev.date !== cur.date || cur.depth > prev.depth || (cur.depth === prev.depth && cur.kills > prev.kills)) {
+      var isNew = !prev || prev.date !== cur.date || cur.depth > prev.depth || (cur.depth === prev.depth && cur.kills > prev.kills);
+      if (isNew) {
         localStorage.setItem("abyss-echo-daily-best", JSON.stringify(cur));
+        out.newBest = true;
+      } else if (prev && prev.date === cur.date) {
+        out.gap = prev.depth - cur.depth;
       }
       /* daily streak tracking */
       try {
@@ -1360,6 +1375,7 @@ ABYSS.UI = (function () {
       hist = hist.filter(function (h) { return h.depth > 0; }).slice(-14);
       localStorage.setItem("abyss-echo-daily-history", JSON.stringify(hist));
     } catch (e) { /* ignore */ }
+    return out;
   }
 
   function showDailyBest() {
@@ -1997,6 +2013,8 @@ ABYSS.UI = (function () {
 if (typeof module !== "undefined" && module.exports) {
   module.exports = { ABYSS: ABYSS };
 }
+
+
 
 
 
