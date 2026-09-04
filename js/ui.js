@@ -270,6 +270,12 @@ ABYSS.UI = (function () {
     $("hud-level").textContent = p.level;
     $("hud-gold").textContent = p.gold;
     $("hud-depth").textContent = state.run.depth;
+    /* depth track: main run maps 1..13, endless scales against best */
+    var dt = $("hud-depth-fill");
+    if (dt) {
+      var trackMax = state.run.endless ? Math.max(13, state.stats.bestEndless || 13) : 13;
+      dt.style.width = Math.min(100, Math.round(state.run.depth / trackMax * 100)) + "%";
+    }
     $("hud-prestige").textContent = state.stats.prestige || 0;
     var eq = Logic.equipped(state);
     $("hud-atk").textContent = ps.atk + (eq.atk ? " (+" + eq.atk + ")" : "");
@@ -1991,6 +1997,7 @@ ABYSS.UI = (function () {
 if (typeof module !== "undefined" && module.exports) {
   module.exports = { ABYSS: ABYSS };
 }
+
 
 
 
