@@ -353,8 +353,9 @@ ABYSS.Logic = (function () {
       /* refresher: kill grants xp on a later consolidate call when not in combat */
       if (e.boss) {
         state.stats.bossesKilled = state.stats.bossesKilled || {};
+        var bossFirst = !state.stats.bossesKilled[c.enemyId];
         state.stats.bossesKilled[c.enemyId] = true;
-        events.push({ type: "bossKilled", enemy: c.enemyId });
+        events.push({ type: "bossKilled", enemy: c.enemyId, first: bossFirst });
         if (c.enemyId === "boss_karaz") state.run.finalOpen = true;
         /* defeating a boss grants a breather: restore 25% max HP */
         var bossHeal = Math.floor(playerStats(state).hp * 0.15);
@@ -462,8 +463,9 @@ ABYSS.Logic = (function () {
       gainXp(state, e.xp * mult2, events);
       if (e.boss) {
         state.stats.bossesKilled = state.stats.bossesKilled || {};
+        var bossFirst = !state.stats.bossesKilled[c.enemyId];
         state.stats.bossesKilled[c.enemyId] = true;
-        events.push({ type: "bossKilled", enemy: c.enemyId });
+        events.push({ type: "bossKilled", enemy: c.enemyId, first: bossFirst });
         if (c.enemyId === "boss_karaz") state.run.finalOpen = true;
         /* defeating a boss grants a breather: restore 25% max HP */
         var bossHeal = Math.floor(playerStats(state).hp * 0.15);
@@ -995,6 +997,7 @@ ABYSS.Logic = (function () {
 if (typeof module !== "undefined" && module.exports) {
   module.exports = { ABYSS: ABYSS };
 }
+
 
 
 

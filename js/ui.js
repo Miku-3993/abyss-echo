@@ -56,6 +56,9 @@ ABYSS.UI = (function () {
             pushToast(T("codex_new", { n: L.name(en) }), T("codex_new_sub"), "📜");
           }
           if (ev.enemy.indexOf("boss") === 0) {
+            if (ev.first) {
+              pushToast(T("boss_first", { n: L.name(D.enemies[ev.enemy]) }), T("boss_first_sub"), "🗡");
+            }
             state.stats.bossesKilled = state.stats.bossesKilled || {};
             state.stats.bossesKilled[ev.enemy] = true;
             ABYSS.Audio.boss();
@@ -2021,6 +2024,7 @@ ABYSS.UI = (function () {
 if (typeof module !== "undefined" && module.exports) {
   module.exports = { ABYSS: ABYSS };
 }
+
 
 
 

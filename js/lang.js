@@ -238,6 +238,8 @@ ABYSS.LANG = {
     "daily_record_sub": { zh: "深渊记住了你的名字", en: "The abyss remembers your name" },
     "daily_gap": { zh: "距今日纪录还差 {n} 层", en: "{n} floors short of today record" },
     "codex_item_new": { zh: "图鉴新物品：{n}", en: "New codex item: {n}" },
+    "boss_first": { zh: "首讨成功：{n}", en: "First vanquished: {n}" },
+    "boss_first_sub": { zh: "史诗在深渊中刻下痕迹", en: "An epic carved into the abyss" },
     "ev_vault_left": { zh: "打开左边的黑匣", en: "Open the left chest" },
     "ev_vault_middle": { zh: "打开中间的黑匣", en: "Open the middle chest" },
     "ev_vault_right": { zh: "打开右边的黑匣", en: "Open the right chest" },
@@ -284,6 +286,7 @@ ABYSS.LANG.desc = function (entry) {
 if (typeof module !== "undefined" && module.exports) {
   module.exports = { ABYSS: ABYSS };
 }
+
 
 
 
