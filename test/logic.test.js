@@ -250,11 +250,12 @@ test("all data references are valid", () => {
     assert.ok(evs.length >= 0, `skill ${sk} should resolve`);
   }
   /* every event id exists; every fragment source is reachable */
-  assert.equal(Object.keys(D.events).length, 14);
+  assert.equal(Object.keys(D.events).length, 16);
   assert.equal(Object.keys(D.achievements).length, 29);
   assert.equal(Object.keys(D.endings).length, 2);
   assert.equal(Object.keys(D.fragments).length, 3);
   assert.equal(D.QUESTS.length, 5);
+  assert.equal(Object.keys(D.enemies).length, 24);
 });
 
 test("endless mode: echo boss every 10 floors past 12", () => {

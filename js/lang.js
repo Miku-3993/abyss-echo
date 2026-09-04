@@ -198,7 +198,15 @@ ABYSS.LANG = {
     "dmg_taken": { zh: "承伤 {n}", en: "taken {n}" },
     "about": { zh: "关于", en: "About" },
     "about_desc": { zh: "零依赖文字地牢冒险。回合制战斗、5 位 Boss、转生、每日挑战、无尽模式、图鉴与委托。数据驱动的平衡设计（3000 局模拟，通关率 23.6%）。", en: "A zero-dependency text dungeon RPG: turn-based combat, 5 bosses, rebirth, daily challenge, endless mode, codex & quests. Balance tuned by 3000-run simulation (23.6% win rate)." },
-    "guide": { zh: "玩法指南", en: "Gameplay Guide" }
+    "guide": { zh: "玩法指南", en: "Gameplay Guide" },
+    "ev_mirage_fight": { zh: "深入幻境追击黑影", en: "Chase the shadow into the mirage" },
+    "ev_mirage_phantom": { zh: "雾中的黑影凝成实体，向你扑来！", en: "The shadow in the mist solidifies and lunges!" },
+    "ev_mirage_smoke": { zh: "驱散篝火残烟（40% 空 / 30% 金币 / 30% 药水）", en: "Dispel the campfire smoke (40% nothing / 30% gold / 30% potion)" },
+    "ev_mirage_ash": { zh: "残烟散去，只有灰烬。", en: "The smoke clears — only ash remains." },
+    "ev_field_sword": { zh: "拾起一柄断剑（获得随机武器）", en: "Pick up a broken blade (random weapon)" },
+    "ev_field_pouch": { zh: "搜刮尸袋（获得 40-90 金币）", en: "Loot the corpse pouches (40-90 gold)" },
+    "ev_field_bury": { zh: "埋葬无名尸骨（获得祝福）", en: "Bury the nameless bones (gain a blessing)" },
+    "ev_field_bless": { zh: "你为无名者合上双眼，一道祝福悄然落下。", en: "You close the stranger's eyes; a quiet blessing settles on you." }
   }
 };
 

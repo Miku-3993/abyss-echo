@@ -117,6 +117,12 @@ ABYSS.DATA = {
     boss_karaz: { name: { zh: "虚空领主·卡拉泽斯", en: "Karazes the Void Lord" }, tier: 4, boss: true, hp: 170, atk: 22, def: 12, spd: 13, xp: 340, gold: 200,
                   ability: { status: "burn", chance: 0.4 },
                   desc: { zh: "虚空之力的化身，披着星光的毁灭者。", en: "An avatar of void power, a destroyer robed in starlight." } },
+    soulreaper: { name: { zh: "摄魂使", en: "Soul Reaper" },      tier: 4, hp: 70, atk: 19, def: 9, spd: 12, xp: 84, gold: 30, ability: { status: "weaken", chance: 0.35 },
+                  desc: { zh: "收割灵魂的苍白使者，镰刀上悬着怨灵的残光。", en: "A pale herald reaping souls; the scythe glows with wisp-light." } },
+    voidmaw:    { name: { zh: "虚空巨口", en: "Void Maw" },      tier: 4, hp: 90, atk: 18, def: 8, spd: 8,  xp: 84, gold: 32, ability: { status: "burn", chance: 0.3 },
+                  desc: { zh: "漂浮的巨口吞食一切光芒，腹腔里是另一片星空。", en: "A drifting maw that swallows light; another starfield churns within." } },
+    phantom:    { name: { zh: "幻影掠夺者", en: "Phantom Raider" }, tier: 3, hp: 55, atk: 15, def: 6, spd: 12, xp: 58, gold: 20, ability: { status: "poison", chance: 0.25 },
+                  desc: { zh: "雾中诞生的掠夺者，没有面容，只有贪婪。", en: "A raider born of mist — faceless, but never empty-handed." } },
     boss_abyss: { name: { zh: "深渊之主·奥伯斯", en: "Obys, Lord of the Abyss" }, tier: 5, boss: true, final: true, hp: 235, atk: 26, def: 15, spd: 12, xp: 700, gold: 500,
                   ability: { status: "burn", chance: 0.5 },
                   desc: { zh: "深渊本身孕育的意志。击败它，或成为它。", en: "The will born of the abyss itself. Defeat it, or become it." } }
@@ -240,6 +246,10 @@ ABYSS.DATA = {
                   desc: { zh: "一间堆满腐烂典籍的房间，书脊上的文字仍在蠕动。", en: "A room piled with rotting tomes whose letters still writhe." } },
     questboard: { name: { zh: "悬赏板", en: "Bounty Board" },
                   desc: { zh: "一块钉满委托卷轴的木板，落款大多是失踪者的名字。", en: "A board thick with bounty scrolls, mostly signed by the missing." } },
+    mirage:     { name: { zh: "迷雾幻境", en: "Mist Mirage" },
+                  desc: { zh: "雾中浮现出一座废弃的营地，篝火仍在燃烧，却空无一人。", en: "A deserted camp materializes in the mist — fire burning, no one home." } },
+    battlefield: { name: { zh: "远古战场", en: "Ancient Battlefield" },
+                  desc: { zh: "遍地甲胄残骸的战场，空气里还飘着数百年未散的杀意。", en: "A field of rusted armor; the air still hums with centuries-old slaughter." } },
     blacksmith: { name: { zh: "铁匠铺", en: "Blacksmith" },
                   desc: { zh: "炉火在深渊中静静燃烧，铁锤声像心跳一样规律。", en: "A forge burns quietly in the abyss; hammer strokes beat like a heart." } }
   },
@@ -299,6 +309,9 @@ ABYSS.DATA = {
 if (typeof module !== "undefined" && module.exports) {
   module.exports = { ABYSS: ABYSS };
 }
+
+
+
 
 
 

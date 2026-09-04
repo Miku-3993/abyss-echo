@@ -1,4 +1,4 @@
-/*
+﻿/*
  * Abyss Echo - UI rendering & interaction layer
  * Consumes ABYSS.Logic events, renders DOM, wires game feel.
  */
@@ -780,6 +780,56 @@ ABYSS.UI = (function () {
         choices.push({ text: T("leave"), fn: function () { r.eventDone = true; saveAndRender(); } });
         break;
       }
+      case "mirage": choices = [
+        { text: T("ev_mirage_fight"), fn: function () {
+            var evs = [];
+            startCombat("phantom", Math.random() < 0.15);
+            evs.push({ type: "boss", text: T("ev_mirage_phantom") });
+            r.eventDone = false;
+            consumeEvents(evs);
+            saveAndRender();
+          } },
+        { text: T("ev_mirage_smoke"), fn: function () {
+            var evs = [];
+            var roll = Math.random();
+            if (roll < 0.3) {
+              evs.push({ type: "eventText", text: T("ev_mirage_ash"), });
+            } else if (roll < 0.6) {
+              var g = 25 + Math.floor(Math.random() * 30);
+              state.player.gold += g;
+              evs.push({ type: "gold", amount: g });
+            } else {
+              var it = ["potion_small", "potion_mana", "potion_big"][Math.floor(Math.random() * 3)];
+              if (addItemSilent(it)) evs.push({ type: "found", item: it });
+            }
+            r.eventDone = true; consumeEvents(evs); saveAndRender();
+          } },
+        { text: T("leave"), fn: function () { r.eventDone = true; saveAndRender(); } }
+      ]; break;
+      case "battlefield": choices = [
+        { text: T("ev_field_sword"), fn: function () {
+            var evs = [];
+            var pool = ["sword_rust", "bow_hunter", "dagger_moon", "axe_rune", "blade_shadow"];
+            var idx = Math.min(pool.length - 1, Math.floor(state.run.depth / 3));
+            var it = pool[idx];
+            if (addItemSilent(it)) evs.push({ type: "found", item: it });
+            else evs.push({ type: "eventText", text: T("full_inventory") });
+            r.eventDone = true; consumeEvents(evs); saveAndRender();
+          } },
+        { text: T("ev_field_pouch"), fn: function () {
+            var g = 40 + Math.floor(Math.random() * 50);
+            state.player.gold += g;
+            var evs = [{ type: "gold", amount: g }];
+            r.eventDone = true; consumeEvents(evs); saveAndRender();
+          } },
+        { text: T("ev_field_bury"), fn: function () {
+            var evs = [];
+            Logic.applyStatus(state, "player", "blessing", 5, evs);
+            evs.push({ type: "eventText", text: T("ev_field_bless") });
+            r.eventDone = true; consumeEvents(evs); saveAndRender();
+          } },
+        { text: T("leave"), fn: function () { r.eventDone = true; saveAndRender(); } }
+      ]; break;
     }
 
     if (choices.length === 0) {
@@ -1608,6 +1658,7 @@ ABYSS.UI = (function () {
 if (typeof module !== "undefined" && module.exports) {
   module.exports = { ABYSS: ABYSS };
 }
+
 
 
 

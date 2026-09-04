@@ -1,4 +1,4 @@
-﻿/*
+/*
  * Abyss Echo - core game logic (pure, testable, no DOM)
  * All functions operate on a plain state object and return event lists.
  */
@@ -623,7 +623,7 @@ ABYSS.Logic = (function () {
     return room;
   }
 
-  var TIER_POOL = { 1: ["rat", "bat", "slime", "ghoul"], 2: ["goblin", "wolf", "wraith", "skeleton"], 3: ["minion", "spider", "leech", "golem"], 4: ["hunter", "watcher", "soulsucker", "chaosmage"] };
+  var TIER_POOL = { 1: ["rat", "bat", "slime", "ghoul"], 2: ["goblin", "wolf", "wraith", "skeleton"], 3: ["minion", "spider", "leech", "golem", "phantom"], 4: ["hunter", "watcher", "soulsucker", "chaosmage", "soulreaper", "voidmaw"] };
 
   function pickEnemy(state, rng, forceBoss) {
     var depth = state.run.depth;
