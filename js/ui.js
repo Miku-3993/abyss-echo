@@ -933,10 +933,30 @@ ABYSS.UI = (function () {
     var e = D.enemies[state.run.lastAttacker];
     box.appendChild(p(T("died", { n: e ? L.name(e) : "深渊" })));
     box.appendChild(p(T("deeper_dark")));
-    var st = document.createElement("p");
-    st.className = "scene-stats";
-    st.textContent = "📊 " + T("best_depth") + " " + state.stats.bestDepth + " · " + T("kills") + " " + state.stats.totalKills + " · " + T("level") + " " + state.player.level;
-    box.appendChild(st);
+    /* journey summary card */
+    var jc = document.createElement("div");
+    jc.className = "combat-summary";
+    var st = state.stats;
+    var jh = document.createElement("div");
+    jh.className = "sum-name";
+    jh.textContent = "📊 " + T("journey_summary");
+    jc.appendChild(jh);
+    var jb = document.createElement("div");
+    jb.className = "sum-body";
+    var mins = Math.floor((st.playTimeSec || 0) / 60);
+    var secs = (st.playTimeSec || 0) % 60;
+    jb.innerHTML =
+      T("depth") + " " + state.run.depth + "（" + T("best") + " " + st.bestDepth + "）" +
+      " · " + T("kills") + " " + st.totalKills +
+      " · " + T("elite_kills") + " " + (st.eliteKills || 0) +
+      " · " + T("level") + " " + state.player.level +
+      " · 🪙 " + state.player.gold +
+      "<br>" + T("play_time") + " " + mins + ":" + String(secs).padStart(2, "0") +
+      " · " + T("achievements") + " " + (st.achievements || []).length +
+      " · " + T("multikill_bosses") + " " + Object.keys(st.bossesKilled || {}).length + "/5" +
+      (st.fragments && st.fragments.length ? " · 💠 " + st.fragments.length + "/3" : "");
+    jc.appendChild(jb);
+    box.appendChild(jc);
     box.appendChild(mkButton(T("restart"), "btn-main", function () {
       state = Logic.freshState();
       state.settings = defaultSettings();

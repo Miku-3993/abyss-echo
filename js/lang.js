@@ -210,7 +210,11 @@ ABYSS.LANG = {
     "ev_field_bless": { zh: "你为无名者合上双眼，一道祝福悄然落下。", en: "You close the stranger's eyes; a quiet blessing settles on you." },
     "daily_today": { zh: "☀️ 今日规则", en: "☀️ Today's rules" },
     "daily_today_item": { zh: "{n}：{d}", en: "{n}: {d}" },
-    "best_floor": { zh: "最佳 {n} 层", en: "Best floor {n}" }
+    "best_floor": { zh: "最佳 {n} 层", en: "Best floor {n}" },
+    "journey_summary": { zh: "旅程总结", en: "Journey Summary" },
+    "best": { zh: "最佳", en: "best" },
+    "elite_kills": { zh: "精英", en: "elites" },
+    "multikill_bosses": { zh: "Boss", en: "bosses" }
   }
 };
 
@@ -241,3 +245,4 @@ ABYSS.LANG.desc = function (entry) {
 if (typeof module !== "undefined" && module.exports) {
   module.exports = { ABYSS: ABYSS };
 }
+
