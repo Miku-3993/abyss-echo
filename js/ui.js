@@ -1167,6 +1167,10 @@ ABYSS.UI = (function () {
           lines.push("▸ " + h.date + " · " + T("floor", { n: h.depth }) + " · " + T("kills") + " " + h.kills);
         });
       }
+      /* achievement completion */
+      var mainSaved = ABYSS.Save.load();
+      var achUnlocked = mainSaved && mainSaved.stats ? (mainSaved.stats.achievements || []).length : 0;
+      lines.push(T("ach_progress", { n: achUnlocked, t: Object.keys(D.achievements).length }));
       var daily = Logic.dailySeedModifiers(todayStr());
       if (daily.picked && daily.picked.length) {
         lines.push(T("daily_today") + ": " + daily.picked.map(function (m) { return T("daily_today_item", { n: L.name(m), d: L.desc(m) }); }).join(" | "));
@@ -1598,6 +1602,7 @@ ABYSS.UI = (function () {
       c.appendChild(list);
 
       var knownEnemies = Object.keys(state.stats.enemyKilled || {}).filter(function (k) { return k.indexOf("__elite") < 0; });
+      var knownElite = Object.keys(state.stats.enemyKilled || {}).filter(function (k) { return k.indexOf("__elite") >= 0; }).map(function (k) { return k.replace("__elite", ""); });
       var knownItems = Object.keys(state.stats.collected || {});
 
       function renderEnemies() {
@@ -1615,7 +1620,7 @@ ABYSS.UI = (function () {
             el.className = "codex-item " + (got ? "codex-got" : "codex-locked");
             if (got) {
               var e = D.enemies[eid];
-              el.innerHTML = "<div class='codex-name'>" + (e.boss ? "💀 " : "👹 ") + L.name(e) + "</div>" +
+              el.innerHTML = "<div class='codex-name'>" + (e.boss ? "💀 " : "👹 ") + L.name(e) + (knownElite.indexOf(eid) >= 0 ? " 🌟" : "") + "</div>" +
                 "<div class='codex-desc'>" + L.desc(e) + "</div>" +
                 "<div class='codex-meta'>❤" + e.hp + " ⚔" + e.atk + " 🛡" + e.def + " ⚡" + e.spd + " · " + T("xp") + " " + e.xp + " · 🪙" + e.gold + "</div>";
             } else {

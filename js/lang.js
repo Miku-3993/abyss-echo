@@ -214,7 +214,8 @@ ABYSS.LANG = {
     "journey_summary": { zh: "旅程总结", en: "Journey Summary" },
     "best": { zh: "最佳", en: "best" },
     "elite_kills": { zh: "精英", en: "elites" },
-    "multikill_bosses": { zh: "Boss", en: "bosses" }
+    "multikill_bosses": { zh: "Boss", en: "bosses" },
+    "ach_progress": { zh: "🏆 成就 {n}/{t}", en: "🏆 Achievements {n}/{t}" }
   }
 };
 
@@ -245,4 +246,5 @@ ABYSS.LANG.desc = function (entry) {
 if (typeof module !== "undefined" && module.exports) {
   module.exports = { ABYSS: ABYSS };
 }
+
 
