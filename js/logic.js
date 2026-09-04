@@ -56,13 +56,28 @@ ABYSS.Logic = (function () {
   }
 
   /* ---------- derived stats ---------- */
+  function forgeUpgrade(state, itemId, events) {
+    state.player.forgeUpgrades = state.player.forgeUpgrades || {};
+    var lvl = state.player.forgeUpgrades[itemId] || 0;
+    if (lvl >= 5) return false;
+    state.player.forgeUpgrades[itemId] = lvl + 1;
+    events = events || [];
+    events.push({ type: "forged", item: itemId, level: lvl + 1 });
+    return true;
+  }
+
+  function forgeLevel(state, itemId) {
+    return (state.player.forgeUpgrades && state.player.forgeUpgrades[itemId]) || 0;
+  }
+
   function equipped(state) {
     var p = state.player, eq = p.equipment, items = D.items, out = { atk: 0, def: 0, spd: 0, luck: 0, hp: 0, goldMult: 1, revive: false };
     [eq.weapon, eq.armor, eq.trinket].forEach(function (id) {
       if (!id || !items[id]) return;
       var it = items[id];
-      out.atk += it.atk || 0; out.def += it.def || 0; out.spd += it.spd || 0;
-      out.luck += it.luck || 0; out.hp += it.hp || 0;
+      var boost = 1 + 0.1 * forgeLevel(state, id);
+      out.atk += Math.floor((it.atk || 0) * boost); out.def += Math.floor((it.def || 0) * boost); out.spd += Math.floor((it.spd || 0) * boost);
+      out.luck += Math.floor((it.luck || 0) * boost); out.hp += Math.floor((it.hp || 0) * boost);
       if (it.goldMult) out.goldMult = it.goldMult;
       if (it.revive) out.revive = true;
     });
@@ -927,6 +942,8 @@ ABYSS.Logic = (function () {
     prestige: prestige,
     endlessSetup: endlessSetup,
     difficultyFx: difficultyFx,
+    forgeLevel: forgeLevel,
+    forgeUpgrade: forgeUpgrade,
     markDifficultyClear: function (state) {
       state.stats.difficultyClears = state.stats.difficultyClears || {};
       if (state.settings && state.settings.difficulty) {
@@ -950,6 +967,8 @@ ABYSS.Logic = (function () {
 if (typeof module !== "undefined" && module.exports) {
   module.exports = { ABYSS: ABYSS };
 }
+
+
 
 
 

@@ -92,6 +92,7 @@ ABYSS.UI = (function () {
         case "questStart": txt = "📋 " + T("quest_start") + "：" + L.name(D.QUESTS.filter(function (q) { return q.id === ev.quest; })[0]); cls = "log-gold"; break;
         case "questAbandon": txt = "📋 " + T("quest_abandon") + "：" + L.name(D.QUESTS.filter(function (q) { return q.id === ev.quest; })[0]); break;
         case "charge": txt = "💢 " + L.name(D.enemies[ev.enemy]) + " " + T("charging") + "！"; cls = "log-bad"; ABYSS.Audio.boss(); break;
+        case "forged": txt = "⚒ " + T("forge_up", { n: L.name(D.items[ev.item]), l: ev.level }); cls = "log-gold"; ABYSS.Audio.item(); break;
         case "bossPhase": {
           txt = "🌋 " + L.name(D.enemies[ev.enemy]) + " " + T("boss_enraged") + "！";
           cls = "log-bad";
@@ -781,6 +782,27 @@ ABYSS.UI = (function () {
       }
       case "blacksmith": {
         var smithStock = ["rune_power", "rune_guard", "rune_wind", "phoenix"];
+        /* enchant: strengthen currently equipped gear */
+        var enchSlot = ["weapon", "armor", "trinket"].find(function (sl) { return state.player.equipment[sl]; });
+        var enchId = enchSlot ? state.player.equipment[enchSlot] : null;
+        var enchLvl = enchId ? Logic.forgeLevel(state, enchId) : 0;
+        if (enchId && enchLvl < 5) {
+          var enchCost = 100 * (enchLvl + 1) * 2;
+          var canEnch = state.player.gold >= enchCost;
+          choices.push({
+            text: "⚒ " + T("forge_enchant", { n: L.name(D.items[enchId]), l: enchLvl + 1, c: enchCost }),
+            can: canEnch,
+            fn: function () {
+              if (!canEnch && state.player.gold < enchCost) { pushLog(T("no_gold"), "log-bad"); return; }
+              state.player.gold -= enchCost;
+              var evs = [];
+              Logic.forgeUpgrade(state, enchId, evs);
+              evs.push({ type: "eventText", text: T("forge_enchant_done", { n: L.name(D.items[enchId]), l: Logic.forgeLevel(state, enchId) }) });
+              ABYSS.Audio.item();
+              r.eventDone = true; consumeEvents(evs); saveAndRender();
+            }
+          });
+        }
         var gearPool = genStock().filter(function (id) { return D.items[id] && D.items[id].type !== "consumable"; });
         var gearItem = gearPool.length ? gearPool[Math.floor(Math.random() * gearPool.length)] : "chainmail";
         /* repair service */
@@ -1838,6 +1860,8 @@ ABYSS.UI = (function () {
 if (typeof module !== "undefined" && module.exports) {
   module.exports = { ABYSS: ABYSS };
 }
+
+
 
 
 

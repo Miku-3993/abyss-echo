@@ -1,4 +1,4 @@
-﻿/*
+/*
  * Abyss Echo - unit tests (node:test, zero deps)
  * Run: node --test test/
  */
@@ -514,6 +514,23 @@ test("abyss clear achievement tracks difficulty clears", () => {
   const evs2 = [];
   Logic.checkAchievements(s2, evs2);
   assert.ok(!evs2.some((e) => e.type === "achievement" && e.id === "abyss_clear"));
+});
+
+test("forge upgrades boost equipped stats by 10% per level", () => {
+  const s = Logic.freshState();
+  s.player.equipment.weapon = "axe_rune";
+  const base = Logic.equipped(s).atk;
+  Logic.forgeUpgrade(s, "axe_rune", []);
+  const once = Logic.equipped(s).atk;
+  Logic.forgeUpgrade(s, "axe_rune", []);
+  const boosted = Logic.equipped(s).atk;
+  assert.equal(once, Math.floor(D.items.axe_rune.atk * 1.1), "+1 gives 10%");
+  assert.equal(boosted, Math.floor(Math.floor(D.items.axe_rune.atk * 1.1) * 1.1), "+2 stacks");
+  assert.ok(boosted > base, "forged weapon stronger");
+  /* max level 5 */
+  for (let i = 2; i < 6; i++) Logic.forgeUpgrade(s, "axe_rune", []);
+  assert.equal(Logic.forgeLevel(s, "axe_rune"), 5);
+  assert.equal(Logic.forgeUpgrade(s, "axe_rune", []), false, "cannot exceed +5");
 });
 
 test("legacy saves normalize cleanly", () => {

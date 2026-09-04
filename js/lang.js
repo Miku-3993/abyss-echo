@@ -229,7 +229,10 @@ ABYSS.LANG = {
     "daily_streak": { zh: "最佳连续挑战 {n} 天", en: "Best daily streak {n} days" },
     "daily_streak_now": { zh: "当前 {n} 天", en: "currently {n}" },
     "vs_equipped": { zh: "对比已装备", en: "vs equipped" },
-    "quest_completed": { zh: "已完成 {n} 个委托", en: "{n} quests completed" }
+    "quest_completed": { zh: "已完成 {n} 个委托", en: "{n} quests completed" },
+    "forge_enchant": { zh: "强化 {n} 至 +{l}（{c} 金币）", en: "Forge {n} to +{l} ({c} gold)" },
+    "forge_enchant_done": { zh: "铁匠的锤声落下，{n} 升至 +{l}！", en: "The hammer falls: {n} is now +{l}!" },
+    "forge_up": { zh: "{n} 强化至 +{l}", en: "{n} forged to +{l}" }
   }
 };
 
@@ -260,6 +263,7 @@ ABYSS.LANG.desc = function (entry) {
 if (typeof module !== "undefined" && module.exports) {
   module.exports = { ABYSS: ABYSS };
 }
+
 
 
 
