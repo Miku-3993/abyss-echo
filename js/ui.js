@@ -214,6 +214,17 @@ ABYSS.UI = (function () {
         qEl.style.display = "none";
       }
     }
+    /* truth fragment progress */
+    var fEl = $("hud-frags");
+    if (fEl) {
+      var fn = (state.stats.fragments || []).length;
+      if (fn > 0) {
+        $("hud-frags-n").textContent = fn;
+        fEl.style.display = "";
+      } else {
+        fEl.style.display = "none";
+      }
+    }
   }
 
   function renderSaveNotify() {
@@ -1285,6 +1296,18 @@ ABYSS.UI = (function () {
         }
       });
       btns.appendChild(resetBtn);
+      var aboutBtn = mkButton("ℹ " + T("about"), "btn", function () {
+        openModal(T("about"), function (c2) {
+          var box = document.createElement("div");
+          box.innerHTML = "<p class='help-line'><b>🕳 " + T("game_title") + "</b> v" + D.VERSION + "</p>" +
+            "<p class='help-line'>" + T("game_subtitle") + "</p>" +
+            "<p class='help-line'>" + T("about_desc") + "</p>" +
+            "<p class='help-line'><a href='https://github.com/Miku-3993/abyss-echo' target='_blank'>GitHub</a> · <a href='https://miku-3993.github.io/abyss-echo/' target='_blank'>Play</a> · <a href='https://github.com/Miku-3993/abyss-echo/blob/main/docs/GAMEPLAY.md' target='_blank'>" + T("guide") + "</a></p>";
+          c2.appendChild(box);
+          c2.appendChild(mkButton(T("back"), "btn", closeModal));
+        });
+      });
+      btns.appendChild(aboutBtn);
       c.appendChild(btns);
     });
   }

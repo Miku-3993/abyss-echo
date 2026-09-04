@@ -195,7 +195,10 @@ ABYSS.LANG = {
     "combat_summary": { zh: "战斗总结", en: "Combat Summary" },
     "turns": { zh: "{n} 回合", en: "{n} turns" },
     "dmg_dealt": { zh: "输出 {n}", en: "dealt {n}" },
-    "dmg_taken": { zh: "承伤 {n}", en: "taken {n}" }
+    "dmg_taken": { zh: "承伤 {n}", en: "taken {n}" },
+    "about": { zh: "关于", en: "About" },
+    "about_desc": { zh: "零依赖文字地牢冒险。回合制战斗、5 位 Boss、转生、每日挑战、无尽模式、图鉴与委托。数据驱动的平衡设计（3000 局模拟，通关率 23.6%）。", en: "A zero-dependency text dungeon RPG: turn-based combat, 5 bosses, rebirth, daily challenge, endless mode, codex & quests. Balance tuned by 3000-run simulation (23.6% win rate)." },
+    "guide": { zh: "玩法指南", en: "Gameplay Guide" }
   }
 };
 
