@@ -246,7 +246,7 @@ ABYSS.UI = (function () {
     }
     var title = document.createElement("div");
     title.className = "scene-title";
-    title.textContent = T("floor", { n: r.depth });
+    title.textContent = T("floor", { n: r.depth }) + (r.endless && state.stats.bestEndless > r.depth ? "  ·  🎯 " + T("best_floor", { n: state.stats.bestEndless }) : "");
     box.appendChild(title);
 
     /* room already resolved this floor: show combat summary, more search or descent */
@@ -1125,6 +1125,10 @@ ABYSS.UI = (function () {
           lines.push("▸ " + h.date + " · " + T("floor", { n: h.depth }) + " · " + T("kills") + " " + h.kills);
         });
       }
+      var daily = Logic.dailySeedModifiers(todayStr());
+      if (daily.picked && daily.picked.length) {
+        lines.push(T("daily_today") + ": " + daily.picked.map(function (m) { return T("daily_today_item", { n: L.name(m), d: L.desc(m) }); }).join(" | "));
+      }
       el.innerHTML = lines.join("<br>");
       el.classList.toggle("visible", lines.length > 0);
     } catch (e) { /* ignore */ }
@@ -1658,6 +1662,8 @@ ABYSS.UI = (function () {
 if (typeof module !== "undefined" && module.exports) {
   module.exports = { ABYSS: ABYSS };
 }
+
+
 
 
 

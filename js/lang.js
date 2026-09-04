@@ -206,7 +206,10 @@ ABYSS.LANG = {
     "ev_field_sword": { zh: "拾起一柄断剑（获得随机武器）", en: "Pick up a broken blade (random weapon)" },
     "ev_field_pouch": { zh: "搜刮尸袋（获得 40-90 金币）", en: "Loot the corpse pouches (40-90 gold)" },
     "ev_field_bury": { zh: "埋葬无名尸骨（获得祝福）", en: "Bury the nameless bones (gain a blessing)" },
-    "ev_field_bless": { zh: "你为无名者合上双眼，一道祝福悄然落下。", en: "You close the stranger's eyes; a quiet blessing settles on you." }
+    "ev_field_bless": { zh: "你为无名者合上双眼，一道祝福悄然落下。", en: "You close the stranger's eyes; a quiet blessing settles on you." },
+    "daily_today": { zh: "☀️ 今日规则", en: "☀️ Today's rules" },
+    "daily_today_item": { zh: "{n}：{d}", en: "{n}: {d}" },
+    "best_floor": { zh: "最佳 {n} 层", en: "Best floor {n}" }
   }
 };
 
