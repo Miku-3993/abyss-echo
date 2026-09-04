@@ -279,6 +279,13 @@ body::after {
   opacity: 0.6;
 }
 .scene-text { margin: 8px 0; color: var(--ink); max-width: 720px; }
+.scene > * { animation: sceneIn 0.28s ease both; }
+@keyframes sceneIn {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.scene > *:nth-child(2) { animation-delay: 0.05s; }
+.scene > *:nth-child(3) { animation-delay: 0.1s; }
 
 /* combat summary card */
 .combat-summary {
@@ -347,6 +354,8 @@ body::after {
   padding: 14px 18px 28px;
   font-size: 13px;
   background:
+    radial-gradient(ellipse 340px 200px at 100% 0%, rgba(64, 46, 128, 0.10), transparent 70%),
+    radial-gradient(ellipse 260px 180px at 0% 100%, rgba(24, 58, 90, 0.10), transparent 70%),
     linear-gradient(180deg, rgba(12, 16, 30, 0.55) 0%, rgba(6, 8, 16, 0.65) 60%, rgba(4, 5, 10, 0.8) 100%);
   border-top: 1px solid rgba(148, 156, 210, 0.14);
 }
@@ -605,3 +614,5 @@ body::after {
   from { transform: translateX(0); opacity: 1; }
   to { transform: translateX(120%); opacity: 0; }
 }
+
+
