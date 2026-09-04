@@ -1,4 +1,4 @@
-# 《深渊回响》玩法指南 / Abyss Echo Gameplay Guide
+﻿# 《深渊回响》玩法指南 / Abyss Echo Gameplay Guide
 
 ## 核心循环 / Core Loop
 
@@ -55,6 +55,7 @@ Each floor offers 2 rooms (combat/event/camp/chest/trap), then you descend. Floo
 ## 常见问题 / Tips
 
 - 金币优先买：大治疗药水 > 守护符文 > 力量符文；Boss 前保持 2 瓶以上药
+- **锻造强化**：铁匠铺可将已装备物品强化至 +5（每级 +10% 属性，费用 200×级 金币；强化随物品绑定，转生保留）
 - 圣水/净化可解虚弱；中毒药水叠加 3 回合伤害可观
 - 精英怪（🌟）：15% 概率，双倍奖励必掉物品；精英猎杀令任务可顺路完成
 - 委托任务的黄金任务是「财富试炼」（金币 400），攒钱时顺路完成

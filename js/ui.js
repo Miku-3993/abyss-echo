@@ -1587,6 +1587,11 @@ ABYSS.UI = (function () {
         var nm = document.createElement("div");
         nm.className = "inv-name";
         nm.textContent = L.name(it);
+        var fl = Logic.forgeLevel(state, id);
+        if (fl > 0) {
+          nm.textContent += "  +" + fl;
+          nm.classList.add("inv-forged");
+        }
         var dd = document.createElement("div");
         dd.className = "inv-desc";
         dd.textContent = L.desc(it);
@@ -1860,6 +1865,7 @@ ABYSS.UI = (function () {
 if (typeof module !== "undefined" && module.exports) {
   module.exports = { ABYSS: ABYSS };
 }
+
 
 
 

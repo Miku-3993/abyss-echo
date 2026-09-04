@@ -1,6 +1,6 @@
 ﻿{
   "name": "abyss-echo",
-  "version": "1.38.0",
+  "version": "1.39.0",
   "description": "深渊回响 / Abyss Echo - a text-based dungeon RPG with turn-based combat, bosses, achievements and a true ending.",
   "main": "index.html",
   "scripts": {
@@ -19,6 +19,7 @@
     "node": ">=18"
   }
 }
+
 
 
 
