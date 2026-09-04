@@ -743,6 +743,16 @@ ABYSS.UI = (function () {
         var qs = state.stats.quests;
         var doneIds = (qs && qs.done) || [];
         var available = D.QUESTS.filter(function (q) { return doneIds.indexOf(q.id) < 0; });
+        if (doneIds.length) {
+          choices.push({
+            text: "🏅 " + T("quest_completed", { n: doneIds.length }) + ": " + doneIds.map(function (id) {
+              var q = D.QUESTS.filter(function (x) { return x.id === id; })[0];
+              return q ? L.name(q) : id;
+            }).join(" / "),
+            can: false,
+            fn: function () {}
+          });
+        }
         if (qs && qs.active) {
           var cur = Logic.questDef(state);
           choices.push({
@@ -1828,6 +1838,7 @@ ABYSS.UI = (function () {
 if (typeof module !== "undefined" && module.exports) {
   module.exports = { ABYSS: ABYSS };
 }
+
 
 
 
