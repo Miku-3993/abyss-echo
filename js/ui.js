@@ -1095,11 +1095,16 @@ ABYSS.UI = (function () {
     if (!sceneContext || !sceneContext.stock) {
       sceneContext = sceneContext || {};
       sceneContext.stock = genStock();
+      sceneContext.marketMult = [0.85, 0.9, 1, 1, 1, 1.1, 1.15][Math.floor(Math.random() * 7)];
     }
     var stock = sceneContext.stock;
+    var mm = sceneContext.marketMult;
+    if (mm !== 1) {
+      pushLog(T("market_today", { n: mm < 1 ? T("market_low") : T("market_high"), p: mm < 1 ? Math.round((1 - mm) * 100) + "%" : Math.round((mm - 1) * 100) + "%" }), mm < 1 ? "log-good" : "log-bad");
+    }
     stock.forEach(function (itemId) {
       var it = D.items[itemId];
-      var price = it.value;
+      var price = Math.round(it.value * mm);
       var canBuy = state.player.gold >= price && state.player.inventory.length < D.INV_LIMIT;
       choices.push({
         text: "🛒 " + L.name(it) + " — " + price + " " + T("gold") + "（" + (it.type === "consumable" ? T("use") : T("equip")) + "）",
@@ -2045,6 +2050,7 @@ ABYSS.UI = (function () {
 if (typeof module !== "undefined" && module.exports) {
   module.exports = { ABYSS: ABYSS };
 }
+
 
 
 
