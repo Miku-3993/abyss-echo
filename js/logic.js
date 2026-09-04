@@ -1,4 +1,4 @@
-/*
+﻿/*
  * Abyss Echo - core game logic (pure, testable, no DOM)
  * All functions operate on a plain state object and return event lists.
  */
@@ -544,6 +544,11 @@ ABYSS.Logic = (function () {
       if (echo && rng() < 0.8) {
         out.items.push(table.items[Math.floor(rng() * table.items.length)]);
       }
+      /* echo bosses may drop exclusive relics */
+      if (echo && rng() < 0.4) {
+        var relics = ["relic_echo", "relic_shroud", "relic_crown"];
+        out.items.push(relics[Math.floor(rng() * relics.length)]);
+      }
     } else if (rng() < 0.32) {
       var table2 = LOOT_TABLE.filter(function (l) { return l.tier.indexOf(e.tier) >= 0; })[0] || LOOT_TABLE[0];
       out.items.push(table2.items[Math.floor(rng() * table2.items.length)]);
@@ -702,7 +707,13 @@ ABYSS.Logic = (function () {
       endless_15: function () { return (st.bestEndless || 0) >= 15; },
       endless_30: function () { return (st.bestEndless || 0) >= 30; },
       echo_killer: function () { return (st.echoKills || 0) >= 3; },
-      rune_user: function () { return (st.runeUses || 0) >= 5; }
+      rune_user: function () { return (st.runeUses || 0) >= 5; },
+      echo_collector: function () {
+        var relics = ["relic_echo", "relic_shroud", "relic_crown"];
+        var got = 0;
+        for (var i = 0; i < relics.length; i++) if (st.collected && st.collected[relics[i]]) got += 1;
+        return got >= 3;
+      }
     };
     for (var id in defs) {
       if (list.indexOf(id) < 0 && defs[id]()) {
@@ -881,6 +892,8 @@ ABYSS.Logic = (function () {
 if (typeof module !== "undefined" && module.exports) {
   module.exports = { ABYSS: ABYSS };
 }
+
+
 
 
 

@@ -192,6 +192,12 @@ ABYSS.DATA = {
                    desc: { zh: "战斗中使用：攻击 +50%、防御 -30%，持续 3 回合。", en: "In combat: +50% attack, -30% defense for 3 turns." } },
     rune_guard:  { name: { zh: "守护符文", en: "Rune of Warding" },    type: "consumable", rune: { buff: "ward", dur: 2 }, value: 55,
                    desc: { zh: "战斗中使用：防御 +100%，持续 2 回合。", en: "In combat: +100% defense for 2 turns." } },
+    relic_echo: { name: { zh: "回声余响", en: "Echo Resonance" },     type: "weapon", slot: "weapon", atk: 37, luck: 4, value: 1200,
+                   desc: { zh: "斩击时发出深渊的回音，只有回响猎手才能听见。", en: "Each strike rings with the abyss' echo — audible only to echo hunters." } },
+    relic_shroud: { name: { zh: "回声裹尸布", en: "Shroud of Echoes" }, type: "armor", slot: "armor", def: 30, spd: 2, value: 1100,
+                   desc: { zh: "由回响编织的披风，披上它便与深渊同频。", en: "Woven from echoes; wearing it, you resonate with the abyss." } },
+    relic_crown: { name: { zh: "回响王冠", en: "Crown of Echoes" },     type: "trinket", slot: "trinket", atk: 9, luck: 7, hp: 30, value: 1300,
+                   desc: { zh: "戴上它的人会梦见深渊的第一声啼哭。", en: "Its wearer dreams of the abyss' first cry." } },
     rune_wind:   { name: { zh: "疾风符文", en: "Rune of Wind" },       type: "consumable", rune: { status: "haste", dur: 3 }, value: 65,
                    desc: { zh: "战斗中使用：速度 +6、闪避提升，持续 3 回合。", en: "In combat: +6 speed and better evasion for 3 turns." } }
   },
@@ -284,7 +290,8 @@ ABYSS.DATA = {
     endless_15:    { name: { zh: "无尽者", en: "Endless One" },            desc: { zh: "在无尽深渊到达第 15 层", en: "Reach floor 15 in the endless abyss" } },
     endless_30:    { name: { zh: "深渊化身", en: "Abyss Incarnate" },      desc: { zh: "在无尽深渊到达第 30 层", en: "Reach floor 30 in the endless abyss" } },
     echo_killer:   { name: { zh: "回响猎手", en: "Echo Hunter" },          desc: { zh: "击败 3 个回响 Boss", en: "Slay 3 echo bosses" } },
-    rune_user:     { name: { zh: "符文觉醒", en: "Rune Awakened" },        desc: { zh: "使用 5 个战斗符文", en: "Use 5 combat runes" } }
+    rune_user:     { name: { zh: "符文觉醒", en: "Rune Awakened" },        desc: { zh: "使用 5 个战斗符文", en: "Use 5 combat runes" } },
+    echo_collector:  { name: { zh: "回响收藏家", en: "Echo Collector" },        desc: { zh: "集齐 3 件回声遗物", en: "Collect all 3 echo relics" } }
   },
 
   /* ---------- ENDINGS ---------- */
@@ -309,6 +316,9 @@ ABYSS.DATA = {
 if (typeof module !== "undefined" && module.exports) {
   module.exports = { ABYSS: ABYSS };
 }
+
+
+
 
 
 

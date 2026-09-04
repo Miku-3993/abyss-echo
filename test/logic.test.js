@@ -251,7 +251,7 @@ test("all data references are valid", () => {
   }
   /* every event id exists; every fragment source is reachable */
   assert.equal(Object.keys(D.events).length, 16);
-  assert.equal(Object.keys(D.achievements).length, 29);
+  assert.equal(Object.keys(D.achievements).length, 30);
   assert.equal(Object.keys(D.endings).length, 2);
   assert.equal(Object.keys(D.fragments).length, 3);
   assert.equal(D.QUESTS.length, 5);
@@ -394,6 +394,34 @@ test("combat summary tracks damage and heals", () => {
   s2.player.inventory = ["potion_small"];
   Logic.resolveTurn(s2, { type: "item", itemId: "potion_small" }, seqRng([0.5, 0.6]));
   assert.ok(s2.run.combat.stats.heals >= 35, "healing tracked in combat stats");
+});
+
+test("echo bosses can drop exclusive relics", () => {
+  const s = Logic.freshState();
+  let seen = {};
+  for (let i = 0; i < 120; i++) {
+    const rng = Logic.mulberry32(i + 5);
+    const drops = Logic.rollDrops(s, "boss_steel", rng, false, true);
+    drops.items.forEach(function (id) {
+      if (id.indexOf("relic_") === 0) seen[id] = true;
+    });
+    if (Object.keys(seen).length >= 3) break;
+  }
+  assert.ok(Object.keys(seen).length >= 1, "relics drop from echo bosses");
+  /* normal (non-echo) bosses never drop relics */
+  const normal = Logic.rollDrops(s, "boss_steel", Logic.mulberry32(1), false, false);
+  assert.ok(normal.items.every(function (id) { return id.indexOf("relic_") !== 0; }));
+});
+
+test("echo collector achievement requires all three relics", () => {
+  const s = Logic.freshState();
+  s.stats.collected = { relic_echo: true, relic_shroud: true };
+  const evs = [];
+  Logic.checkAchievements(s, evs);
+  assert.ok(!evs.some((e) => e.type === "achievement" && e.id === "echo_collector"));
+  s.stats.collected.relic_crown = true;
+  Logic.checkAchievements(s, evs);
+  assert.ok(evs.some((e) => e.type === "achievement" && e.id === "echo_collector"));
 });
 
 test("legacy saves normalize cleanly", () => {
