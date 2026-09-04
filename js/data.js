@@ -299,7 +299,9 @@ ABYSS.DATA = {
     echo_killer:   { name: { zh: "回响猎手", en: "Echo Hunter" },          desc: { zh: "击败 3 个回响 Boss", en: "Slay 3 echo bosses" } },
     rune_user:     { name: { zh: "符文觉醒", en: "Rune Awakened" },        desc: { zh: "使用 5 个战斗符文", en: "Use 5 combat runes" } },
     echo_collector:  { name: { zh: "回响收藏家", en: "Echo Collector" },        desc: { zh: "集齐 3 件回声遗物", en: "Collect all 3 echo relics" } },
-    abyss_clear:   { name: { zh: "深渊征服者", en: "Abyss Conqueror" },      desc: { zh: "在深渊难度下击败深渊之主", en: "Defeat the Abyss Lord on Abyss difficulty" } }
+    abyss_clear:   { name: { zh: "深渊征服者", en: "Abyss Conqueror" },      desc: { zh: "在深渊难度下击败深渊之主", en: "Defeat the Abyss Lord on Abyss difficulty" } },
+    endless_50:    { name: { zh: "回响行者", en: "Echo Walker" },       desc: { zh: "在无尽深渊到达第 50 层", en: "Reach floor 50 in the endless abyss" } },
+    endless_100:   { name: { zh: "深渊之核", en: "Core of the Abyss" },  desc: { zh: "在无尽深渊到达第 100 层", en: "Reach floor 100 in the endless abyss" } }
   },
 
   /* ---------- ENDINGS ---------- */
@@ -324,6 +326,7 @@ ABYSS.DATA = {
 if (typeof module !== "undefined" && module.exports) {
   module.exports = { ABYSS: ABYSS };
 }
+
 
 
 

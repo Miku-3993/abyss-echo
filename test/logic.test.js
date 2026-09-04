@@ -1,4 +1,4 @@
-/*
+﻿/*
  * Abyss Echo - unit tests (node:test, zero deps)
  * Run: node --test test/
  */
@@ -251,7 +251,7 @@ test("all data references are valid", () => {
   }
   /* every event id exists; every fragment source is reachable */
   assert.equal(Object.keys(D.events).length, 17);
-  assert.equal(Object.keys(D.achievements).length, 31);
+  assert.equal(Object.keys(D.achievements).length, 33);
   assert.equal(Object.keys(D.endings).length, 2);
   assert.equal(Object.keys(D.fragments).length, 3);
   assert.equal(D.QUESTS.length, 5);

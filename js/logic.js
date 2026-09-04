@@ -735,6 +735,8 @@ ABYSS.Logic = (function () {
       echo_killer: function () { return (st.echoKills || 0) >= 3; },
       rune_user: function () { return (st.runeUses || 0) >= 5; },
       abyss_clear: function () { return st.difficultyClears && st.difficultyClears.abyss; },
+      endless_50: function () { return (st.bestEndless || 0) >= 50; },
+      endless_100: function () { return (st.bestEndless || 0) >= 100; },
       echo_collector: function () {
         var relics = ["relic_echo", "relic_shroud", "relic_crown"];
         var got = 0;
@@ -948,6 +950,7 @@ ABYSS.Logic = (function () {
 if (typeof module !== "undefined" && module.exports) {
   module.exports = { ABYSS: ABYSS };
 }
+
 
 
 
