@@ -53,6 +53,11 @@ html, body {
 .game-sub { margin-top: 8px; color: var(--dim); letter-spacing: 0.2em; }
 .title-menu { margin-top: 44px; display: flex; flex-direction: column; gap: 14px; align-items: center; }
 .title-flavor { margin-top: 60px; color: var(--purple); opacity: 0.7; font-style: italic; }
+.daily-best {
+  margin-top: 18px; color: var(--teal); font-size: 13px;
+  opacity: 0; transition: opacity 0.3s; letter-spacing: 0.05em;
+}
+.daily-best.visible { opacity: 1; }
 
 @keyframes fadeUp { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: none; } }
 

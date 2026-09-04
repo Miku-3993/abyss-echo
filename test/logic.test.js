@@ -342,6 +342,56 @@ test("codex progress survives prestige", () => {
   assert.deepEqual(fresh.stats.collected, { potion_big: true });
 });
 
+test("daily seed modifiers are deterministic and merge fx", () => {
+  const a = Logic.dailySeedModifiers("2026-09-04");
+  const b = Logic.dailySeedModifiers("2026-09-04");
+  assert.equal(a.picked.length, b.picked.length);
+  assert.deepEqual(a.fx, b.fx);
+  assert.ok(a.picked.length >= 2 && a.picked.length <= 3, "2-3 modifiers");
+  assert.ok(Object.keys(a.fx).length >= 2, "fx merged from all picked modifiers");
+  /* different day -> different seed (almost surely) */
+  const c = Logic.dailySeedModifiers("2026-09-05");
+  assert.notDeepEqual(a.fx, c.fx);
+});
+
+test("daily enemyAtk and enemyAll apply to enemy stats", () => {
+  const s = Logic.freshState();
+  s.run.daily = { fx: { enemyAtk: 1.25, enemyAll: 1.15, enemyHp: 1.3 } };
+  s.run.combat = { enemyId: "rat", enemyHp: Logic.enemyMaxHp(s, "rat", false), enemyStatuses: {}, skillCd: {}, guarding: false };
+  const es = Logic.enemyStats(s);
+  assert.equal(es.atk, Math.floor(Math.floor(D.enemies.rat.atk * 1.15) * 1.25));
+  assert.equal(es.def, Math.floor(D.enemies.rat.def * 1.15));
+  assert.equal(es.maxHp, Math.floor(Math.floor(D.enemies.rat.hp * 1.3) * 1.15));
+});
+
+test("daily gold and healing multipliers apply", () => {
+  const s = Logic.freshState();
+  s.run.daily = { fx: { goldMult: 0.7, healMult: 0.5 } };
+  const drops = Logic.rollDrops(s, "rat", seqRng([0.9]));
+  assert.ok(Math.abs(drops.goldMult - 0.7) < 0.001, "gold mult 0.7, got " + drops.goldMult);
+  s.player.hp = 10;
+  const evs = [];
+  Logic.useItem(s, "potion_small", evs, seqRng([0.5]));
+  assert.equal(s.player.hp, 25, "30 heal halved to 15");
+});
+
+test("daily elite chance applies to room generation", () => {
+  const s = Logic.freshState();
+  s.run.daily = { fx: { eliteChance: 2 } };
+  s.run.depth = 2;
+  let elites = 0, combats = 0;
+  for (let i = 0; i < 300; i++) {
+    const rng = Logic.mulberry32(i + 31);
+    const room = Logic.generateRoom(s, rng);
+    if (room.type === "combat") {
+      combats += 1;
+      if (room.elite) elites += 1;
+    }
+  }
+  assert.ok(combats > 50, "enough combat rooms sampled");
+  assert.ok(elites > 5, "elites should be common with 2x chance, got " + elites);
+});
+
 test("elite enemies get 1.5x stats", () => {
   const s = Logic.freshState();
   s.run.combat = { enemyId: "rat", enemyHp: Math.floor(D.enemies.rat.hp * 1.5), elite: true, enemyStatuses: {}, skillCd: {}, guarding: false };

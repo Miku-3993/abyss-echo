@@ -4,7 +4,15 @@
 var ABYSS = window.ABYSS = window.ABYSS || {};
 
 ABYSS.Save = (function () {
-  var KEY = "abyss-echo-save-v1";
+  var slot = "main";
+  var KEY = "abyss-echo-save-main";
+
+  function setSlot(name) {
+    slot = name || "main";
+    KEY = "abyss-echo-save-" + slot;
+  }
+
+  function getSlot() { return slot; }
 
   function save(state) {
     try {
@@ -47,7 +55,7 @@ ABYSS.Save = (function () {
     }
   }
 
-  return { save: save, load: load, clear: clear, exportCode: exportCode, importCode: importCode };
+  return { save: save, load: load, clear: clear, exportCode: exportCode, importCode: importCode, setSlot: setSlot, getSlot: getSlot };
 })();
 
 /* CommonJS export for node tests */

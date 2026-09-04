@@ -204,6 +204,21 @@ ABYSS.UI = (function () {
     title.textContent = T("floor", { n: r.depth });
     box.appendChild(title);
 
+    /* room already resolved this floor: offer descent */
+    if (r.room && r.eventDone) {
+      box.appendChild(p("这间房间已搜刮殆尽，深渊在更深处等待。"));
+      var btnD = mkButton("⬇ " + T("descend"), "btn-main", function () {
+        Logic.descend(state, rng);
+        if (state.run.daily && state.run.daily.deepHeal) {
+          var ps = Logic.playerStats(state);
+          state.player.hp = Math.min(ps.hp, state.player.hp + Math.floor(ps.hp * state.run.daily.deepHeal));
+        }
+        saveAndRender();
+      });
+      box.appendChild(btnD);
+      return;
+    }
+
     if (r.combat) { renderCombat(box); return; }
     if (!r.room) {
       var btn = mkButton(T("search"), "btn-main", function () {
@@ -218,7 +233,7 @@ ABYSS.UI = (function () {
     }
     var room = r.room;
     if (room.type === "combat" || room.type === "boss") {
-      startCombat(room.enemyId, room.elite);
+      if (!r.combat) startCombat(room.enemyId, room.elite);
       renderCombat(box);
       return;
     }
@@ -671,6 +686,11 @@ ABYSS.UI = (function () {
   function showDeath() {
     var box = $("scene");
     box.innerHTML = "";
+    if (state.run.daily) {
+      recordDailyBest();
+      ABYSS.Save.setSlot("main");
+      state.run.daily = null;
+    }
     var t = document.createElement("div");
     t.className = "scene-title gameover";
     t.textContent = T("game_over");
@@ -695,6 +715,11 @@ ABYSS.UI = (function () {
     var box = $("scene");
     box.innerHTML = "";
     var en = D.endings[endingId];
+    if (state.run.daily) {
+      recordDailyBest();
+      ABYSS.Save.setSlot("main");
+      state.run.daily = null;
+    }
     state.stats.endings = state.stats.endings || [];
     if (state.stats.endings.indexOf(endingId) < 0) state.stats.endings.push(endingId);
     ABYSS.Audio.ending();
@@ -796,6 +821,7 @@ ABYSS.UI = (function () {
     $("title-screen").classList.add("visible");
     $("game-screen").classList.remove("visible");
     ABYSS.Audio.stopMusic();
+    showDailyBest();
   }
 
   function autostart() {
@@ -830,11 +856,57 @@ ABYSS.UI = (function () {
     $("game-screen").classList.add("visible");
   }
 
+  function todayStr() {
+    var d = new Date();
+    return d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0") + "-" + String(d.getDate()).padStart(2, "0");
+  }
+
+  function recordDailyBest() {
+    try {
+      var cur = { date: todayStr(), depth: state.stats.bestDepth, kills: state.stats.totalKills };
+      var prev = JSON.parse(localStorage.getItem("abyss-echo-daily-best") || "null");
+      if (!prev || prev.date !== cur.date || cur.depth > prev.depth || (cur.depth === prev.depth && cur.kills > prev.kills)) {
+        localStorage.setItem("abyss-echo-daily-best", JSON.stringify(cur));
+      }
+    } catch (e) { /* ignore */ }
+  }
+
+  function showDailyBest() {
+    var el = $("daily-best");
+    if (!el) return;
+    try {
+      var best = JSON.parse(localStorage.getItem("abyss-echo-daily-best") || "null");
+      if (best && best.date === todayStr()) {
+        el.textContent = "☀️ " + T("daily_best", { n: best.depth, k: best.kills });
+        el.classList.add("visible");
+      } else {
+        el.classList.remove("visible");
+      }
+    } catch (e) { /* ignore */ }
+  }
+
+  function startDaily() {
+    var daily = Logic.dailySeedModifiers(todayStr());
+    var msg = T("daily_enter") + "\n" + daily.picked.map(function (m) { return "· " + L.name(m) + "：" + L.desc(m); }).join("\n") + "\n\n" + T("daily_rules");
+    if (!confirm(msg)) return;
+    ABYSS.Save.setSlot("daily");
+    state = Logic.freshState();
+    state.settings = defaultSettings();
+    ABYSS.LANG.current = state.settings.lang;
+    state.run.daily = { fx: daily.fx, mods: daily.picked.map(function (m) { return m.id; }) };
+    hideTitle();
+    newRun();
+    var intro = ["☀️ " + L.name(D.DAILY) + "！"];
+    daily.picked.forEach(function (m) { intro.push("· " + L.name(m) + "：" + L.desc(m)); });
+    intro.forEach(function (t) { pushLog(t, "log-gold"); });
+  }
+
   function bindGlobalUI() {
     $("btn-new").addEventListener("click", function () {
       if (ABYSS.Save.load()) {
         if (!confirm(T("reset_confirm"))) return;
       }
+      ABYSS.Save.setSlot("main");
       ABYSS.Save.clear();
       state = Logic.freshState();
       state.settings = defaultSettings();
@@ -842,7 +914,9 @@ ABYSS.UI = (function () {
       newRun();
       hideTitle();
     });
+    $("btn-daily").addEventListener("click", startDaily);
     $("btn-continue").addEventListener("click", function () {
+      ABYSS.Save.setSlot("main");
       var saved = ABYSS.Save.load();
       if (!saved) {
         pushLog("没有找到存档，开始新的旅程。");

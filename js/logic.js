@@ -103,6 +103,9 @@ ABYSS.Logic = (function () {
     if (elite) maxHp = Math.floor(maxHp * 1.5);
     var pg = state.stats.prestige || 0;
     if (pg > 0) maxHp = Math.floor(maxHp * (1 + 0.03 * pg));
+    var fx = dailyFx(state);
+    if (fx.enemyHp) maxHp = Math.floor(maxHp * fx.enemyHp);
+    if (fx.enemyAll) maxHp = Math.floor(maxHp * fx.enemyAll);
     return maxHp;
   }
 
@@ -123,6 +126,15 @@ ABYSS.Logic = (function () {
       atk = Math.floor(atk * factor);
       def = Math.floor(def * factor);
     }
+    /* daily challenge modifiers */
+    var fx = dailyFx(state);
+    if (fx.enemyAll) {
+      atk = Math.floor(atk * fx.enemyAll);
+      def = Math.floor(def * fx.enemyAll);
+      spd = Math.floor(spd * fx.enemyAll);
+    }
+    if (fx.enemyAtk) atk = Math.floor(atk * fx.enemyAtk);
+    if (fx.enemyHp && c.enemyHp) { /* hp handled via maxHp; keep current hp ratio sane */ }
     var m = statusMods(c.enemyStatuses || {}, "enemy");
     atk = Math.max(1, Math.floor(atk * (1 + m.atk)));
     def = Math.max(0, Math.floor(def * (1 + m.def)));
@@ -187,6 +199,7 @@ ABYSS.Logic = (function () {
       if (fleeOk) {
         events.push({ type: "flee", ok: true });
         state.run.combat = null;
+        state.run.eventDone = true;
         return events;
       }
       events.push({ type: "flee", ok: false });
@@ -229,6 +242,8 @@ ABYSS.Logic = (function () {
         }
         if (sk.drain && c.enemyHp > 0) {
           var healed = Math.max(1, Math.floor(r.dmg * sk.drain));
+          var fxH = dailyFx(state);
+          if (fxH.healMult) healed = Math.max(0, Math.floor(healed * fxH.healMult));
           p.hp = Math.min(ps.hp, p.hp + healed);
           events.push({ type: "drain", amount: healed });
         }
@@ -343,7 +358,9 @@ ABYSS.Logic = (function () {
     if (it.type !== "consumable" || idx < 0) return;
     if (it.heal) {
       var ps = playerStats(state);
-      var healed = Math.min(ps.hp - p.hp, it.heal);
+      var fx = dailyFx(state);
+      var amt = fx.healMult ? Math.floor(it.heal * fx.healMult) : it.heal;
+      var healed = Math.min(ps.hp - p.hp, amt);
       p.hp += healed;
       events.push({ type: "heal", amount: Math.max(0, healed), item: itemId });
     }
@@ -425,8 +442,10 @@ ABYSS.Logic = (function () {
   function rollDrops(state, enemyId, rng, elite) {
     var e = D.enemies[enemyId], out = { items: [], goldMult: 1 };
     var eq = equipped(state);
+    /* daily challenge modifiers */
+    var fx = dailyFx(state);
     var prestigeGold = 1 + (D.PRESTIGE.goldPerLvl * (state.stats.prestige || 0));
-    out.goldMult = (eq.goldMult || 1) * prestigeGold;
+    out.goldMult = (eq.goldMult || 1) * prestigeGold * (fx.goldMult || 1);
     if (e.boss) {
       /* boss guaranteed drop from its tier */
       var t = Math.min(4, e.tier + 1);
@@ -468,6 +487,32 @@ ABYSS.Logic = (function () {
 
   var ELITE_CHANCE = 0.15;
 
+  /* ---------- daily challenge ---------- */
+  function dailySeedModifiers(dateStr) {
+    var h = 5381;
+    for (var i = 0; i < dateStr.length; i++) {
+      h = ((h * 33) ^ dateStr.charCodeAt(i)) >>> 0;
+    }
+    var rng = mulberry32(h);
+    var pool = D.DAILY.modifiers.slice();
+    var count = 2 + (rng() < 0.35 ? 1 : 0);
+    var picked = [];
+    while (picked.length < count && pool.length > 0) {
+      var idx = Math.floor(rng() * pool.length);
+      picked.push(pool[idx]);
+      pool.splice(idx, 1);
+    }
+    var fx = {};
+    picked.forEach(function (m) {
+      for (var k in m.apply) fx[k] = m.apply[k];
+    });
+    return { picked: picked, fx: fx, date: dateStr };
+  }
+
+  function dailyFx(state) {
+    return (state.run.daily && state.run.daily.fx) || {};
+  }
+
   function generateRoom(state, rng) {
     rng = rng || Math.random;
     var depth = state.run.depth;
@@ -481,7 +526,8 @@ ABYSS.Logic = (function () {
     if (type === "combat" || type === "boss") {
       room.enemyId = pickEnemy(state, rng, type === "boss");
       /* elites only spawn on normal combat, never bosses */
-      room.elite = type === "combat" && rng() < ELITE_CHANCE;
+      var fx = dailyFx(state);
+      room.elite = type === "combat" && rng() < ELITE_CHANCE * (fx.eliteChance || 1);
     }
     return room;
   }
@@ -512,8 +558,11 @@ ABYSS.Logic = (function () {
 
   function makeCamp(state, events) {
     var ps = playerStats(state);
-    state.player.hp = Math.min(ps.hp, state.player.hp + Math.floor(ps.hp * 0.4));
-    state.player.mp = Math.min(ps.mp, state.player.mp + Math.floor(ps.mp * 0.5));
+    var fx = dailyFx(state);
+    var healAmt = Math.floor(ps.hp * 0.4 * (fx.healMult || 1));
+    var manaAmt = Math.floor(ps.mp * 0.5);
+    state.player.hp = Math.min(ps.hp, state.player.hp + healAmt);
+    state.player.mp = Math.min(ps.mp, state.player.mp + manaAmt);
     events.push({ type: "camp" });
     state.run.eventDone = true;
     return events;
@@ -615,6 +664,7 @@ ABYSS.Logic = (function () {
 
   return {
     mulberry32: mulberry32,
+    dailySeedModifiers: dailySeedModifiers,
     freshState: freshState,
     xpNeeded: xpNeeded,
     playerStats: playerStats,

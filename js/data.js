@@ -5,8 +5,20 @@
 var ABYSS = window.ABYSS = window.ABYSS || {};
 
 ABYSS.DATA = {
-  VERSION: "1.4.0",
+  VERSION: "1.5.0",
   MAX_DEPTH: 12,
+  DAILY: {
+    name: { zh: "每日挑战", en: "Daily Challenge" },
+    modifiers: [
+      { id: "fury",    name: { zh: "狂怒之日", en: "Day of Fury" },      desc: { zh: "敌人攻击 +25%", en: "Enemies +25% ATK" },      apply: { enemyAtk: 1.25 } },
+      { id: "bulwark", name: { zh: "铜墙之日", en: "Day of Bulwarks" },  desc: { zh: "敌人生命 +30%", en: "Enemies +30% HP" },       apply: { enemyHp: 1.3 } },
+      { id: "poor",    name: { zh: "贫瘠之日", en: "Day of Poverty" },   desc: { zh: "金币收益 -30%", en: "-30% gold income" },    apply: { goldMult: 0.7 } },
+      { id: "wounds",  name: { zh: "沉疴之日", en: "Day of Wounds" },    desc: { zh: "治疗量 -50%", en: "-50% healing" },          apply: { healMult: 0.5 } },
+      { id: "hunt",    name: { zh: "狩猎之日", en: "Day of the Hunt" },  desc: { zh: "精英怪出现率 ×2", en: "2x elite spawns" },   apply: { eliteChance: 2 } },
+      { id: "growth",  name: { zh: "苏醒之日", en: "Day of Rebirth" },   desc: { zh: "深入时恢复 30% 生命", en: "Heal 30% on descent" }, apply: { deepHeal: 0.3 } },
+      { id: "masters", name: { zh: "大师之日", en: "Day of Masters" },   desc: { zh: "敌人全属性 +15%", en: "Enemies +15% all stats" }, apply: { enemyAll: 1.15 } }
+    ]
+  },
   PRESTIGE: {
     name: { zh: "深渊刻印", en: "Abyss Mark" },
     atkPerLvl: 0.04, defPerLvl: 0.04, spdPerLvl: 0.04, goldPerLvl: 0.05,
