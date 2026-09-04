@@ -564,7 +564,7 @@ ABYSS.UI = (function () {
     if (depth <= 3) pool = ["sword_rust", "bow_hunter", "cloth", "leather", "charm_luck", "potion_small", "potion_mana", "potion_antidote"];
     else if (depth <= 6) pool = ["dagger_moon", "axe_rune", "chainmail", "ring_power", "potion_big", "potion_mana", "potion_antidote"];
     else if (depth <= 9) pool = ["blade_shadow", "rune_armor", "amulet_life", "potion_big", "bomb_fire", "holy_water"];
-    else pool = ["spear_dragon", "cloak_shadow", "coin_greed", "potion_big", "bomb_fire", "potion_rage"];
+    else pool = ["spear_dragon", "hammer_void", "scale_dragon", "cloak_shadow", "coin_greed", "potion_big", "bomb_fire", "potion_rage"];
     var stock = [];
     while (stock.length < 4) {
       var pick = pool[Math.floor(Math.random() * pool.length)];

@@ -364,7 +364,7 @@ ABYSS.Logic = (function () {
     { tier: [1], items: ["potion_small", "potion_small", "potion_mana", "sword_rust", "cloth", "charm_luck"], weight: 1 },
     { tier: [2], items: ["potion_big", "bow_hunter", "leather", "dagger_moon", "potion_antidote", "ring_power"], weight: 1 },
     { tier: [3], items: ["potion_big", "axe_rune", "chainmail", "bomb_fire", "holy_water", "potion_rage", "amulet_life"], weight: 1 },
-    { tier: [4], items: ["blade_shadow", "rune_armor", "spear_dragon", "bomb_fire", "potion_big", "coin_greed", "cloak_shadow"], weight: 1 }
+    { tier: [4], items: ["blade_shadow", "rune_armor", "spear_dragon", "hammer_void", "scale_dragon", "bomb_fire", "potion_big", "coin_greed", "cloak_shadow"], weight: 1 }
   ];
 
   function rollDrops(state, enemyId, rng) {
