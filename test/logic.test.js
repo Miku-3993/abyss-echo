@@ -244,9 +244,54 @@ test("all data references are valid", () => {
   }
   /* every event id exists; every fragment source is reachable */
   assert.equal(Object.keys(D.events).length, 12);
-  assert.equal(Object.keys(D.achievements).length, 22);
+  assert.equal(Object.keys(D.achievements).length, 23);
   assert.equal(Object.keys(D.endings).length, 2);
   assert.equal(Object.keys(D.fragments).length, 3);
+});
+
+test("prestige boosts player stats permanently", () => {
+  const s = Logic.freshState();
+  const base = Logic.playerStats(s);
+  s.stats.prestige = 3;
+  const after = Logic.playerStats(s);
+  assert.equal(after.atk, Math.floor(base.atk * (1 + 0.04 * 3)));
+  assert.equal(after.def, Math.floor(base.def * (1 + 0.04 * 3)));
+  assert.equal(after.spd, Math.floor(base.spd * (1 + 0.04 * 3)));
+});
+
+test("prestige boosts gold income", () => {
+  const s = Logic.freshState();
+  s.stats.prestige = 2;
+  const drops = Logic.rollDrops(s, "rat", seqRng([0.9]));
+  assert.ok(Math.abs(drops.goldMult - 1.1) < 0.001, "expected 1.1 gold mult, got " + drops.goldMult);
+});
+
+test("prestige resets run but keeps permanent progress", () => {
+  const s = Logic.freshState();
+  s.player.level = 7;
+  s.player.gold = 500;
+  s.player.inventory = ["blade_abyss", "potion_big"];
+  s.stats.achievements = ["first_step", "slayer"];
+  s.stats.fragments = ["frag_1", "frag_2"];
+  s.stats.bossesKilled = { boss_grul: true };
+  s.stats.prestige = 2;
+  const fresh = Logic.prestige(s);
+  assert.equal(fresh.stats.prestige, 3);
+  assert.equal(fresh.player.level, 1);
+  assert.equal(fresh.player.gold, 100, "20% gold carried over");
+  assert.deepEqual(fresh.player.inventory, ["potion_small", "potion_small", "potion_mana"], "fresh starter kit only");
+  assert.deepEqual(fresh.stats.achievements, ["first_step", "slayer"]);
+  assert.equal(fresh.stats.fragments.length, 2);
+  assert.deepEqual(fresh.stats.bossesKilled, { boss_grul: true });
+  assert.equal(fresh.run.depth, 1);
+});
+
+test("prestige achievement unlocks after first rebirth", () => {
+  const s = Logic.freshState();
+  s.stats.prestige = 1;
+  const evs = [];
+  Logic.checkAchievements(s, evs);
+  assert.ok(evs.some((e) => e.type === "achievement" && e.id === "prestige_1"));
 });
 
 test("elite enemies get 1.5x stats", () => {

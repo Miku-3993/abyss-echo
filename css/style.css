@@ -78,6 +78,7 @@ html, body {
 .btn-attack { border-color: var(--red); color: var(--red); font-weight: 700; }
 .btn-guard { border-color: var(--teal); color: var(--teal); }
 .btn-flee { border-color: var(--dim); color: var(--dim); }
+.btn-gold { border-color: var(--gold); color: var(--gold); font-weight: 700; }
 .btn-skill { border-color: var(--purple); color: var(--purple); }
 .btn-item { border-color: var(--green); color: var(--green); font-size: 12px; padding: 4px 10px; }
 .btn-choice { text-align: left; width: 100%; margin: 4px 0; }

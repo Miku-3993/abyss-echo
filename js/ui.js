@@ -78,6 +78,7 @@ ABYSS.UI = (function () {
         case "eventText": txt = ev.text; cls = "log-event"; break;
         case "shop": txt = "🛒 " + ev.text; cls = "log-gold"; break;
         case "ending": txt = "🏁 " + ev.text; cls = "log-gold"; break;
+        case "prestige": txt = "🌀 深渊刻印 +" + ev.level + "！你的力量在深渊中回响……"; cls = "log-gold"; break;
         case "boss": txt = "💀 " + ev.text; cls = "log-bad"; break;
         default: txt = ev.text || "";
       }
@@ -143,6 +144,7 @@ ABYSS.UI = (function () {
     $("hud-level").textContent = p.level;
     $("hud-gold").textContent = p.gold;
     $("hud-depth").textContent = state.run.depth;
+    $("hud-prestige").textContent = state.stats.prestige || 0;
     var eq = Logic.equipped(state);
     $("hud-atk").textContent = ps.atk + (eq.atk ? " (+" + eq.atk + ")" : "");
     $("hud-def").textContent = ps.def + (eq.def ? " (+" + eq.def + ")" : "");
@@ -679,13 +681,28 @@ ABYSS.UI = (function () {
     var evs = [];
     Logic.checkAchievements(state, evs);
     if (evs.length) consumeEvents(evs);
-    box.appendChild(mkButton("🖋 " + T("restart"), "btn-main", function () {
+    var actions = document.createElement("div");
+    actions.className = "actions";
+    actions.appendChild(mkButton("🖋 " + T("restart"), "btn-main", function () {
       state = Logic.freshState();
       state.settings = defaultSettings();
       ABYSS.LANG.current = state.settings.lang;
       saveNow();
       newRun();
     }));
+    actions.appendChild(mkButton("🌀 " + L.name(D.PRESTIGE) + " +1", "btn-gold", function () {
+      if (!confirm(L.desc(D.PRESTIGE) + " " + T("reset_confirm"))) return;
+      var mark = (state.stats.prestige || 0) + 1;
+      state = Logic.prestige(state);
+      state.settings = defaultSettings();
+      ABYSS.LANG.current = state.settings.lang;
+      var evs2 = [];
+      Logic.checkAchievements(state, evs2);
+      consumeEvents([{ type: "prestige", level: mark }].concat(evs2));
+      saveNow();
+      newRun();
+    }));
+    box.appendChild(actions);
   }
 
   function defaultSettings() {
@@ -752,6 +769,15 @@ ABYSS.UI = (function () {
     state.settings = defaultSettings();
     ABYSS.LANG.current = state.settings.lang;
     newRun();
+  }
+
+  /* preview/e2e hook: force an ending scene (used by screenshot tooling) */
+  function debugShowEnding(endingId) {
+    state.stats.endings = state.stats.endings || [];
+    sceneContext = sceneContext || {};
+    sceneContext.ending = endingId;
+    showScene();
+    renderHUD();
   }
 
   /* preview/e2e hook: force a combat scene (used by screenshot tooling) */
@@ -1060,8 +1086,10 @@ ABYSS.UI = (function () {
         "⛏ 探索：进入房间后搜索，可能遭遇战斗、事件或宝藏。",
         "⚔ 战斗：攻击 / 防御（格挡减伤）/ 技能（消耗魔力）/ 道具 / 逃跑。",
         "✦ 技能冷却：使用后需等待数回合。防御可叠加格挡。",
+        "🌟 精英怪：15% 概率出现，属性更高、双倍奖励，必掉额外战利品。",
         "💀 Boss：第 3/6/9/12 层有 Boss，击败第 12 层 Boss 后开启深渊核心。",
         "💠 真相碎片：祭坛、雕像、深渊之主各藏一枚碎片，集齐可解锁真结局。",
+        "🌀 转生：达成任一结局后可在结局界面转生，获得永久「深渊刻印」（属性 +4%/级、金币 +5%/级）。",
         "📦 背包：可装备武器/护甲/饰品，消耗品在战斗中直接使用。",
         "💾 存档：自动保存 + 手动导出/导入（设置面板）。",
         "⌨ 快捷键：战斗中 1=攻击 2=防御 3=逃跑。"
@@ -1080,6 +1108,7 @@ ABYSS.UI = (function () {
     boot: boot,
     autostart: autostart,
     debugStartCombat: debugStartCombat,
+    debugShowEnding: debugShowEnding,
     get state() { return state; }
   };
 })();

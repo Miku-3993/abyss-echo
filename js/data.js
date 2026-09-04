@@ -5,8 +5,13 @@
 var ABYSS = window.ABYSS = window.ABYSS || {};
 
 ABYSS.DATA = {
-  VERSION: "1.1.0",
+  VERSION: "1.2.0",
   MAX_DEPTH: 12,
+  PRESTIGE: {
+    name: { zh: "深渊刻印", en: "Abyss Mark" },
+    atkPerLvl: 0.04, defPerLvl: 0.04, spdPerLvl: 0.04, goldPerLvl: 0.05,
+    desc: { zh: "达成结局后转生，永久获得全属性 +4%/级、金币收益 +5%/级。", en: "After any ending, transcend for permanent +4% stats and +5% gold per mark." }
+  },
   BASE_HP: 60, BASE_MP: 30, BASE_ATK: 10, BASE_DEF: 5, BASE_SPD: 8, BASE_LCK: 5,
   HP_PER_LVL: 12, MP_PER_LVL: 6, ATK_PER_LVL: 2, DEF_PER_LVL: 1, SPD_PER_LVL: 1,
   XP_PER_LVL: 40,
@@ -210,7 +215,8 @@ ABYSS.DATA = {
     truth:         { name: { zh: "真相之眼", en: "Eye of Truth" },         desc: { zh: "集齐全部真相碎片", en: "Gather all fragments of truth" } },
     elite_hunter:  { name: { zh: "精英猎手", en: "Elite Hunter" },         desc: { zh: "击杀 10 个精英怪物", en: "Slay 10 elite monsters" } },
     fortune:       { name: { zh: "幸运儿", en: "Lucky One" },              desc: { zh: "在占卜师那里赌赢 3 次", en: "Win 3 bets with the fortune teller" } },
-    bookworm:      { name: { zh: "书虫", en: "Bookworm" },                 desc: { zh: "造访深渊图书馆 3 次", en: "Visit the abyss library 3 times" } }
+    bookworm:      { name: { zh: "书虫", en: "Bookworm" },                 desc: { zh: "造访深渊图书馆 3 次", en: "Visit the abyss library 3 times" } },
+    prestige_1:    { name: { zh: "轮回之始", en: "First Rebirth" },        desc: { zh: "完成第一次转生", en: "Transcend for the first time" } }
   },
 
   /* ---------- ENDINGS ---------- */

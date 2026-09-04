@@ -18,6 +18,8 @@ A **zero-dependency, pure front-end** text-based dungeon RPG. Dark cosmic-fantas
 
 ![Fight](docs/screenshot-fight.png)
 
+![Ending & Rebirth](docs/screenshot-ending.png)
+
 ## ✨ 特性 / Features
 
 - 🕳️ **12 层深渊** — 每层随机房间：战斗、事件、宝箱、陷阱、营地 / 12 floors of randomized rooms
@@ -27,6 +29,7 @@ A **zero-dependency, pure front-end** text-based dungeon RPG. Dark cosmic-fantas
 - 📜 **12 种随机事件** — 商人、喷泉、祭坛、神龛、矿脉、雕像、蛛巢、占卜师、深渊图书馆…… / merchants, fountains, altars, shrines, fortune tellers…
 - 🏆 **22 个成就** — 探索、击杀、等级、收藏、精英猎手、隐藏目标 / achievements for exploration, kills, levels, elites, collection
 - 💠 **隐藏真结局** — 收集 3 枚「真相碎片」，在深渊核心做出你的选择 / true ending via 3 fragments of truth
+- 🌀 **转生系统** — 达成结局后可转生，永久获得「深渊刻印」：全属性 +4%/级、金币 +5%/级 / rebirth system granting permanent abyss marks
 - 🗡️ **29 件物品** — 武器/护甲/饰品/消耗品（含经验典籍、万灵药），BOSS 固定掉落传说装备 / weapons, armor, trinkets, consumables, boss-only legendaries
 - 🌏 **中英双语** — 设置面板一键切换 / Chinese & English, switchable in settings
 - 🔊 **程序化音效** — Web Audio 实时合成，零音频文件 / procedural sound via Web Audio, zero audio files
@@ -49,7 +52,7 @@ A **zero-dependency, pure front-end** text-based dungeon RPG. Dark cosmic-fantas
 npm test        # node --test
 ```
 
-29 个单元测试覆盖：状态、属性计算、装备加成、战斗结算、状态异常、技能冷却、掉落、精英怪、升级、房间生成、成就、存档模拟全流程。
+33 个单元测试覆盖：状态、属性计算、装备加成、战斗结算、状态异常、技能冷却、掉落、精英怪、转生、升级、房间生成、成就、存档模拟全流程。
 
 ## 🏗 项目结构 / Structure
 
