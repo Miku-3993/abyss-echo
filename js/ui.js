@@ -67,28 +67,28 @@ ABYSS.UI = (function () {
           txt = (ev.who === "player" ? "☠ " : "☠ ") + L.name(D.statuses[ev.status]) + " -" + ev.dmg;
           break;
         case "status": break;
-        case "enemyAbility": txt = "☣ " + L.name(D.enemies[ev.enemy]) + " 使你" + L.name(D.statuses[ev.status]); break;
+        case "enemyAbility": txt = "☣ " + T("status_afflicted", { n: L.name(D.enemies[ev.enemy]), s: L.name(D.statuses[ev.status]) }); break;
         case "drain": txt = "🩸 " + T("healed", { n: ev.amount }); cls = "log-good"; break;
         case "heal": txt = "💚 " + T("healed", { n: ev.amount }); cls = "log-good"; break;
         case "mpRestore": txt = "💙 " + T("mp_restore", { n: ev.amount }); cls = "log-good"; break;
-        case "cure": case "cureAll": txt = "✨ " + L.name(D.items[ev.item]) + " 生效"; cls = "log-good"; break;
-        case "buffItem": txt = "🔥 " + L.name(D.items[ev.item]) + " 生效"; break;
+        case "cure": case "cureAll": txt = "✨ " + L.name(D.items[ev.item]) + " " + T("took_effect"); cls = "log-good"; break;
+        case "buffItem": txt = "🔥 " + L.name(D.items[ev.item]) + " " + T("took_effect"); break;
         case "xpGain": txt = "📖 " + T("found_item", { n: L.name(D.items[ev.item]) }) + " +" + ev.amount + " XP"; cls = "log-gold"; break;
-        case "flee": txt = ev.ok ? T("fled") : "逃跑失败！"; cls = ev.ok ? "log-good" : "log-bad"; break;
+        case "flee": txt = ev.ok ? T("fled") : T("flee_fail"); cls = ev.ok ? "log-good" : "log-bad"; break;
         case "noMp": txt = T("no_mp"); cls = "log-bad"; break;
-        case "skillCd": txt = "技能冷却中"; cls = "log-bad"; break;
+        case "skillCd": txt = T("skill_cd"); cls = "log-bad"; break;
         case "skill": txt = "✦ " + L.name(D.skills[ev.skill]); break;
         case "achievement": txt = "🏆 " + T("achievement_unlocked", { n: L.name(D.achievements[ev.id]) }); cls = "log-gold"; ABYSS.Audio.achievement(); break;
         case "fragment": txt = "💠 " + T("found_item", { n: L.name(D.fragments[ev.frag]) }) + "（" + ev.count + "/3）"; cls = "log-gold"; ABYSS.Audio.fragment(); break;
-        case "camp": txt = "⛺ 你扎营休息，恢复了体力与魔力"; cls = "log-good"; break;
+        case "camp": txt = T("camp_rest"); cls = "log-good"; break;
         case "trapDamage": txt = "☠ " + T("trap_hit") + " -" + ev.dmg; cls = "log-bad"; break;
         case "gold": txt = "🪙 +" + ev.amount + " " + T("gold"); cls = "log-gold"; break;
         case "found": txt = "📦 " + T("found_item", { n: L.name(D.items[ev.item]) }); cls = "log-good"; break;
         case "eventText": txt = ev.text; cls = "log-event"; break;
         case "shop": txt = "🛒 " + ev.text; cls = "log-gold"; break;
         case "ending": txt = "🏁 " + ev.text; cls = "log-gold"; break;
-        case "prestige": txt = "🌀 深渊刻印 +" + ev.level + "！你的力量在深渊中回响……"; cls = "log-gold"; break;
-        case "echoKilled": txt = "🌪 回响 Boss 被击碎！" + L.name(D.enemies[ev.enemy]) + " 的残响消散了……"; cls = "log-gold"; ABYSS.Audio.boss(); break;
+        case "prestige": txt = T("prestige_gained", { n: ev.level }); cls = "log-gold"; break;
+        case "echoKilled": txt = T("echo_shattered", { n: L.name(D.enemies[ev.enemy]) }); cls = "log-gold"; ABYSS.Audio.boss(); break;
         case "questStart": txt = "📋 " + T("quest_start") + "：" + L.name(D.QUESTS.filter(function (q) { return q.id === ev.quest; })[0]); cls = "log-gold"; break;
         case "questAbandon": txt = "📋 " + T("quest_abandon") + "：" + L.name(D.QUESTS.filter(function (q) { return q.id === ev.quest; })[0]); break;
         case "questDone": {
@@ -235,7 +235,7 @@ ABYSS.UI = (function () {
     /* room already resolved this floor: offer more search or descent */
     if (r.room && r.eventDone) {
       var searched = r.floorRooms || 0;
-      box.appendChild(p(searched < 2 ? "这间房间已搜刮殆尽，深渊中还有更多秘密。" : "这间房间已搜刮殆尽，深渊在更深处等待。"));
+      box.appendChild(p(searched < 2 ? T("room_searched_more") : T("room_searched_done")));
       if (searched < 2) {
         var btnS = mkButton("🔍 " + T("search") + "（" + (2 - searched) + "）", "btn", function () {
           rng = Logic.mulberry32(Date.now() % 2147483647);
@@ -267,7 +267,7 @@ ABYSS.UI = (function () {
         r.floorRooms = (r.floorRooms || 0) + 1;
         saveAndRender();
       });
-      box.appendChild(p("迷雾笼罩着这一层深渊。"));
+      box.appendChild(p(T("mist_floor")));
       box.appendChild(btn);
       return;
     }
@@ -278,7 +278,7 @@ ABYSS.UI = (function () {
       return;
     }
     if (room.type === "rest") {
-      box.appendChild(p("一块相对安全的高地，适合扎营休息。"));
+      box.appendChild(p(T("camp_spot")));
       var btnRest = mkButton(T("rest"), "btn-main", function () {
         var evs = [];
         Logic.makeCamp(state, evs);
@@ -318,7 +318,7 @@ ABYSS.UI = (function () {
         var dmg = 8 + state.run.depth * 3;
         if (Math.random() < 0.25) {
           evs.push({ type: "dodge", who: "player" });
-          evs.push({ type: "eventText", text: "你险险避开了机关！" });
+          evs.push({ type: "eventText", text: T("trap_dodged") });
         } else {
           state.player.hp = Math.max(1, state.player.hp - dmg);
           evs.push({ type: "trapDamage", dmg: dmg });
@@ -369,7 +369,7 @@ ABYSS.UI = (function () {
     var ps = Logic.playerStats(state);
     var head = document.createElement("div");
     head.className = "enemy-card" + (es.elite ? " enemy-elite" : "") + (c.echo ? " enemy-echo" : "");
-    head.innerHTML = "<div class='enemy-name'>" + (c.echo ? "🌪 " : "") + (e.boss ? "💀 " : (es.elite ? "🌟 " : "👹 ")) + (c.echo ? "回响·" : es.elite ? "精英·" : "") + L.name(e) + "</div>" +
+    head.innerHTML = "<div class='enemy-name'>" + (c.echo ? "🌪 " : "") + (e.boss ? "💀 " : (es.elite ? "🌟 " : "👹 ")) + (c.echo ? T("echo_prefix") : es.elite ? T("elite_prefix") : "") + L.name(e) + "</div>" +
       "<div class='enemy-hpbar'><div class='enemy-hpfill' style='width:" + Math.max(0, Math.round(es.hp / es.maxHp * 100)) + "%'></div></div>" +
       "<div class='enemy-info'>" + T("atk") + " " + es.atk + " · " + T("def") + " " + es.def + " · " + T("spd") + " " + es.spd + (es.elite ? " · 🌟 " + T("elite_bonus") : "") + "</div>" +
       "<div class='enemy-desc'>" + L.desc(e) + "</div>";
@@ -459,17 +459,17 @@ ABYSS.UI = (function () {
     switch (eventId) {
       case "merchant": buildMerchantChoices(choices); break;
       case "fountain": choices = [
-        { text: "饮下泉水（恢复 40% 生命）", fn: function () {
+        { text: T("ev_fountain_drink"), fn: function () {
             var ps = Logic.playerStats(state);
             state.player.hp = Math.min(ps.hp, state.player.hp + Math.floor(ps.hp * 0.4));
             var evs = [{ type: "heal", amount: Math.floor(ps.hp * 0.4) }];
             r.eventDone = true; consumeEvents(evs); saveAndRender();
           } },
-        { text: "取走泉底的硬币（+30 金币，30% 诅咒）", fn: function () {
+        { text: T("ev_fountain_grab"), fn: function () {
             var evs = [];
             if (Math.random() < 0.3) {
               Logic.applyStatus(state, "player", "weaken", 3, evs);
-              evs.push({ type: "eventText", text: "泉水反噬，你被虚弱诅咒缠身！" });
+              evs.push({ type: "eventText", text: T("ev_fountain_curse") });
             } else {
               state.player.gold += 30;
               evs.push({ type: "gold", amount: 30 });
@@ -481,18 +481,18 @@ ABYSS.UI = (function () {
       case "altar": {
         var fragGive = state.stats.fragments && state.stats.fragments.indexOf("frag_1") >= 0;
         choices = [
-          { text: "献上 50 金币，祈求祝福", can: state.player.gold >= 50, fn: function () {
+          { text: T("ev_altar_gift"), can: state.player.gold >= 50, fn: function () {
               state.player.gold -= 50;
               Logic.applyStatus(state, "player", "blessing", 5, []);
-              var evs = [{ type: "eventText", text: "祭坛吞噬金币，一道祝福没入你的身体。" }, { type: "status", who: "player", status: "blessing" }];
+              var evs = [{ type: "eventText", text: T("ev_altar_bless") }, { type: "status", who: "player", status: "blessing" }];
               r.eventDone = true; consumeEvents(evs); saveAndRender();
             } },
-          { text: "触碰祭坛上的碎片（真相碎片·其一）", can: !fragGive, fn: function () {
+          { text: T("ev_altar_frag"), can: !fragGive, fn: function () {
               var evs = [];
               Logic.grantFragment(state, "frag_1", evs);
               r.eventDone = true; consumeEvents(evs); saveAndRender();
             } },
-          { text: "亵渎祭坛（-15 生命，获得 60 金币）", fn: function () {
+          { text: T("ev_altar_defile"), fn: function () {
               state.player.hp = Math.max(1, state.player.hp - 15);
               state.player.gold += 60;
               var evs = [{ type: "trapDamage", dmg: 15 }, { type: "gold", amount: 60 }];
@@ -504,7 +504,7 @@ ABYSS.UI = (function () {
       }
       case "chest": break;
       case "tomb": choices = [
-        { text: "挖掘坟墓", fn: function () {
+        { text: T("ev_tomb_dig"), fn: function () {
             var evs = [];
             if (Math.random() < 0.5) {
               var it = ["ring_power", "charm_luck", "potion_big", "gold"][Math.floor(Math.random() * 4)];
@@ -514,27 +514,27 @@ ABYSS.UI = (function () {
               var dmg = 12 + state.run.depth * 2;
               state.player.hp = Math.max(1, state.player.hp - dmg);
               evs.push({ type: "trapDamage", dmg: dmg });
-              evs.push({ type: "eventText", text: "墓穴中伸出一只枯手！" });
+              evs.push({ type: "eventText", text: T("ev_tomb_hand") });
             }
             r.eventDone = true; consumeEvents(evs); saveAndRender();
           } },
         { text: T("leave"), fn: function () { r.eventDone = true; saveAndRender(); } }
       ]; break;
       case "shrine": choices = [
-        { text: "虔诚祈祷（攻击 +15%，持续 5 回合）", fn: function () {
+        { text: T("ev_shrine_pray"), fn: function () {
             Logic.applyStatus(state, "player", "blessing", 5, []);
-            var evs = [{ type: "eventText", text: "神像低语，力量注入你的四肢。" }];
+            var evs = [{ type: "eventText", text: T("ev_shrine_power") }];
             r.eventDone = true; consumeEvents(evs); saveAndRender();
           } },
-        { text: "砸碎神像（获得 25 金币）", fn: function () {
+        { text: T("ev_shrine_smash"), fn: function () {
             state.player.gold += 25;
-            var evs = [{ type: "gold", amount: 25 }, { type: "eventText", text: "神像裂开，滚落几枚古币。" }];
+            var evs = [{ type: "gold", amount: 25 }, { type: "eventText", text: T("ev_shrine_coins") }];
             r.eventDone = true; consumeEvents(evs); saveAndRender();
           } },
         { text: T("leave"), fn: function () { r.eventDone = true; saveAndRender(); } }
       ]; break;
       case "vein": choices = [
-        { text: "开采矿脉（获得金币，10% 塌方）", fn: function () {
+        { text: T("ev_vein_mine"), fn: function () {
             var evs = [];
             if (Math.random() < 0.1) {
               var dmg = 20 + state.run.depth * 3;
@@ -552,19 +552,19 @@ ABYSS.UI = (function () {
       case "statue": {
         var frag2 = state.stats.fragments && state.stats.fragments.indexOf("frag_2") >= 0;
         choices = [
-          { text: "取走雕像掌心的碎片（真相碎片·其二）", can: !frag2, fn: function () {
+          { text: T("ev_statue_frag"), can: !frag2, fn: function () {
               var evs = [];
               Logic.grantFragment(state, "frag_2", evs);
               r.eventDone = true; consumeEvents(evs); saveAndRender();
             } },
-          { text: "凝视雕像的双眼（+10 幸运祝福，5% 陷入疯狂）", fn: function () {
+          { text: T("ev_statue_gaze"), fn: function () {
               var evs = [];
               if (Math.random() < 0.05) {
                 Logic.applyStatus(state, "player", "weaken", 5, evs);
-                evs.push({ type: "eventText", text: "你的心智被深渊撕开了一道口子……" });
+                evs.push({ type: "eventText", text: T("ev_statue_mad") });
               } else {
                 Logic.applyStatus(state, "player", "blessing", 5, evs);
-                evs.push({ type: "eventText", text: "深渊的真相在你眼中一闪而过。" });
+                evs.push({ type: "eventText", text: T("ev_statue_truth") });
               }
               r.eventDone = true; consumeEvents(evs); saveAndRender();
             } },
@@ -573,7 +573,7 @@ ABYSS.UI = (function () {
         break;
       }
       case "spidernest": choices = [
-        { text: "突袭蛛巢", fn: function () {
+        { text: T("ev_nest_attack"), fn: function () {
             var evs = [];
             if (Math.random() < 0.6) {
               var it = ["potion_antidote", "potion_antidote", "gold"][Math.floor(Math.random() * 3)];
@@ -582,14 +582,14 @@ ABYSS.UI = (function () {
               if (Math.random() < 0.4) Logic.applyStatus(state, "player", "poison", 3, evs);
             } else {
               startCombat("spider");
-              evs.push({ type: "boss", text: "巢穴里扑出一只巨大的腐蚀蜘蛛！" });
+              evs.push({ type: "boss", text: T("ev_nest_spider") });
             }
             r.eventDone = true; consumeEvents(evs); saveAndRender();
           } },
         { text: T("leave"), fn: function () { r.eventDone = true; saveAndRender(); } }
       ]; break;
       case "supply": choices = [
-        { text: "打开补给箱", fn: function () {
+        { text: T("ev_supply_open"), fn: function () {
             var evs = [];
             var it = ["potion_small", "potion_mana", "potion_big", "bomb_fire"][Math.floor(Math.random() * 4)];
             if (addItemSilent(it)) evs.push({ type: "found", item: it });
@@ -599,53 +599,53 @@ ABYSS.UI = (function () {
         { text: T("leave"), fn: function () { r.eventDone = true; saveAndRender(); } }
       ]; break;
       case "fortune": choices = [
-        { text: "支付 50 金币，求一道吉运（祝福 3 回合）", can: state.player.gold >= 50, fn: function () {
+        { text: T("ev_fortune_pay"), can: state.player.gold >= 50, fn: function () {
             state.player.gold -= 50;
             Logic.applyStatus(state, "player", "blessing", 3, []);
             state.stats.fortuneWins += 1;
-            var evs = [{ type: "eventText", text: "塔罗牌泛起金光，命运向你微笑。" }, { type: "status", who: "player", status: "blessing" }];
+            var evs = [{ type: "eventText", text: T("ev_fortune_glow") }, { type: "status", who: "player", status: "blessing" }];
             r.eventDone = true; consumeEvents(evs); saveAndRender();
           } },
-        { text: "免费听一段预言（40% 得金币 / 30% 得祝福 / 30% 遭诅咒）", fn: function () {
+        { text: T("ev_fortune_free"), fn: function () {
             var evs = [];
             var roll = Math.random();
             if (roll < 0.4) {
               state.player.gold += 30;
               state.stats.fortuneWins += 1;
               evs.push({ type: "gold", amount: 30 });
-              evs.push({ type: "eventText", text: "「你口袋里的硬币会变多。」——预言应验了。" });
+              evs.push({ type: "eventText", text: T("ev_fortune_gold") });
             } else if (roll < 0.7) {
               Logic.applyStatus(state, "player", "blessing", 3, evs);
               state.stats.fortuneWins += 1;
-              evs.push({ type: "eventText", text: "「你命中有贵人相助。」——一阵暖意笼罩了你。" });
+              evs.push({ type: "eventText", text: T("ev_fortune_ally") });
             } else {
               Logic.applyStatus(state, "player", "weaken", 3, evs);
-              evs.push({ type: "eventText", text: "「你……你身上缠绕着不祥。」老者脸色大变。" });
+              evs.push({ type: "eventText", text: T("ev_fortune_omen") });
             }
             r.eventDone = true; consumeEvents(evs); saveAndRender();
           } },
         { text: T("leave"), fn: function () { r.eventDone = true; saveAndRender(); } }
       ]; break;
       case "library": choices = [
-        { text: "支付 80 金币，研读《经验典籍》（+40 XP）", can: state.player.gold >= 80, fn: function () {
+        { text: T("ev_library_60"), can: state.player.gold >= 80, fn: function () {
             state.player.gold -= 80;
             state.stats.libraryVisits += 1;
             var evs = [];
             Logic.gainXp(state, 40, evs);
             evs.push({ type: "xpGain", amount: 40, item: "scroll_arcane" });
-            evs.push({ type: "eventText", text: "书页上的文字化为流光涌入你的脑海。" });
+            evs.push({ type: "eventText", text: T("ev_library_read") });
             r.eventDone = true; consumeEvents(evs); saveAndRender();
           } },
-        { text: "支付 60 金币，抄录两张魔力药水配方", can: state.player.gold >= 60, fn: function () {
+        { text: T("ev_library_recipe"), can: state.player.gold >= 60, fn: function () {
             state.player.gold -= 60;
             state.stats.libraryVisits += 1;
             var evs = [];
             if (addItemSilent("potion_mana") && addItemSilent("potion_mana")) evs.push({ type: "found", item: "potion_mana" });
             else evs.push({ type: "eventText", text: T("full_inventory") });
-            evs.push({ type: "eventText", text: "你小心翼翼地拓印了两页配方。" });
+            evs.push({ type: "eventText", text: T("ev_library_trace") });
             r.eventDone = true; consumeEvents(evs); saveAndRender();
           } },
-        { text: "免费翻阅残卷（30% 发现一件小物品）", fn: function () {
+        { text: T("ev_library_free"), fn: function () {
             state.stats.libraryVisits += 1;
             var evs = [];
             if (Math.random() < 0.3) {
@@ -653,7 +653,7 @@ ABYSS.UI = (function () {
               if (addItemSilent(it)) evs.push({ type: "found", item: it });
               else evs.push({ type: "eventText", text: T("full_inventory") });
             } else {
-              evs.push({ type: "eventText", text: "残卷已经腐烂得无法辨认。" });
+              evs.push({ type: "eventText", text: T("ev_library_rot") });
             }
             r.eventDone = true; consumeEvents(evs); saveAndRender();
           } },
@@ -702,7 +702,7 @@ ABYSS.UI = (function () {
             state.player.gold -= D.FORGE.serviceCost;
             var ps = Logic.playerStats(state);
             state.player.hp = ps.hp;
-            var evs = [{ type: "heal", amount: ps.hp }, { type: "eventText", text: "铁匠一锤砸下，你的伤口竟愈合了。" }];
+            var evs = [{ type: "heal", amount: ps.hp }, { type: "eventText", text: T("ev_forge_healed") }];
             ABYSS.Audio.heal();
             r.eventDone = true; consumeEvents(evs); saveAndRender();
           }
@@ -720,7 +720,7 @@ ABYSS.UI = (function () {
               state.player.gold -= price;
               addItemSilent(itemId);
               ABYSS.Audio.item();
-              var evs = [{ type: "shop", text: "你买下了 " + L.name(it) }];
+              var evs = [{ type: "shop", text: T("ev_forge_buy", { n: L.name(it) }) }];
               r.eventDone = true; consumeEvents(evs); saveAndRender();
             }
           });
@@ -729,7 +729,7 @@ ABYSS.UI = (function () {
         var gPrice = Math.floor(git.value * 0.8);
         var canGear = state.player.gold >= gPrice && state.player.inventory.length < D.INV_LIMIT;
         choices.push({
-          text: "⚒ 铸造装备：" + L.name(git) + " — " + gPrice + " " + T("gold") + "（9 折）",
+          text: "⚒ " + T("ev_forge_gear", { n: L.name(git), g: gPrice }),
           can: canGear,
           fn: function () {
             if (!canGear && state.player.gold < gPrice) { pushLog(T("no_gold"), "log-bad"); return; }
@@ -737,7 +737,7 @@ ABYSS.UI = (function () {
             state.player.gold -= gPrice;
             addItemSilent(gearItem);
             ABYSS.Audio.item();
-            var evs = [{ type: "shop", text: "铁匠为你量身打造了 " + L.name(git) }];
+            var evs = [{ type: "shop", text: T("ev_forge_made", { n: L.name(git) }) }];
             r.eventDone = true; consumeEvents(evs); saveAndRender();
           }
         });
@@ -781,7 +781,7 @@ ABYSS.UI = (function () {
           state.player.gold -= price;
           addItemSilent(itemId);
           ABYSS.Audio.item();
-          var evs = [{ type: "shop", text: "你买下了 " + L.name(it) }];
+          var evs = [{ type: "shop", text: T("ev_forge_buy", { n: L.name(it) }) }];
           consumeEvents(evs);
           saveAndRender();
         }
@@ -824,7 +824,7 @@ ABYSS.UI = (function () {
     box.appendChild(t);
     var e = D.enemies[state.run.lastAttacker];
     box.appendChild(p(T("died", { n: e ? L.name(e) : "深渊" })));
-    box.appendChild(p("你坠入了更深的黑暗……"));
+    box.appendChild(p(T("deeper_dark")));
     var st = document.createElement("p");
     st.className = "scene-stats";
     st.textContent = "📊 " + T("best_depth") + " " + state.stats.bestDepth + " · " + T("kills") + " " + state.stats.totalKills + " · " + T("level") + " " + state.player.level;
@@ -898,7 +898,7 @@ ABYSS.UI = (function () {
     if (state.run.finalOpen) return;
     if (state.stats.bossesKilled && state.stats.bossesKilled.boss_karaz) {
       state.run.finalOpen = true;
-      pushLog("💀 深渊在震颤……通往核心的裂隙已经开启。", "log-bad");
+      pushLog(T("rift_opened"), "log-bad");
     }
   }
 
@@ -925,9 +925,15 @@ ABYSS.UI = (function () {
     /* reuse existing run state */
     showScene();
     renderHUD();
-    pushLog("你睁开眼，四周是永恒的黑暗。你决定深入深渊。", "log-event");
-    pushLog(T("tutorial") + ": " + "使用底部按钮移动，⚔攻击 / 🛡防御 / ✦技能 / 🏃逃跑。每 3 层会出现一个 Boss。", "log-event");
+    pushLog(T("awaken_intro"), "log-event");
+    pushLog(T("tutorial") + ": " + T("tutorial_moves"), "log-event");
     saveNow();
+  }
+
+  function renderStaticTexts() {
+    document.querySelectorAll("[data-i18n]").forEach(function (el) {
+      el.textContent = T(el.getAttribute("data-i18n"));
+    });
   }
 
   function boot(savedState) {
@@ -937,6 +943,7 @@ ABYSS.UI = (function () {
     ABYSS.LANG.current = state.settings.lang;
     ABYSS.Audio.setEnabled(state.settings.sound !== false);
     ABYSS.Audio.setMusic(state.settings.music !== false);
+    renderStaticTexts();
     bindGlobalUI();
     renderHUD();
     if (savedState) showScene();
@@ -1042,7 +1049,7 @@ ABYSS.UI = (function () {
   function startEndless() {
   var p = ABYSS.Save.load();
   if (!p || !(p.stats && p.stats.prestige >= 1)) {
-    pushLog("需要至少 1 枚深渊刻印才能进入无尽深渊（先完成一个结局并转生）。", "log-bad");
+    pushLog(T("endless_locked"), "log-bad");
     return;
   }
   ABYSS.Save.setSlot("endless");
@@ -1075,7 +1082,7 @@ ABYSS.UI = (function () {
       ABYSS.Save.setSlot("main");
       var saved = ABYSS.Save.load();
       if (!saved) {
-        pushLog("没有找到存档，开始新的旅程。");
+        pushLog(T("no_save_new"));
         ABYSS.Save.clear();
         state = Logic.freshState();
         state.settings = defaultSettings();
@@ -1141,6 +1148,7 @@ ABYSS.UI = (function () {
       langSel.addEventListener("change", function () {
         state.settings.lang = langSel.value;
         ABYSS.LANG.current = state.settings.lang;
+        renderStaticTexts();
         saveNow();
         showScene();
         renderHUD();
@@ -1379,7 +1387,7 @@ ABYSS.UI = (function () {
         el.className = "ach-item " + (got ? "ach-got" : "ach-locked");
         el.innerHTML = "<span class='ach-icon'>" + (got ? "💀" : "❓") + "</span>" +
           "<span class='ach-name'>" + L.name(D.enemies[id]) + "</span>" +
-          "<span class='ach-desc'>" + (got ? "已击败" : "未击败") + "</span>";
+          "<span class='ach-desc'>" + (got ? T("defeated") : T("undefeated")) + "</span>";
         bosses.appendChild(el);
       });
       var bh = document.createElement("h4");
@@ -1503,16 +1511,16 @@ ABYSS.UI = (function () {
   function openHelp() {
     openModal(T("help"), function (c) {
       var lines = [
-        "⛏ 探索：进入房间后搜索，可能遭遇战斗、事件或宝藏。",
-        "⚔ 战斗：攻击 / 防御（格挡减伤）/ 技能（消耗魔力）/ 道具 / 逃跑。",
-        "✦ 技能冷却：使用后需等待数回合。防御可叠加格挡。",
-        "🌟 精英怪：15% 概率出现，属性更高、双倍奖励，必掉额外战利品。",
-        "💀 Boss：第 3/6/9/12 层有 Boss，击败第 12 层 Boss 后开启深渊核心。",
-        "💠 真相碎片：祭坛、雕像、深渊之主各藏一枚碎片，集齐可解锁真结局。",
-        "🌀 转生：达成任一结局后可在结局界面转生，获得永久「深渊刻印」（属性 +4%/级、金币 +5%/级）。",
-        "📦 背包：可装备武器/护甲/饰品，消耗品在战斗中直接使用。",
-        "💾 存档：自动保存 + 手动导出/导入（设置面板）。",
-        "⌨ 快捷键：战斗中 1=攻击 2=防御 3=逃跑。"
+        T("help_explore"),
+        T("help_combat"),
+        T("help_cooldown"),
+        T("help_elite"),
+        T("help_boss"),
+        T("help_fragments"),
+        T("help_prestige_ui"),
+        T("help_inv"),
+        T("help_save"),
+        T("help_keys")
       ];
       lines.forEach(function (line) {
         var d = document.createElement("p");
@@ -1527,6 +1535,7 @@ ABYSS.UI = (function () {
   return {
     boot: boot,
     autostart: autostart,
+    renderStaticTexts: renderStaticTexts,
     debugStartCombat: debugStartCombat,
     debugShowEnding: debugShowEnding,
     get state() { return state; }
@@ -1537,3 +1546,6 @@ ABYSS.UI = (function () {
 if (typeof module !== "undefined" && module.exports) {
   module.exports = { ABYSS: ABYSS };
 }
+
+
+

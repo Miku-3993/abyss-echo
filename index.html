@@ -21,11 +21,11 @@
       <h1 class="game-title">深渊回响</h1>
       <div class="game-sub">Abyss Echo · 文字地牢冒险</div>
       <div class="title-menu">
-        <button id="btn-new" class="btn btn-big">新的旅程</button>
-        <button id="btn-continue" class="btn btn-big">继续探索</button>
-        <button id="btn-daily" class="btn btn-big">☀️ 每日挑战</button>
-        <button id="btn-endless" class="btn btn-big" style="display:none">🌀 无尽深渊</button>
-        <button id="btn-settings" class="btn btn-big">设置</button>
+        <button id="btn-new" class="btn btn-big" data-i18n="new_game">新的旅程</button>
+        <button id="btn-continue" class="btn btn-big" data-i18n="continue">继续探索</button>
+        <button id="btn-daily" class="btn btn-big" data-i18n="daily_challenge">☀️ 每日挑战</button>
+        <button id="btn-endless" class="btn btn-big" data-i18n="endless" style="display:none">🌀 无尽深渊</button>
+        <button id="btn-settings" class="btn btn-big" data-i18n="settings">设置</button>
       </div>
       <div id="daily-best" class="daily-best"></div>
       <div class="title-flavor">「深渊之下，万物回响。」</div>
@@ -52,12 +52,12 @@
         <span class="hud-stat">⚡<span id="hud-spd"></span></span>
         <span class="hud-stat">🍀<span id="hud-luck"></span></span>
         <span class="hud-stat xp">XP <span id="hud-xp"></span></span>
-        <button id="btn-inv" class="btn btn-small">背包</button>
-        <button id="btn-ach" class="btn btn-small">成就</button>
-        <button id="btn-stats" class="btn btn-small">统计</button>
-        <button id="btn-codex" class="btn btn-small">图鉴</button>
-        <button id="btn-help" class="btn btn-small">帮助</button>
-        <button id="btn-settings2" class="btn btn-small" onclick="document.getElementById('btn-settings').click()">设置</button>
+        <button id="btn-inv" class="btn btn-small" data-i18n="inventory">背包</button>
+        <button id="btn-ach" class="btn btn-small" data-i18n="achievements">成就</button>
+        <button id="btn-stats" class="btn btn-small" data-i18n="stats">统计</button>
+        <button id="btn-codex" class="btn btn-small" data-i18n="codex">图鉴</button>
+        <button id="btn-help" class="btn btn-small" data-i18n="help">帮助</button>
+        <button id="btn-settings2" class="btn btn-small" data-i18n="settings" onclick="document.getElementById('btn-settings').click()">设置</button>
       </div>
       <div class="xpbar"><div id="hud-xpbar"></div></div>
     </div>
