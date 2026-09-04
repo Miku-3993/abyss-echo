@@ -1,4 +1,4 @@
-﻿/*
+/*
  * Abyss Echo - core game logic (pure, testable, no DOM)
  * All functions operate on a plain state object and return event lists.
  */
@@ -549,7 +549,7 @@ ABYSS.Logic = (function () {
         var relics = ["relic_echo", "relic_shroud", "relic_crown"];
         out.items.push(relics[Math.floor(rng() * relics.length)]);
       }
-    } else if (rng() < 0.32) {
+    } else if (rng() < 0.32 + (state.run.endless ? 0.18 : 0)) {
       var table2 = LOOT_TABLE.filter(function (l) { return l.tier.indexOf(e.tier) >= 0; })[0] || LOOT_TABLE[0];
       out.items.push(table2.items[Math.floor(rng() * table2.items.length)]);
     }
@@ -658,6 +658,11 @@ ABYSS.Logic = (function () {
     state.run.floorRooms = 0;
     if (state.run.depth > (state.stats.bestDepth || 1)) state.stats.bestDepth = state.run.depth;
     if (state.run.endless && state.run.depth > (state.stats.bestEndless || 0)) state.stats.bestEndless = state.run.depth;
+    /* endless respite: every 5th floor auto-restores 30% HP */
+    if (state.run.endless && state.run.depth > 5 && state.run.depth % 5 === 0) {
+      var psNow = playerStats(state);
+      state.player.hp = Math.min(psNow.hp, state.player.hp + Math.floor(psNow.hp * 0.3));
+    }
     questProgress(state, "depth", 1);
     return state.run.depth;
   }
@@ -742,6 +747,27 @@ ABYSS.Logic = (function () {
       state.run.frags += 1;
       events.push({ type: "fragment", frag: fragId, count: state.stats.fragments.length });
     }
+  }
+
+  /* ---------- endless setup ---------- */
+  function endlessSetup(state) {
+    state.run.endless = true;
+    state.run.depth = 13;
+    state.run.floorRooms = 0;
+    state.stats.bestEndless = 13;
+    state.player.level = 8;
+    state.player.xp = 0;
+    state.player.gold += 100;
+    var ps = playerStats(state);
+    state.player.hp = ps.hp;
+    state.player.mp = ps.mp;
+    ["bow_hunter", "leather", "potion_big", "potion_big", "potion_mana", "scroll_arcane"].forEach(function (id) {
+      if (state.player.inventory.length < D.INV_LIMIT) {
+        state.player.inventory.push(id);
+        recordCollected(state, id);
+      }
+    });
+    return state;
   }
 
   /* ---------- quests ---------- */
@@ -875,6 +901,7 @@ ABYSS.Logic = (function () {
     checkAchievements: checkAchievements,
     grantFragment: grantFragment,
     prestige: prestige,
+    endlessSetup: endlessSetup,
     startQuest: startQuest,
     questProgress: questProgress,
     checkQuest: checkQuest,
@@ -892,6 +919,7 @@ ABYSS.Logic = (function () {
 if (typeof module !== "undefined" && module.exports) {
   module.exports = { ABYSS: ABYSS };
 }
+
 
 
 

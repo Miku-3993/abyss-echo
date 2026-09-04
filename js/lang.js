@@ -1,4 +1,4 @@
-/*
+﻿/*
  * Abyss Echo - localization module
  * Simple {zh, en} string pairs. UI strings live here; game content data
  * carries its own {zh,en} name/desc pairs in data.js.
@@ -173,6 +173,7 @@ ABYSS.LANG = {
     "rift_opened": { zh: "💀 深渊在震颤……通往核心的裂隙已经开启。", en: "💀 The abyss trembles... a rift to the core has opened." },
     "awaken_intro": { zh: "你睁开眼，四周是永恒的黑暗。你决定深入深渊。", en: "You wake. Eternal darkness surrounds you. You decide to descend." },
     "endless_locked": { zh: "需要至少 1 枚深渊刻印才能进入无尽深渊（先完成一个结局并转生）。", en: "Requires at least 1 Abyss Mark (complete an ending and rebirth first)." },
+    "endless_start": { zh: "你从第 13 层开始——主线之后的深渊。等级 8，带上旅途的馈赠。", en: "You begin at floor 13 — the abyss beyond the story. Level 8, with gifts from the road." },
     "no_save_new": { zh: "没有找到存档，开始新的旅程。", en: "No save found. A new journey begins." },
     "defeated": { zh: "已击败", en: "Defeated" },
     "undefeated": { zh: "未击败", en: "Undefeated" },

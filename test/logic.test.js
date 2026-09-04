@@ -424,6 +424,33 @@ test("echo collector achievement requires all three relics", () => {
   assert.ok(evs.some((e) => e.type === "achievement" && e.id === "echo_collector"));
 });
 
+test("endlessSetup starts at floor 13 with starter kit", () => {
+  const s = Logic.endlessSetup(Logic.freshState());
+  assert.equal(s.run.endless, true);
+  assert.equal(s.run.depth, 13);
+  assert.equal(s.player.level, 8);
+  assert.equal(s.stats.bestEndless, 13);
+  assert.ok(s.player.inventory.indexOf("bow_hunter") >= 0, "starter weapon");
+  assert.ok(s.player.inventory.indexOf("potion_big") >= 0, "starter potions");
+  const ps = Logic.playerStats(s);
+  assert.equal(s.player.hp, ps.hp, "full HP at start");
+  /* depth 13 fights are echo-capable before first echo boss floor */
+  s.run.combat = { enemyId: "hunter", enemyHp: Logic.enemyMaxHp(s, "hunter", false, false), enemyStatuses: {}, skillCd: {}, guarding: false };
+  const es = Logic.enemyStats(s);
+  /* depth scaling applies immediately (floor 13 => 1.03x) */
+  assert.ok(es.maxHp > D.enemies.hunter.hp, "hp scales from the first floor");
+});
+
+test("endless depth scaling compounds past floor 13", () => {
+  const s = Logic.endlessSetup(Logic.freshState());
+  s.run.depth = 30;
+  s.run.combat = { enemyId: "hunter", enemyHp: 1, enemyStatuses: {}, skillCd: {}, guarding: false };
+  const es = Logic.enemyStats(s);
+  const scale = 1 + (30 - 12) * 0.03;
+  assert.equal(es.atk, Math.floor(D.enemies.hunter.atk * scale));
+  assert.equal(es.maxHp, Math.floor(D.enemies.hunter.hp * scale));
+});
+
 test("legacy saves normalize cleanly", () => {
   const legacy = {
     version: "1.0.0",

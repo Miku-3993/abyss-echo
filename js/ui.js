@@ -1,4 +1,4 @@
-﻿/*
+/*
  * Abyss Echo - UI rendering & interaction layer
  * Consumes ABYSS.Logic events, renders DOM, wires game feel.
  */
@@ -1179,14 +1179,14 @@ ABYSS.UI = (function () {
     return;
   }
   ABYSS.Save.setSlot("endless");
-  state = Logic.freshState();
+  state = Logic.endlessSetup(Logic.freshState());
   state.settings = defaultSettings();
   ABYSS.LANG.current = state.settings.lang;
-  state.run.endless = true;
   hideTitle();
   newRun();
   pushLog("🌀 " + L.name(D.ENDLESS) + "！", "log-gold");
   pushLog(L.desc(D.ENDLESS), "log-gold");
+  pushLog(T("endless_start"), "log-gold");
 }
 
   function bindGlobalUI() {
