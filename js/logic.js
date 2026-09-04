@@ -1,4 +1,4 @@
-﻿/*
+/*
  * Abyss Echo - core game logic (pure, testable, no DOM)
  * All functions operate on a plain state object and return event lists.
  */
@@ -72,7 +72,8 @@ ABYSS.Logic = (function () {
   }
 
   function equipped(state) {
-    var p = state.player, eq = p.equipment, items = D.items, out = { atk: 0, def: 0, spd: 0, luck: 0, hp: 0, goldMult: 1, revive: false };
+    var p = state.player, eq = p.equipment, items = D.items, out = { atk: 0, def: 0, spd: 0, luck: 0, hp: 0, goldMult: 1, revive: false, set: 0 };
+    var relicCount = 0;
     [eq.weapon, eq.armor, eq.trinket].forEach(function (id) {
       if (!id || !items[id]) return;
       var it = items[id];
@@ -81,7 +82,17 @@ ABYSS.Logic = (function () {
       out.luck += Math.floor((it.luck || 0) * boost); out.hp += Math.floor((it.hp || 0) * boost);
       if (it.goldMult) out.goldMult = it.goldMult;
       if (it.revive) out.revive = true;
+      if (id.indexOf("relic_") === 0) relicCount += 1;
     });
+    /* Echo Relic set bonus: all three equipped grants +10% stats */
+    if (relicCount >= 3) {
+      out.set = 3;
+      out.atk = Math.floor(out.atk * 1.1);
+      out.def = Math.floor(out.def * 1.1);
+      out.spd = Math.floor(out.spd * 1.1);
+      out.luck = Math.floor(out.luck * 1.1);
+      out.hp = Math.floor(out.hp * 1.1);
+    }
     return out;
   }
 
@@ -974,6 +985,7 @@ ABYSS.Logic = (function () {
 if (typeof module !== "undefined" && module.exports) {
   module.exports = { ABYSS: ABYSS };
 }
+
 
 
 

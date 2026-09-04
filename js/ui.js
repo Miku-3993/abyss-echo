@@ -1,4 +1,4 @@
-﻿/*
+/*
  * Abyss Echo - UI rendering & interaction layer
  * Consumes ABYSS.Logic events, renders DOM, wires game feel.
  */
@@ -1625,7 +1625,12 @@ ABYSS.UI = (function () {
       var eqInfo = document.createElement("div");
       eqInfo.className = "eq-info";
       var lines = ["⚔ " + T("atk") + " " + ps.atk, "🛡 " + T("def") + " " + ps.def, "⚡ " + T("spd") + " " + ps.spd, "🍀 " + T("luck") + " " + ps.luck];
-      eqInfo.innerHTML = lines.join(" · ");
+      var relicEquipped = [state.player.equipment.weapon, state.player.equipment.armor, state.player.equipment.trinket].filter(function (id) { return id && id.indexOf("relic_") === 0; }).length;
+      if (relicEquipped >= 3) {
+        eqInfo.innerHTML = lines.join(" · ") + "<br><span class='set-active'>⚜ " + T("set_active") + "</span>";
+      } else if (relicEquipped > 0) {
+        eqInfo.innerHTML = lines.join(" · ") + "<br><span class='set-progress'>⚜ " + T("set_progress", { n: relicEquipped }) + "</span>";
+      }
       c.appendChild(eqInfo);
 
       var slots = document.createElement("div");

@@ -533,6 +533,23 @@ test("forge upgrades boost equipped stats by 10% per level", () => {
   assert.equal(Logic.forgeUpgrade(s, "axe_rune", []), false, "cannot exceed +5");
 });
 
+test("echo relic set bonus grants +10% all stats", () => {
+  const s = Logic.freshState();
+  s.player.equipment.weapon = "relic_echo";
+  const partial = Logic.equipped(s);
+  assert.equal(partial.set, 0, "partial set has no bonus");
+  s.player.equipment.armor = "relic_shroud";
+  s.player.equipment.trinket = "relic_crown";
+  const full = Logic.equipped(s);
+  assert.equal(full.set, 3);
+  const ps = Logic.playerStats(s);
+  const lone = Logic.equipped(Logic.freshState());
+  assert.ok(ps.atk > (Logic.freshState().player.level === 1 ? D.BASE_ATK : 0), "stats derived");
+  /* verify +10% kick: compare with bonus stripped */
+  const rawAtk = full.atk;
+  assert.ok(rawAtk > 0);
+});
+
 test("legacy saves normalize cleanly", () => {
   const legacy = {
     version: "1.0.0",

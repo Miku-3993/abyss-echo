@@ -421,6 +421,8 @@ body::after {
 .setting-row { margin: 9px 0; display: flex; align-items: center; gap: 8px; }
 
 .eq-info { color: var(--teal); margin-bottom: 10px; font-size: 13px; }
+.set-active { color: var(--gold); font-weight: 700; }
+.set-progress { color: var(--purple); }
 .eq-slots { display: flex; flex-direction: column; gap: 6px; margin-bottom: 14px; }
 .eq-slot {
   display: flex; align-items: center; gap: 10px;
@@ -667,3 +669,4 @@ body::after {
   color: #f0a0a0;
   text-shadow: 0 0 24px rgba(224, 96, 96, 0.45), 0 2px 0 rgba(0, 0, 0, 0.5);
 }
+
