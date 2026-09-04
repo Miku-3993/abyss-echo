@@ -1,4 +1,4 @@
-/*
+﻿/*
  * Abyss Echo - UI rendering & interaction layer
  * Consumes ABYSS.Logic events, renders DOM, wires game feel.
  */
@@ -303,6 +303,26 @@ ABYSS.UI = (function () {
         b.textContent = STATUS_ICONS[sid] || "•";
         b.title = L.name(sd);
         stRow.appendChild(b);
+      }
+    }
+    /* run mode tag */
+    var mEl = $("hud-mode");
+    if (mEl) {
+      if (state.run.daily) { mEl.textContent = "☀️ " + T("daily"); mEl.style.display = ""; }
+      else if (state.run.endless) { mEl.textContent = "🌀 " + T("endless"); mEl.style.display = ""; }
+      else mEl.style.display = "none";
+    }
+    /* difficulty tag */
+    var dEl = $("hud-diff");
+    if (dEl) {
+      var df = state.settings && state.settings.difficulty;
+      if (df && df !== "normal") {
+        dEl.textContent = "🎚 " + L.name(D.DIFFICULTY[df]);
+        dEl.classList.toggle("diff-hard", df === "abyss");
+        dEl.classList.toggle("diff-easy", df === "easy");
+        dEl.style.display = "";
+      } else {
+        dEl.style.display = "none";
       }
     }
     /* truth fragment progress */
@@ -1961,6 +1981,7 @@ ABYSS.UI = (function () {
 if (typeof module !== "undefined" && module.exports) {
   module.exports = { ABYSS: ABYSS };
 }
+
 
 
 
