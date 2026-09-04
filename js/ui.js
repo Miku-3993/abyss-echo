@@ -1,4 +1,4 @@
-/*
+﻿/*
  * Abyss Echo - UI rendering & interaction layer
  * Consumes ABYSS.Logic events, renders DOM, wires game feel.
  */
@@ -1717,7 +1717,8 @@ ABYSS.UI = (function () {
         [T("play_time"), mins + ":" + String(secs).padStart(2, "0")],
         ["💠 " + T("fragment", {}), (st.fragments || []).length + "/3"],
         [T("achievements"), (st.achievements || []).length + "/" + Object.keys(D.achievements).length],
-        ["🌟 " + L.name(D.achievements.elite_hunter), st.eliteKills]
+        ["🌟 " + L.name(D.achievements.elite_hunter), st.eliteKills],
+        [T("winrate"), st.fights ? Math.round(st.wins / st.fights * 100) + "% (" + st.wins + "/" + st.fights + ")" : "—"]
       ];
       cells.forEach(function (pair) {
         var cell = document.createElement("div");
@@ -1902,6 +1903,7 @@ ABYSS.UI = (function () {
 if (typeof module !== "undefined" && module.exports) {
   module.exports = { ABYSS: ABYSS };
 }
+
 
 
 

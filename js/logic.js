@@ -39,6 +39,7 @@ ABYSS.Logic = (function () {
         alive: true, depth: 1, room: null, combat: null, eventDone: false,
         finalOpen: false, frags: 0, guards: 0, floorRooms: 0
       },
+      fights: 0, wins: 0,
       stats: {
         playTimeSec: 0, bestDepth: 1, totalKills: 0, totalDeaths: 0,
         achievements: [], endings: [], bossesKilled: {}, reviveUsed: false, fragments: [],
@@ -383,6 +384,11 @@ ABYSS.Logic = (function () {
       }
     }
 
+    /* count the fight once per combat encounter */
+    if (!c.fightCounted) {
+      state.stats.fights = (state.stats.fights || 0) + 1;
+      c.fightCounted = true;
+    }
     /* --- enemy turn --- */
     if (e.boss && !c.enraged && c.enemyHp / enemyMaxHp(state, c.enemyId, c.elite, c.echo) < 0.5) {
       c.enraged = true;
@@ -546,6 +552,7 @@ ABYSS.Logic = (function () {
     }
     questProgress(state, "kills", 1);
     if (elite) questProgress(state, "eliteKills", 1);
+    state.stats.wins = (state.stats.wins || 0) + 1;
   }
 
   function recordCollected(state, itemId) {
@@ -967,6 +974,10 @@ ABYSS.Logic = (function () {
 if (typeof module !== "undefined" && module.exports) {
   module.exports = { ABYSS: ABYSS };
 }
+
+
+
+
 
 
 
