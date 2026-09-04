@@ -186,7 +186,7 @@ ABYSS.LANG = {
     "help_prestige_ui": { zh: "🌀 转生：达成任一结局后可在结局界面转生，获得永久「深渊刻印」（属性 +4%/级、金币 +5%/级）。", en: "🌀 Rebirth: after any ending, transcend for permanent abyss marks (+4% stats, +5% gold per mark)." },
     "help_inv": { zh: "📦 背包：可装备武器/护甲/饰品，消耗品在战斗中直接使用。", en: "📦 Inventory: equip weapons/armor/trinkets; use consumables in combat." },
     "help_save": { zh: "💾 存档：自动保存 + 手动导出/导入（设置面板）。", en: "💾 Saves: autosave + manual export/import (settings)." },
-    "help_keys": { zh: "⌨ 快捷键：战斗中 1=攻击 2=防御 3=逃跑。", en: "⌨ Hotkeys: 1=attack, 2=guard, 3=flee in combat." },
+    "help_keys": { zh: "⌨ 快捷键：战斗中 1=攻击 2=防御 3=逃跑，4-9=技能。", en: "⌨ Hotkeys: 1=attack, 2=guard, 3=flee, 4-9=skills in combat." },
     "daily_challenge": { zh: "☀️ 每日挑战", en: "☀️ Daily Challenge" },
     "endless": { zh: "🌀 无尽深渊", en: "🌀 Endless Abyss" },
     "elite_prefix": { zh: "精英·", en: "Elite " },
@@ -254,6 +254,7 @@ ABYSS.LANG.desc = function (entry) {
 if (typeof module !== "undefined" && module.exports) {
   module.exports = { ABYSS: ABYSS };
 }
+
 
 
 

@@ -1313,7 +1313,13 @@ ABYSS.UI = (function () {
       /* keyboard shortcuts for combat */
       if (state.run.combat) {
         var keys = { "1": "attack", "2": "guard", "3": "flee" };
-        if (keys[e.key]) resolve({ type: keys[e.key] });
+        if (keys[e.key]) {
+          resolve({ type: keys[e.key] });
+        } else if (e.key >= "4" && e.key <= "9") {
+          var skillIds = Object.keys(D.skills);
+          var idx = parseInt(e.key, 10) - 4;
+          if (skillIds[idx]) resolve({ type: "skill", skillId: skillIds[idx] });
+        }
       }
     });
   }
@@ -1758,6 +1764,7 @@ ABYSS.UI = (function () {
 if (typeof module !== "undefined" && module.exports) {
   module.exports = { ABYSS: ABYSS };
 }
+
 
 
 
