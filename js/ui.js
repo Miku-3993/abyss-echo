@@ -1,4 +1,4 @@
-﻿/*
+/*
  * Abyss Echo - UI rendering & interaction layer
  * Consumes ABYSS.Logic events, renders DOM, wires game feel.
  */
@@ -6,6 +6,7 @@ var ABYSS = window.ABYSS = window.ABYSS || {};
 
 ABYSS.UI = (function () {
   var D = ABYSS.DATA, L = ABYSS.LANG, T = ABYSS.T, Logic = ABYSS.Logic;
+  var STATUS_ICONS = { poison: "☠", bleed: "🩸", burn: "🔥", weaken: "⚠", enrage: "💢", ward: "⛨", blessing: "✨", haste: "💨" };
   var $ = function (id) { return document.getElementById(id); };
   var state = null, rng = Math.random, typeTimer = null, autosaveTimer = null;
   var sceneContext = null; /* per-room data: merchant stock, chest item, etc. */
@@ -165,6 +166,16 @@ ABYSS.UI = (function () {
     return true;
   }
 
+  function enemyStatusBadges(statuses) {
+    var parts = [];
+    for (var sid in statuses || {}) {
+      var sd = D.statuses[sid];
+      if (!sd) continue;
+      parts.push("<span class='status-badge st-enemy' title='" + L.name(sd) + "'>" + (STATUS_ICONS[sid] || "•") + "</span>");
+    }
+    return parts.join("");
+  }
+
   function spawnFloat(anchor, value, crit, onPlayer) {
     var el = document.createElement("div");
     el.className = "float-dmg" + (crit ? " float-crit" : "") + (onPlayer ? " float-taken" : "");
@@ -273,6 +284,20 @@ ABYSS.UI = (function () {
         qEl.style.display = "";
       } else {
         qEl.style.display = "none";
+      }
+    }
+    /* active status badges */
+    var stRow = $("hud-statuses");
+    if (stRow) {
+      stRow.innerHTML = "";
+      for (var sid in p.statuses) {
+        var sd = D.statuses[sid];
+        if (!sd) continue;
+        var b = document.createElement("span");
+        b.className = "status-badge " + (sd.kind === "harm" ? "st-bad" : "st-good");
+        b.textContent = STATUS_ICONS[sid] || "•";
+        b.title = L.name(sd);
+        stRow.appendChild(b);
       }
     }
     /* truth fragment progress */
@@ -489,6 +514,7 @@ ABYSS.UI = (function () {
     head.className = "enemy-card" + (es.elite ? " enemy-elite" : "") + (c.echo ? " enemy-echo" : "") + (es.enraged ? " enemy-enraged" : "");
     head.innerHTML = "<div class='enemy-name'>" + (c.echo ? "🌪 " : "") + (e.boss ? "💀 " : (es.elite ? "🌟 " : "👹 ")) + (c.echo ? T("echo_prefix") : es.elite ? T("elite_prefix") : "") + L.name(e) + (es.enraged ? " 🌋" : "") + "</div>" +
       "<div class='enemy-hpbar'><div class='enemy-hpfill' style='width:" + Math.max(0, Math.round(es.hp / es.maxHp * 100)) + "%'></div></div>" +
+      "<div class='enemy-statuses'>" + enemyStatusBadges(c.enemyStatuses) + "</div>" +
       "<div class='enemy-info'>" + T("atk") + " " + es.atk + " · " + T("def") + " " + es.def + " · " + T("spd") + " " + es.spd + (es.elite ? " · 🌟 " + T("elite_bonus") : "") + "</div>" +
       "<div class='enemy-desc'>" + L.desc(e) + "</div>";
     box.appendChild(head);
@@ -1903,6 +1929,7 @@ ABYSS.UI = (function () {
 if (typeof module !== "undefined" && module.exports) {
   module.exports = { ABYSS: ABYSS };
 }
+
 
 
 
