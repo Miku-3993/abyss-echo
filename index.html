@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Abyss Echo - a text dungeon RPG. 深渊回响 - 文字地牢冒险。">
+  <meta property="og:title" content="Abyss Echo / 深渊回响">
+  <meta property="og:description" content="A text-based dungeon RPG with turn-based combat, 12 floors, bosses, achievements and a true ending.">
+  <title>深渊回响 · Abyss Echo</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🕳️</text></svg>">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <div id="boot" class="boot">Loading… 加载中…</div>
+
+  <!-- ============ TITLE SCREEN ============ -->
+  <div id="title-screen" class="screen">
+    <div class="title-wrap">
+      <h1 class="game-title">深渊回响</h1>
+      <div class="game-sub">Abyss Echo · 文字地牢冒险</div>
+      <div class="title-menu">
+        <button id="btn-new" class="btn btn-big">新的旅程</button>
+        <button id="btn-continue" class="btn btn-big">继续探索</button>
+        <button id="btn-settings" class="btn btn-big">设置</button>
+      </div>
+      <div class="title-flavor">「深渊之下，万物回响。」</div>
+    </div>
+  </div>
+
+  <!-- ============ GAME SCREEN ============ -->
+  <div id="game-screen" class="screen">
+    <div id="saveNotify" class="save-notify">已自动保存</div>
+
+    <div class="hud">
+      <div class="hud-left">
+        <span class="hud-item">❤ <span id="hud-hp" class="bar-fill"></span></span>
+        <span class="hud-item">💙 <span id="hud-mp" class="bar-fill"></span></span>
+        <span class="hud-item">Lv.<span id="hud-level">1</span></span>
+        <span class="hud-item">🪙 <span id="hud-gold">0</span></span>
+        <span class="hud-item">⬇ <span id="hud-depth">1</span></span>
+      </div>
+      <div class="hud-right">
+        <span class="hud-stat">⚔<span id="hud-atk"></span></span>
+        <span class="hud-stat">🛡<span id="hud-def"></span></span>
+        <span class="hud-stat">⚡<span id="hud-spd"></span></span>
+        <span class="hud-stat">🍀<span id="hud-luck"></span></span>
+        <span class="hud-stat xp">XP <span id="hud-xp"></span></span>
+        <button id="btn-inv" class="btn btn-small">背包</button>
+        <button id="btn-ach" class="btn btn-small">成就</button>
+        <button id="btn-help" class="btn btn-small">帮助</button>
+        <button id="btn-settings2" class="btn btn-small" onclick="document.getElementById('btn-settings').click()">设置</button>
+      </div>
+      <div class="xpbar"><div id="hud-xpbar"></div></div>
+    </div>
+
+    <div id="scene" class="scene"></div>
+
+    <div id="log" class="log"></div>
+  </div>
+
+  <!-- ============ MODAL ============ -->
+  <div id="modal" class="modal">
+    <div class="modal-box">
+      <div id="modal-body"></div>
+      <button id="modal-close" class="btn btn-small modal-x">✕</button>
+    </div>
+  </div>
+
+  <script src="js/lang.js"></script>
+  <script src="js/data.js"></script>
+  <script src="js/logic.js"></script>
+  <script src="js/audio.js"></script>
+  <script src="js/save.js"></script>
+  <script src="js/ui.js"></script>
+  <script src="js/main.js"></script>
+</body>
+</html>

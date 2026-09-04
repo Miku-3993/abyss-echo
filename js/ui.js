@@ -1,0 +1,1026 @@
+/*
+ * Abyss Echo - UI rendering & interaction layer
+ * Consumes ABYSS.Logic events, renders DOM, wires game feel.
+ */
+var ABYSS = window.ABYSS = window.ABYSS || {};
+
+ABYSS.UI = (function () {
+  var D = ABYSS.DATA, L = ABYSS.LANG, T = ABYSS.T, Logic = ABYSS.Logic;
+  var $ = function (id) { return document.getElementById(id); };
+  var state = null, rng = Math.random, typeTimer = null, autosaveTimer = null;
+  var sceneContext = null; /* per-room data: merchant stock, chest item, etc. */
+
+  /* ================= event stream consumption ================= */
+  var EVENT_SOUNDS = {
+    hit: "playerHit", crit: "crit", dodge: "dodge", guard: "guard", kill: "kill",
+    death: "death", levelup: "levelup", heal: "heal", mpRestore: "heal",
+    achievement: "achievement", trap: "trap", chest: "chest", coin: "coin",
+    skill: "skill", flee: "flee", boss: "boss", fragment: "fragment", ending: "ending"
+  };
+
+  function consumeEvents(events) {
+    var logs = [];
+    events.forEach(function (ev) {
+      var cls = "log-" + ev.type;
+      var txt = null;
+      switch (ev.type) {
+        case "hit":
+          if (ev.target === "enemy") txt = (ev.crit ? "⚡ " : "") + T("dmg", { n: ev.dmg }) + "（敌人）";
+          else txt = (ev.crit ? "⚡ " : "") + T("take_dmg", { n: ev.dmg }) + (ev.blocked ? " 🛡" : "");
+          break;
+        case "dodge": txt = T("dodged"); cls = "log-good"; break;
+        case "guard": txt = T("guard") + "…"; break;
+        case "kill": {
+          var en = D.enemies[ev.enemy];
+          txt = T("victory_msg", { xp: ev.xp, gold: ev.gold });
+          Logic.gainXp(state, ev.xp, events); /* note: gainXp pushes its own levelup events; see below */
+          if (ev.drops && ev.drops.length) {
+            ev.drops.forEach(function (it) {
+              addItemSilent(it);
+              txt += " ［" + T("found_item", { n: L.name(D.items[it]) }) + "］";
+            });
+          }
+          ABYSS.Audio.kill();
+          if (ev.enemy.indexOf("boss") === 0) {
+            state.stats.bossesKilled = state.stats.bossesKilled || {};
+            state.stats.bossesKilled[ev.enemy] = true;
+            ABYSS.Audio.boss();
+            if (ev.enemy === "boss_abyss") {
+              Logic.grantFragment(state, "frag_3", events);
+            }
+          }
+          break;
+        }
+        case "death": txt = T("game_over"); ABYSS.Audio.death(); break;
+        case "revive": txt = "🔥 " + L.name(D.items.phoenix) + " " + T("victory_msg", { xp: 0, gold: 0 }); txt = "🔥 " + L.name(D.items.phoenix) + "！你从死亡边缘归来（30% 生命）"; break;
+        case "levelup": txt = "⬆ " + T("level_up", { n: ev.level }); ABYSS.Audio.levelup(); break;
+        case "tick":
+          txt = (ev.who === "player" ? "☠ " : "☠ ") + L.name(D.statuses[ev.status]) + " -" + ev.dmg;
+          break;
+        case "status": break;
+        case "enemyAbility": txt = "☣ " + L.name(D.enemies[ev.enemy]) + " 使你" + L.name(D.statuses[ev.status]); break;
+        case "drain": txt = "🩸 " + T("healed", { n: ev.amount }); cls = "log-good"; break;
+        case "heal": txt = "💚 " + T("healed", { n: ev.amount }); cls = "log-good"; break;
+        case "mpRestore": txt = "💙 " + T("mp_restore", { n: ev.amount }); cls = "log-good"; break;
+        case "cure": case "cureAll": txt = "✨ " + L.name(D.items[ev.item]) + " 生效"; cls = "log-good"; break;
+        case "buffItem": txt = "🔥 " + L.name(D.items[ev.item]) + " 生效"; break;
+        case "flee": txt = ev.ok ? T("fled") : "逃跑失败！"; cls = ev.ok ? "log-good" : "log-bad"; break;
+        case "noMp": txt = T("no_mp"); cls = "log-bad"; break;
+        case "skillCd": txt = "技能冷却中"; cls = "log-bad"; break;
+        case "skill": txt = "✦ " + L.name(D.skills[ev.skill]); break;
+        case "achievement": txt = "🏆 " + T("achievement_unlocked", { n: L.name(D.achievements[ev.id]) }); cls = "log-gold"; ABYSS.Audio.achievement(); break;
+        case "fragment": txt = "💠 " + T("found_item", { n: L.name(D.fragments[ev.frag]) }) + "（" + ev.count + "/3）"; cls = "log-gold"; ABYSS.Audio.fragment(); break;
+        case "camp": txt = "⛺ 你扎营休息，恢复了体力与魔力"; cls = "log-good"; break;
+        case "trapDamage": txt = "☠ " + T("trap_hit") + " -" + ev.dmg; cls = "log-bad"; break;
+        case "gold": txt = "🪙 +" + ev.amount + " " + T("gold"); cls = "log-gold"; break;
+        case "found": txt = "📦 " + T("found_item", { n: L.name(D.items[ev.item]) }); cls = "log-good"; break;
+        case "eventText": txt = ev.text; cls = "log-event"; break;
+        case "shop": txt = "🛒 " + ev.text; cls = "log-gold"; break;
+        case "ending": txt = "🏁 " + ev.text; cls = "log-gold"; break;
+        case "boss": txt = "💀 " + ev.text; cls = "log-bad"; break;
+        default: txt = ev.text || "";
+      }
+      if (txt) logs.push({ text: txt, cls: cls });
+      var snd = EVENT_SOUNDS[ev.type];
+      if (snd && ABYSS.Audio[snd] && ev.type !== "kill") ABYSS.Audio[snd]();
+    });
+    /* levelup events generated by gainXp during consume loop get appended;
+       render log + HUD once at the end */
+    logs.forEach(function (lg) { pushLog(lg.text, lg.cls); });
+    renderHUD();
+    return logs;
+  }
+
+  function addItemSilent(itemId) {
+    if (state.player.inventory.length >= D.INV_LIMIT) return false;
+    state.player.inventory.push(itemId);
+    return true;
+  }
+
+  function pushLog(text, cls) {
+    var box = $("log");
+    if (!box) return;
+    var line = document.createElement("div");
+    line.className = "log-line " + (cls || "");
+    line.textContent = text;
+    box.appendChild(line);
+    if (state.settings && state.settings.fastText) {
+      box.scrollTop = box.scrollHeight;
+    } else if (typeTimer) {
+      typeText(line, text, box);
+    } else {
+      box.scrollTop = box.scrollHeight;
+    }
+    while (box.children.length > 400) box.removeChild(box.firstChild);
+  }
+
+  function typeText(line, text, box) {
+    clearTimeout(typeTimer);
+    line.textContent = "";
+    var i = 0;
+    (function step() {
+      if (i <= text.length) {
+        line.textContent = text.slice(0, i);
+        box.scrollTop = box.scrollHeight;
+        i += 1;
+        typeTimer = setTimeout(step, 8);
+      } else {
+        typeTimer = null;
+      }
+    })();
+  }
+
+  /* ================= HUD ================= */
+  function renderHUD() {
+    var p = state.player, ps = Logic.playerStats(state);
+    var hpPct = Math.max(0, Math.round(p.hp / ps.hp * 100));
+    var mpPct = Math.max(0, Math.round(p.mp / ps.mp * 100));
+    $("hud-hp").style.width = hpPct + "%";
+    $("hud-hp").textContent = p.hp + "/" + ps.hp;
+    $("hud-mp").style.width = mpPct + "%";
+    $("hud-mp").textContent = p.mp + "/" + ps.mp;
+    $("hud-level").textContent = p.level;
+    $("hud-gold").textContent = p.gold;
+    $("hud-depth").textContent = state.run.depth;
+    var eq = Logic.equipped(state);
+    $("hud-atk").textContent = ps.atk + (eq.atk ? " (+" + eq.atk + ")" : "");
+    $("hud-def").textContent = ps.def + (eq.def ? " (+" + eq.def + ")" : "");
+    $("hud-spd").textContent = ps.spd;
+    $("hud-luck").textContent = ps.luck;
+    $("hud-atk").parentNode.title = T("atk");
+    $("hud-def").parentNode.title = T("def");
+    $("hud-spd").parentNode.title = T("spd");
+    $("hud-luck").parentNode.title = T("luck");
+    $("hud-xp").textContent = p.xp + "/" + Logic.xpNeeded(p.level);
+    $("hud-xpbar").style.width = Math.min(100, Math.round(p.xp / Logic.xpNeeded(p.level) * 100)) + "%";
+  }
+
+  function renderSaveNotify() {
+    var el = $("saveNotify");
+    el.classList.add("show");
+    setTimeout(function () { el.classList.remove("show"); }, 1200);
+  }
+
+  /* ================= scene ================= */
+  function showScene() {
+    var r = state.run;
+    var box = $("scene");
+    box.innerHTML = "";
+    if (!r.alive) { showDeath(); return; }
+    if (sceneContext && sceneContext.ending) { showEnding(sceneContext.ending); return; }
+    var title = document.createElement("div");
+    title.className = "scene-title";
+    title.textContent = T("floor", { n: r.depth });
+    box.appendChild(title);
+
+    if (r.combat) { renderCombat(box); return; }
+    if (!r.room) {
+      var btn = mkButton(T("search"), "btn-main", function () {
+        rng = Logic.mulberry32(Date.now() % 2147483647);
+        r.room = Logic.generateRoom(state, rng);
+        r.eventDone = false;
+        saveAndRender();
+      });
+      box.appendChild(p("迷雾笼罩着这一层深渊。"));
+      box.appendChild(btn);
+      return;
+    }
+    var room = r.room;
+    if (room.type === "combat" || room.type === "boss") {
+      startCombat(room.enemyId);
+      renderCombat(box);
+      return;
+    }
+    if (room.type === "rest") {
+      box.appendChild(p("一块相对安全的高地，适合扎营休息。"));
+      var btnRest = mkButton(T("rest"), "btn-main", function () {
+        var evs = [];
+        Logic.makeCamp(state, evs);
+        consumeEvents(evs);
+        r.eventDone = true;
+        saveAndRender();
+      });
+      box.appendChild(btnRest);
+      return;
+    }
+    if (room.type === "chest") {
+      box.appendChild(p(T("chest") + "…"));
+      var btnChest = mkButton(T("take"), "btn-main", function () {
+        var pick = ["potion_small", "potion_mana", "potion_big", "bomb_fire", "gold"];
+        var prize = pick[Math.floor(Math.random() * pick.length)];
+        var evs = [];
+        ABYSS.Audio.chest();
+        if (prize === "gold") {
+          var g = 15 + Math.floor(Math.random() * 30) * state.run.depth;
+          state.player.gold += g;
+          evs.push({ type: "gold", amount: g });
+        } else {
+          if (addItemSilent(prize)) evs.push({ type: "found", item: prize });
+          else evs.push({ type: "eventText", text: T("full_inventory") });
+        }
+        r.eventDone = true;
+        consumeEvents(evs);
+        saveAndRender();
+      });
+      box.appendChild(btnChest);
+      return;
+    }
+    if (room.type === "trap") {
+      box.appendChild(p(T("trap_hit") + "…"));
+      var btnTrap = mkButton(T("continue_btn"), "btn-main", function () {
+        var evs = [];
+        var dmg = 8 + state.run.depth * 3;
+        if (Math.random() < 0.25) {
+          evs.push({ type: "dodge", who: "player" });
+          evs.push({ type: "eventText", text: "你险险避开了机关！" });
+        } else {
+          state.player.hp = Math.max(1, state.player.hp - dmg);
+          evs.push({ type: "trapDamage", dmg: dmg });
+        }
+        r.eventDone = true;
+        ABYSS.Audio.trap();
+        consumeEvents(evs);
+        saveAndRender();
+      });
+      box.appendChild(btnTrap);
+      return;
+    }
+    if (room.type === "event") { renderEvent(box, room.eventId); return; }
+    if (room.type === "boss" && r.combat) { renderCombat(box); return; }
+    box.appendChild(p("…"));
+  }
+
+  function p(text) {
+    var el = document.createElement("p");
+    el.className = "scene-text";
+    el.textContent = text;
+    return el;
+  }
+
+  function mkButton(text, cls, onClick) {
+    var b = document.createElement("button");
+    b.className = "btn " + (cls || "");
+    b.textContent = text;
+    b.addEventListener("click", onClick);
+    return b;
+  }
+
+  /* ================= combat ================= */
+  function startCombat(enemyId) {
+    var c = { enemyId: enemyId, enemyHp: D.enemies[enemyId].hp, enemyStatuses: {}, skillCd: {}, guarding: false };
+    state.run.combat = c;
+    if (D.enemies[enemyId].boss) ABYSS.Audio.boss();
+  }
+
+  function renderCombat(box) {
+    var c = state.run.combat;
+    if (!c) return;
+    var e = D.enemies[c.enemyId];
+    var es = Logic.enemyStats(state);
+    var ps = Logic.playerStats(state);
+    var head = document.createElement("div");
+    head.className = "enemy-card";
+    head.innerHTML = "<div class='enemy-name'>" + (e.boss ? "💀 " : "👹 ") + L.name(e) + "</div>" +
+      "<div class='enemy-hpbar'><div class='enemy-hpfill' style='width:" + Math.max(0, Math.round(es.hp / es.maxHp * 100)) + "%'></div></div>" +
+      "<div class='enemy-info'>" + T("atk") + " " + es.atk + " · " + T("def") + " " + es.def + " · " + T("spd") + " " + es.spd + "</div>" +
+      "<div class='enemy-desc'>" + L.desc(e) + "</div>";
+    box.appendChild(head);
+
+    var actions = document.createElement("div");
+    actions.className = "actions";
+    actions.appendChild(mkButton("⚔ " + T("attack"), "btn-attack", function () {
+      resolve({ type: "attack" });
+    }));
+    actions.appendChild(mkButton("🛡 " + T("guard"), "btn-guard", function () {
+      resolve({ type: "guard" });
+    }));
+    actions.appendChild(mkButton("🏃 " + T("flee"), "btn-flee", function () {
+      resolve({ type: "flee" });
+    }));
+    box.appendChild(actions);
+
+    /* skills */
+    var sk = document.createElement("div");
+    sk.className = "skill-row";
+    for (var id in D.skills) {
+      (function (skillId) {
+        var s = D.skills[skillId];
+        var b = mkButton("✦ " + L.name(s) + " (" + s.mp + ")", "btn-skill", function () {
+          resolve({ type: "skill", skillId: skillId });
+        });
+        if (c.skillCd && c.skillCd[skillId] > 0) b.classList.add("disabled");
+        if (state.player.mp < s.mp) b.classList.add("disabled");
+        b.title = L.desc(s);
+        sk.appendChild(b);
+      })(id);
+    }
+    box.appendChild(sk);
+
+    /* consumables */
+    var items = document.createElement("div");
+    items.className = "item-row";
+    var consumables = state.player.inventory.filter(function (id) { return D.items[id] && D.items[id].type === "consumable"; });
+    if (consumables.length === 0) {
+      items.appendChild(p("（" + T("no_item") + "）"));
+    } else {
+      consumables.forEach(function (id) {
+        var b = mkButton(L.name(D.items[id]) + " ×" + countInInv(id), "btn-item", function () {
+          resolve({ type: "item", itemId: id });
+        });
+        b.title = L.desc(D.items[id]);
+        items.appendChild(b);
+      });
+    }
+    box.appendChild(items);
+  }
+
+  function countInInv(id) {
+    return state.player.inventory.filter(function (x) { return x === id; }).length;
+  }
+
+  function resolve(action) {
+    var evs = Logic.resolveTurn(state, action, rng);
+    consumeEvents(evs);
+    afterTurn();
+  }
+
+  function afterTurn() {
+    /* check lingering combat render */
+    if (state.run.alive && !state.run.combat) {
+      /* combat ended: apply end-of-combat bookkeeping (kills, frags) already done */
+      var evs = [];
+      Logic.checkAchievements(state, evs);
+      consumeEvents(evs);
+    }
+    if (!state.run.alive) {
+      Logic.checkAchievements(state, []);
+    }
+    renderHUD();
+    saveNow();
+    showScene();
+  }
+
+  /* ================= events ================= */
+  function renderEvent(box, eventId) {
+    var ev = D.events[eventId];
+    var r = state.run;
+    box.appendChild(p("📜 " + L.desc(ev)));
+
+    var choices = [];
+    switch (eventId) {
+      case "merchant": buildMerchantChoices(choices); break;
+      case "fountain": choices = [
+        { text: "饮下泉水（恢复 40% 生命）", fn: function () {
+            var ps = Logic.playerStats(state);
+            state.player.hp = Math.min(ps.hp, state.player.hp + Math.floor(ps.hp * 0.4));
+            var evs = [{ type: "heal", amount: Math.floor(ps.hp * 0.4) }];
+            r.eventDone = true; consumeEvents(evs); saveAndRender();
+          } },
+        { text: "取走泉底的硬币（+30 金币，30% 诅咒）", fn: function () {
+            var evs = [];
+            if (Math.random() < 0.3) {
+              Logic.applyStatus(state, "player", "weaken", 3, evs);
+              evs.push({ type: "eventText", text: "泉水反噬，你被虚弱诅咒缠身！" });
+            } else {
+              state.player.gold += 30;
+              evs.push({ type: "gold", amount: 30 });
+            }
+            r.eventDone = true; consumeEvents(evs); saveAndRender();
+          } },
+        { text: T("leave"), fn: function () { r.eventDone = true; saveAndRender(); } }
+      ]; break;
+      case "altar": {
+        var fragGive = state.stats.fragments && state.stats.fragments.indexOf("frag_1") >= 0;
+        choices = [
+          { text: "献上 50 金币，祈求祝福", can: state.player.gold >= 50, fn: function () {
+              state.player.gold -= 50;
+              Logic.applyStatus(state, "player", "blessing", 5, []);
+              var evs = [{ type: "eventText", text: "祭坛吞噬金币，一道祝福没入你的身体。" }, { type: "status", who: "player", status: "blessing" }];
+              r.eventDone = true; consumeEvents(evs); saveAndRender();
+            } },
+          { text: "触碰祭坛上的碎片（真相碎片·其一）", can: !fragGive, fn: function () {
+              var evs = [];
+              Logic.grantFragment(state, "frag_1", evs);
+              r.eventDone = true; consumeEvents(evs); saveAndRender();
+            } },
+          { text: "亵渎祭坛（-15 生命，获得 60 金币）", fn: function () {
+              state.player.hp = Math.max(1, state.player.hp - 15);
+              state.player.gold += 60;
+              var evs = [{ type: "trapDamage", dmg: 15 }, { type: "gold", amount: 60 }];
+              r.eventDone = true; consumeEvents(evs); saveAndRender();
+            } },
+          { text: T("leave"), fn: function () { r.eventDone = true; saveAndRender(); } }
+        ];
+        break;
+      }
+      case "chest": break;
+      case "tomb": choices = [
+        { text: "挖掘坟墓", fn: function () {
+            var evs = [];
+            if (Math.random() < 0.5) {
+              var it = ["ring_power", "charm_luck", "potion_big", "gold"][Math.floor(Math.random() * 4)];
+              if (it === "gold") { state.player.gold += 40; evs.push({ type: "gold", amount: 40 }); }
+              else if (addItemSilent(it)) evs.push({ type: "found", item: it });
+            } else {
+              var dmg = 12 + state.run.depth * 2;
+              state.player.hp = Math.max(1, state.player.hp - dmg);
+              evs.push({ type: "trapDamage", dmg: dmg });
+              evs.push({ type: "eventText", text: "墓穴中伸出一只枯手！" });
+            }
+            r.eventDone = true; consumeEvents(evs); saveAndRender();
+          } },
+        { text: T("leave"), fn: function () { r.eventDone = true; saveAndRender(); } }
+      ]; break;
+      case "shrine": choices = [
+        { text: "虔诚祈祷（攻击 +15%，持续 5 回合）", fn: function () {
+            Logic.applyStatus(state, "player", "blessing", 5, []);
+            var evs = [{ type: "eventText", text: "神像低语，力量注入你的四肢。" }];
+            r.eventDone = true; consumeEvents(evs); saveAndRender();
+          } },
+        { text: "砸碎神像（获得 25 金币）", fn: function () {
+            state.player.gold += 25;
+            var evs = [{ type: "gold", amount: 25 }, { type: "eventText", text: "神像裂开，滚落几枚古币。" }];
+            r.eventDone = true; consumeEvents(evs); saveAndRender();
+          } },
+        { text: T("leave"), fn: function () { r.eventDone = true; saveAndRender(); } }
+      ]; break;
+      case "vein": choices = [
+        { text: "开采矿脉（获得金币，10% 塌方）", fn: function () {
+            var evs = [];
+            if (Math.random() < 0.1) {
+              var dmg = 20 + state.run.depth * 3;
+              state.player.hp = Math.max(1, state.player.hp - dmg);
+              evs.push({ type: "trapDamage", dmg: dmg });
+            } else {
+              var g = 20 + Math.floor(Math.random() * 25) * state.run.depth;
+              state.player.gold += g;
+              evs.push({ type: "gold", amount: g });
+            }
+            r.eventDone = true; consumeEvents(evs); saveAndRender();
+          } },
+        { text: T("leave"), fn: function () { r.eventDone = true; saveAndRender(); } }
+      ]; break;
+      case "statue": {
+        var frag2 = state.stats.fragments && state.stats.fragments.indexOf("frag_2") >= 0;
+        choices = [
+          { text: "取走雕像掌心的碎片（真相碎片·其二）", can: !frag2, fn: function () {
+              var evs = [];
+              Logic.grantFragment(state, "frag_2", evs);
+              r.eventDone = true; consumeEvents(evs); saveAndRender();
+            } },
+          { text: "凝视雕像的双眼（+10 幸运祝福，5% 陷入疯狂）", fn: function () {
+              var evs = [];
+              if (Math.random() < 0.05) {
+                Logic.applyStatus(state, "player", "weaken", 5, evs);
+                evs.push({ type: "eventText", text: "你的心智被深渊撕开了一道口子……" });
+              } else {
+                Logic.applyStatus(state, "player", "blessing", 5, evs);
+                evs.push({ type: "eventText", text: "深渊的真相在你眼中一闪而过。" });
+              }
+              r.eventDone = true; consumeEvents(evs); saveAndRender();
+            } },
+          { text: T("leave"), fn: function () { r.eventDone = true; saveAndRender(); } }
+        ];
+        break;
+      }
+      case "spidernest": choices = [
+        { text: "突袭蛛巢", fn: function () {
+            var evs = [];
+            if (Math.random() < 0.6) {
+              var it = ["potion_antidote", "potion_antidote", "gold"][Math.floor(Math.random() * 3)];
+              if (it === "gold") { state.player.gold += 25; evs.push({ type: "gold", amount: 25 }); }
+              else if (addItemSilent(it)) evs.push({ type: "found", item: it });
+              if (Math.random() < 0.4) Logic.applyStatus(state, "player", "poison", 3, evs);
+            } else {
+              startCombat("spider");
+              evs.push({ type: "boss", text: "巢穴里扑出一只巨大的腐蚀蜘蛛！" });
+            }
+            r.eventDone = true; consumeEvents(evs); saveAndRender();
+          } },
+        { text: T("leave"), fn: function () { r.eventDone = true; saveAndRender(); } }
+      ]; break;
+      case "supply": choices = [
+        { text: "打开补给箱", fn: function () {
+            var evs = [];
+            var it = ["potion_small", "potion_mana", "potion_big", "bomb_fire"][Math.floor(Math.random() * 4)];
+            if (addItemSilent(it)) evs.push({ type: "found", item: it });
+            else evs.push({ type: "eventText", text: T("full_inventory") });
+            r.eventDone = true; consumeEvents(evs); saveAndRender();
+          } },
+        { text: T("leave"), fn: function () { r.eventDone = true; saveAndRender(); } }
+      ]; break;
+    }
+
+    if (choices.length === 0) {
+      box.appendChild(p("（" + T("no_item") + "）"));
+    }
+    choices.forEach(function (ch) {
+      var b = mkButton(ch.text, "btn-choice", ch.fn);
+      if (ch.can === false) b.classList.add("disabled");
+      box.appendChild(b);
+    });
+  }
+
+  function buildMerchantChoices(choices) {
+    if (!sceneContext || !sceneContext.stock) {
+      sceneContext = sceneContext || {};
+      sceneContext.stock = genStock();
+    }
+    var stock = sceneContext.stock;
+    stock.forEach(function (itemId) {
+      var it = D.items[itemId];
+      var price = it.value;
+      var canBuy = state.player.gold >= price && state.player.inventory.length < D.INV_LIMIT;
+      choices.push({
+        text: "🛒 " + L.name(it) + " — " + price + " " + T("gold") + "（" + (it.type === "consumable" ? T("use") : T("equip")) + "）",
+        can: canBuy,
+        fn: function () {
+          if (!canBuy && state.player.gold < price) {
+            pushLog(T("no_gold"), "log-bad");
+            return;
+          }
+          if (!canBuy && state.player.inventory.length >= D.INV_LIMIT) {
+            pushLog(T("full_inventory"), "log-bad");
+            return;
+          }
+          state.player.gold -= price;
+          addItemSilent(itemId);
+          ABYSS.Audio.item();
+          var evs = [{ type: "shop", text: "你买下了 " + L.name(it) }];
+          consumeEvents(evs);
+          saveAndRender();
+        }
+      });
+    });
+    choices.push({
+      text: T("leave"),
+      fn: function () { state.run.eventDone = true; saveAndRender(); }
+    });
+  }
+
+  function genStock() {
+    var depth = state.run.depth;
+    var pool = [];
+    if (depth <= 3) pool = ["sword_rust", "bow_hunter", "cloth", "leather", "charm_luck", "potion_small", "potion_mana", "potion_antidote"];
+    else if (depth <= 6) pool = ["dagger_moon", "axe_rune", "chainmail", "ring_power", "potion_big", "potion_mana", "potion_antidote"];
+    else if (depth <= 9) pool = ["blade_shadow", "rune_armor", "amulet_life", "potion_big", "bomb_fire", "holy_water"];
+    else pool = ["spear_dragon", "cloak_shadow", "coin_greed", "potion_big", "bomb_fire", "potion_rage"];
+    var stock = [];
+    while (stock.length < 4) {
+      var pick = pool[Math.floor(Math.random() * pool.length)];
+      if (stock.indexOf(pick) < 0) stock.push(pick);
+    }
+    return stock;
+  }
+
+  /* ================= death & endings & descend ================= */
+  function showDeath() {
+    var box = $("scene");
+    box.innerHTML = "";
+    var t = document.createElement("div");
+    t.className = "scene-title gameover";
+    t.textContent = T("game_over");
+    box.appendChild(t);
+    var e = D.enemies[state.run.lastAttacker];
+    box.appendChild(p(T("died", { n: e ? L.name(e) : "深渊" })));
+    box.appendChild(p("你坠入了更深的黑暗……"));
+    var st = document.createElement("p");
+    st.className = "scene-stats";
+    st.textContent = "📊 " + T("best_depth") + " " + state.stats.bestDepth + " · " + T("kills") + " " + state.stats.totalKills + " · " + T("level") + " " + state.player.level;
+    box.appendChild(st);
+    box.appendChild(mkButton(T("restart"), "btn-main", function () {
+      state = Logic.freshState();
+      state.settings = defaultSettings();
+      ABYSS.LANG.current = state.settings.lang;
+      saveNow();
+      newRun();
+    }));
+  }
+
+  function showEnding(endingId) {
+    var box = $("scene");
+    box.innerHTML = "";
+    var en = D.endings[endingId];
+    state.stats.endings = state.stats.endings || [];
+    if (state.stats.endings.indexOf(endingId) < 0) state.stats.endings.push(endingId);
+    ABYSS.Audio.ending();
+    var t = document.createElement("div");
+    t.className = "scene-title ending-title";
+    t.textContent = L.name(en);
+    box.appendChild(t);
+    box.appendChild(p(T("ending") + "："));
+    var d = document.createElement("p");
+    d.className = "scene-text ending-desc";
+    d.textContent = L.desc(en);
+    box.appendChild(d);
+    var evs = [];
+    Logic.checkAchievements(state, evs);
+    if (evs.length) consumeEvents(evs);
+    box.appendChild(mkButton("🖋 " + T("restart"), "btn-main", function () {
+      state = Logic.freshState();
+      state.settings = defaultSettings();
+      ABYSS.LANG.current = state.settings.lang;
+      saveNow();
+      newRun();
+    }));
+  }
+
+  function defaultSettings() {
+    var s = ABYSS.Save.load();
+    if (s && s.settings) return s.settings;
+    return { sound: true, fastText: false, lang: navigator.language && navigator.language.indexOf("zh") === 0 ? "zh" : "en" };
+  }
+
+  /* ================= magic door to final boss ================= */
+  function checkFinalDoor() {
+    if (state.run.finalOpen) return;
+    if (state.stats.bossesKilled && state.stats.bossesKilled.boss_karaz) {
+      state.run.finalOpen = true;
+      pushLog("💀 深渊在震颤……通往核心的裂隙已经开启。", "log-bad");
+    }
+  }
+
+  /* ================= save & boot ================= */
+  function saveNow() {
+    ABYSS.Save.save(state);
+  }
+
+  function saveAndRender() {
+    saveNow();
+    renderSaveNotify();
+    renderHUD();
+    checkFinalDoor();
+    showScene();
+    renderHUD();
+  }
+
+  function newRun() {
+    state.run.alive = true;
+    /* reuse existing run state */
+    showScene();
+    renderHUD();
+    pushLog("你睁开眼，四周是永恒的黑暗。你决定深入深渊。", "log-event");
+    pushLog(T("tutorial") + ": " + "使用底部按钮移动，⚔攻击 / 🛡防御 / ✦技能 / 🏃逃跑。每 3 层会出现一个 Boss。", "log-event");
+    saveNow();
+  }
+
+  function boot(savedState) {
+    ABYSS.LANG.current = (savedState && savedState.settings && savedState.settings.lang) || "zh";
+    state = savedState || Logic.freshState();
+    state.settings = state.settings || defaultSettings();
+    ABYSS.LANG.current = state.settings.lang;
+    bindGlobalUI();
+    renderHUD();
+    if (savedState) showScene();
+    else showTitle();
+    autosaveTimer = setInterval(function () {
+      if (state.run.alive) { saveNow(); }
+    }, 15000);
+  }
+
+  function showTitle() {
+    $("title-screen").classList.add("visible");
+    $("game-screen").classList.remove("visible");
+  }
+
+  function autostart() {
+    hideTitle();
+    state = Logic.freshState();
+    state.settings = defaultSettings();
+    ABYSS.LANG.current = state.settings.lang;
+    newRun();
+  }
+
+  /* preview/e2e hook: force a combat scene (used by screenshot tooling) */
+  function debugStartCombat(enemyId) {
+    state.run.room = { type: "combat", enemyId: enemyId };
+    state.run.combat = { enemyId: enemyId, enemyHp: D.enemies[enemyId].hp, enemyStatuses: {}, skillCd: {}, guarding: false };
+    state.run.eventDone = true;
+    showScene();
+    renderHUD();
+  }
+
+  function hideTitle() {
+    $("title-screen").classList.remove("visible");
+    $("game-screen").classList.add("visible");
+  }
+
+  function bindGlobalUI() {
+    $("btn-new").addEventListener("click", function () {
+      if (ABYSS.Save.load()) {
+        if (!confirm(T("reset_confirm"))) return;
+      }
+      ABYSS.Save.clear();
+      state = Logic.freshState();
+      state.settings = defaultSettings();
+      ABYSS.LANG.current = state.settings.lang;
+      newRun();
+      hideTitle();
+    });
+    $("btn-continue").addEventListener("click", function () {
+      var saved = ABYSS.Save.load();
+      if (!saved) {
+        pushLog("没有找到存档，开始新的旅程。");
+        ABYSS.Save.clear();
+        state = Logic.freshState();
+        state.settings = defaultSettings();
+        ABYSS.LANG.current = state.settings.lang;
+        newRun();
+      } else {
+        state = saved;
+        ABYSS.LANG.current = state.settings.lang || "zh";
+        renderHUD();
+        showScene();
+      }
+      hideTitle();
+    });
+    $("btn-settings").addEventListener("click", openSettings);
+    $("btn-inv").addEventListener("click", openInventory);
+    $("btn-ach").addEventListener("click", openAchievements);
+    $("btn-help").addEventListener("click", openHelp);
+    $("modal-close").addEventListener("click", closeModal);
+
+    document.addEventListener("keydown", function (e) {
+      if (!$("game-screen").classList.contains("visible")) return;
+      var modal = $("modal");
+      if (modal.classList.contains("visible")) {
+        if (e.key === "Escape") closeModal();
+        return;
+      }
+      /* keyboard shortcuts for combat */
+      if (state.run.combat) {
+        var keys = { "1": "attack", "2": "guard", "3": "flee" };
+        if (keys[e.key]) resolve({ type: keys[e.key] });
+      }
+    });
+  }
+
+  /* ================= modals ================= */
+  function openModal(title, bodyFn) {
+    var modal = $("modal"), content = $("modal-body");
+    content.innerHTML = "";
+    var h = document.createElement("h3");
+    h.textContent = title;
+    content.appendChild(h);
+    bodyFn(content);
+    modal.classList.add("visible");
+    ABYSS.UI.activeModal = modal;
+  }
+
+  function closeModal() {
+    $("modal").classList.remove("visible");
+  }
+
+  function openSettings() {
+    openModal(T("settings"), function (c) {
+      var langSel = document.createElement("select");
+      langSel.id = "sel-lang";
+      [["zh", "中文"], ["en", "English"]].forEach(function (pair) {
+        var o = document.createElement("option");
+        o.value = pair[0]; o.textContent = pair[1];
+        if (state.settings.lang === pair[0]) o.selected = true;
+        langSel.appendChild(o);
+      });
+      langSel.addEventListener("change", function () {
+        state.settings.lang = langSel.value;
+        ABYSS.LANG.current = state.settings.lang;
+        saveNow();
+        showScene();
+        renderHUD();
+        closeModal();
+      });
+      var row1 = document.createElement("div");
+      row1.className = "setting-row";
+      row1.appendChild(document.createElement("span")).textContent = T("language") + "：";
+      row1.appendChild(langSel);
+      c.appendChild(row1);
+
+      var chkSound = document.createElement("input");
+      chkSound.type = "checkbox";
+      chkSound.checked = state.settings.sound;
+      chkSound.addEventListener("change", function () {
+        state.settings.sound = chkSound.checked;
+        ABYSS.Audio.setEnabled(state.settings.sound);
+        saveNow();
+      });
+      var row2 = document.createElement("div");
+      row2.className = "setting-row";
+      row2.appendChild(document.createElement("span")).textContent = T("sound_on").split("：")[0] + "：";
+      row2.appendChild(chkSound);
+      c.appendChild(row2);
+
+      var chkFast = document.createElement("input");
+      chkFast.type = "checkbox";
+      chkFast.checked = state.settings.fastText;
+      chkFast.addEventListener("change", function () {
+        state.settings.fastText = chkFast.checked;
+        saveNow();
+      });
+      var row3 = document.createElement("div");
+      row3.className = "setting-row";
+      row3.appendChild(document.createElement("span")).textContent = T("fast_text") + "：";
+      row3.appendChild(chkFast);
+      c.appendChild(row3);
+
+      var btns = document.createElement("div");
+      btns.className = "modal-actions";
+      btns.appendChild(mkButton(T("save_export"), "btn", function () {
+        var code = ABYSS.Save.exportCode(state);
+        var ta = document.createElement("textarea");
+        ta.value = code;
+        ta.readOnly = true;
+        ta.className = "export-box";
+        c.appendChild(ta);
+        ta.select();
+        try { document.execCommand("copy"); } catch (e) { /* ignored */ }
+      }));
+      var importBtn = mkButton(T("save_import"), "btn", function () {
+        var ta = document.createElement("textarea");
+        ta.placeholder = "Paste save code…";
+        ta.className = "export-box";
+        c.appendChild(ta);
+        var doIt = mkButton(T("continue_btn"), "btn", function () {
+          var st = ABYSS.Save.importCode(ta.value);
+          if (st) {
+            state = st;
+            ABYSS.LANG.current = st.settings.lang || "zh";
+            saveNow();
+            pushLog(T("save_imported"), "log-good");
+            renderHUD();
+            showScene();
+            closeModal();
+          } else {
+            pushLog(T("save_invalid"), "log-bad");
+          }
+        });
+        c.appendChild(doIt);
+      });
+      btns.appendChild(importBtn);
+      var resetBtn = mkButton(T("reset") + " ⚠", "btn btn-danger", function () {
+        if (confirm(T("reset_confirm"))) {
+          ABYSS.Save.clear();
+          state = Logic.freshState();
+          state.settings = defaultSettings();
+          ABYSS.LANG.current = state.settings.lang;
+          newRun();
+          closeModal();
+        }
+      });
+      btns.appendChild(resetBtn);
+      c.appendChild(btns);
+    });
+  }
+
+  function openInventory() {
+    openModal(T("inventory"), function (c) {
+      var ps = Logic.playerStats(state);
+      var eq = Logic.equipped(state);
+      var eqInfo = document.createElement("div");
+      eqInfo.className = "eq-info";
+      var lines = ["⚔ " + T("atk") + " " + ps.atk, "🛡 " + T("def") + " " + ps.def, "⚡ " + T("spd") + " " + ps.spd, "🍀 " + T("luck") + " " + ps.luck];
+      eqInfo.innerHTML = lines.join(" · ");
+      c.appendChild(eqInfo);
+
+      var slots = document.createElement("div");
+      slots.className = "eq-slots";
+      ["weapon", "armor", "trinket"].forEach(function (slot) {
+        var id = state.player.equipment[slot];
+        var el = document.createElement("div");
+        el.className = "eq-slot";
+        el.innerHTML = "<span class='slot-label'>" + slot.toUpperCase() + "</span> <span class='slot-item'>" +
+          (id ? L.name(D.items[id]) : "—") + "</span>";
+        if (id) {
+          var btn = mkButton(T("unequip"), "btn btn-small", function () {
+            state.player.equipment[slot] = null;
+            addItemSilent(id);
+            ABYSS.Audio.item();
+            saveNow();
+            openInventory();
+          });
+          el.appendChild(btn);
+        }
+        slots.appendChild(el);
+      });
+      c.appendChild(slots);
+
+      var grid = document.createElement("div");
+      grid.className = "inv-grid";
+      state.player.inventory.forEach(function (id) {
+        var it = D.items[id];
+        var card = document.createElement("div");
+        card.className = "inv-card";
+        var nm = document.createElement("div");
+        nm.className = "inv-name";
+        nm.textContent = L.name(it);
+        var dd = document.createElement("div");
+        dd.className = "inv-desc";
+        dd.textContent = L.desc(it);
+        card.appendChild(nm);
+        card.appendChild(dd);
+        if (it.type !== "consumable") {
+          var slot = it.slot;
+          var eqId = state.player.equipment[slot];
+          var isEquipped = eqId === id;
+          var btnLabel = isEquipped ? "✓ " + T("equip") : T("equip");
+          var btn = mkButton(btnLabel, "btn btn-small " + (isEquipped ? "btn-equipped" : ""), function () {
+            if (eqId) addItemSilent(eqId);
+            state.player.equipment[slot] = id;
+            var idx = state.player.inventory.indexOf(id);
+            if (idx >= 0) state.player.inventory.splice(idx, 1);
+            ABYSS.Audio.item();
+            saveNow();
+            openInventory();
+          });
+          card.appendChild(btn);
+          if (!isEquipped) {
+            var sellBtn = mkButton(T("sell") + " " + it.value + "🪙", "btn btn-small", function () {
+              state.player.gold += it.value;
+              var idx = state.player.inventory.indexOf(id);
+              if (idx >= 0) state.player.inventory.splice(idx, 1);
+              ABYSS.Audio.coin();
+              saveNow();
+              openInventory();
+            });
+            card.appendChild(sellBtn);
+          }
+        } else {
+          var useBtn = mkButton(T("use"), "btn btn-small", function () {
+            if (state.run.combat) {
+              var evs = Logic.resolveTurn(state, { type: "item", itemId: id }, rng);
+              consumeEvents(evs);
+              afterTurn();
+            } else {
+              var evs2 = [];
+              ABYSS.Logic.useItem(state, id, evs2, rng);
+              consumeEvents(evs2);
+              saveNow();
+            }
+            closeModal();
+          });
+          card.appendChild(useBtn);
+        }
+        grid.appendChild(card);
+      });
+      if (state.player.inventory.length === 0) c.appendChild(p("（" + T("no_item") + "）"));
+      c.appendChild(grid);
+    });
+  }
+
+  function openAchievements() {
+    openModal(T("achievements"), function (c) {
+      var list = document.createElement("div");
+      list.className = "ach-list";
+      var unlocked = state.stats.achievements || [];
+      for (var id in D.achievements) {
+        (function (aid) {
+          var got = unlocked.indexOf(aid) >= 0;
+          var el = document.createElement("div");
+          el.className = "ach-item " + (got ? "ach-got" : "ach-locked");
+          el.innerHTML = "<span class='ach-icon'>" + (got ? "🏆" : "🔒") + "</span>" +
+            "<span class='ach-name'>" + L.name(D.achievements[aid]) + "</span>" +
+            "<span class='ach-desc'>" + L.desc(D.achievements[aid]) + "</span>";
+          list.appendChild(el);
+        })(id);
+      }
+      c.appendChild(list);
+      var st = document.createElement("p");
+      st.className = "scene-stats";
+      st.textContent = unlocked.length + "/" + Object.keys(D.achievements).length + " " + T("achievements");
+      c.appendChild(st);
+    });
+  }
+
+  function openHelp() {
+    openModal(T("help"), function (c) {
+      var lines = [
+        "⛏ 探索：进入房间后搜索，可能遭遇战斗、事件或宝藏。",
+        "⚔ 战斗：攻击 / 防御（格挡减伤）/ 技能（消耗魔力）/ 道具 / 逃跑。",
+        "✦ 技能冷却：使用后需等待数回合。防御可叠加格挡。",
+        "💀 Boss：第 3/6/9/12 层有 Boss，击败第 12 层 Boss 后开启深渊核心。",
+        "💠 真相碎片：祭坛、雕像、深渊之主各藏一枚碎片，集齐可解锁真结局。",
+        "📦 背包：可装备武器/护甲/饰品，消耗品在战斗中直接使用。",
+        "💾 存档：自动保存 + 手动导出/导入（设置面板）。",
+        "⌨ 快捷键：战斗中 1=攻击 2=防御 3=逃跑。"
+      ];
+      lines.forEach(function (line) {
+        var d = document.createElement("p");
+        d.className = "help-line";
+        d.textContent = line;
+        c.appendChild(d);
+      });
+      c.appendChild(mkButton(T("back"), "btn", closeModal));
+    });
+  }
+
+  return {
+    boot: boot,
+    autostart: autostart,
+    debugStartCombat: debugStartCombat,
+    get state() { return state; }
+  };
+})();
+
+/* CommonJS export for node tests */
+if (typeof module !== "undefined" && module.exports) {
+  module.exports = { ABYSS: ABYSS };
+}
