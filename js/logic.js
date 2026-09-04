@@ -536,6 +536,7 @@ ABYSS.Logic = (function () {
 
   function handleDeath(state, events) {
     var p = state.player;
+    if (state.run.combat) state.run.lastAttacker = state.run.combat.enemyId;
     var revive = equipped(state).revive && !state.stats.reviveUsed;
     if (revive) {
       state.stats.reviveUsed = true;
@@ -992,6 +993,7 @@ ABYSS.Logic = (function () {
 if (typeof module !== "undefined" && module.exports) {
   module.exports = { ABYSS: ABYSS };
 }
+
 
 
 

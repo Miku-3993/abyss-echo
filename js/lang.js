@@ -228,6 +228,8 @@ ABYSS.LANG = {
     "set_active": { zh: "回声遗物套装激活：全属性 +10%", en: "Echo Relic set active: +10% all stats" },
     "set_progress": { zh: "回声遗物套装 {n}/3", en: "Echo Relic set {n}/3" },
     "daily": { zh: "每日挑战", en: "Daily" },
+    "boss_felled": { zh: "被 Boss 讨伐", en: "Felled by a boss" },
+    "dies_to": { zh: "死于 {n} 之手", en: "Slain by {n}" },
     "ev_vault_left": { zh: "打开左边的黑匣", en: "Open the left chest" },
     "ev_vault_middle": { zh: "打开中间的黑匣", en: "Open the middle chest" },
     "ev_vault_right": { zh: "打开右边的黑匣", en: "Open the right chest" },
@@ -274,6 +276,7 @@ ABYSS.LANG.desc = function (entry) {
 if (typeof module !== "undefined" && module.exports) {
   module.exports = { ABYSS: ABYSS };
 }
+
 
 
 

@@ -571,6 +571,15 @@ test("relic pity guarantees a drop after 3 misses", () => {
   assert.ok(found > 0, "relics drop over repeated rolls");
 });
 
+test("death records the last attacker", () => {
+  const s = Logic.freshState();
+  s.run.combat = { enemyId: "wolf", enemyHp: 999, enemyStatuses: {}, skillCd: {}, guarding: false };
+  s.player.hp = 1;
+  const evs = Logic.resolveTurn(s, { type: "attack" }, seqRng([0.99, 0.99, 0.99, 0.99]));
+  assert.ok(evs.some((e) => e.type === "death"));
+  assert.equal(s.run.lastAttacker, "wolf", "attacker recorded for death screen");
+});
+
 test("legacy saves normalize cleanly", () => {
   const legacy = {
     version: "1.0.0",

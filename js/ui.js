@@ -1118,6 +1118,7 @@ ABYSS.UI = (function () {
     box.appendChild(t);
     var e = D.enemies[state.run.lastAttacker];
     box.appendChild(p(T("died", { n: e ? L.name(e) : "深渊" })));
+    if (e && e.boss) pushToast(T("boss_felled"), T("dies_to", { n: L.name(e) }), "💀");
     box.appendChild(p(T("deeper_dark")));
     /* journey summary card */
     var jc = document.createElement("div");
@@ -1984,6 +1985,7 @@ ABYSS.UI = (function () {
 if (typeof module !== "undefined" && module.exports) {
   module.exports = { ABYSS: ABYSS };
 }
+
 
 
 
