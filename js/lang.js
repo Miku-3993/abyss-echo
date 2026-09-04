@@ -104,7 +104,12 @@ ABYSS.LANG = {
     "codex_unknown": { zh: "尚未遭遇。深入深渊以解锁此条目。", en: "Not yet encountered. Descend deeper to unlock." },
     "daily_best": { zh: "今日最佳：第 {n} 层 · 击杀 {k}", en: "Today's best: Floor {n} · {k} kills" },
     "daily_enter": { zh: "进入每日挑战？今日规则：", en: "Enter the daily challenge? Today's rules:" },
-    "daily_rules": { zh: "每日挑战每天变化规则组合，死亡即结束。成绩仅记录今日最佳。", en: "Rules change daily; death ends the run. Only today's best counts." }
+    "daily_rules": { zh: "每日挑战每天变化规则组合，死亡即结束。成绩仅记录今日最佳。", en: "Rules change daily; death ends the run. Only today's best counts." },
+    "quest_start": { zh: "接受了委托", en: "Quest accepted" },
+    "quest_abandon": { zh: "放弃了委托", en: "Quest abandoned" },
+    "quest_done": { zh: "委托完成", en: "Quest complete" },
+    "quest_current": { zh: "当前委托", en: "Current quest" },
+    "reward": { zh: "奖励", en: "Reward" }
   }
 };
 

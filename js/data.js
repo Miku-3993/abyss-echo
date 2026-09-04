@@ -5,8 +5,25 @@
 var ABYSS = window.ABYSS = window.ABYSS || {};
 
 ABYSS.DATA = {
-  VERSION: "1.5.0",
+  VERSION: "1.6.0",
   MAX_DEPTH: 12,
+  QUESTS: [
+    { id: "elite", name: { zh: "精英猎杀令", en: "Elite Hunt Order" }, giver: { zh: "猎人格雷", en: "Hunter Grey" },
+      desc: { zh: "消灭 3 个精英怪物", en: "Slay 3 elite monsters" }, kind: "eliteKills", target: 3,
+      reward: { gold: 150, items: ["elixir_life"] } },
+    { id: "depth", name: { zh: "深渊行者", en: "Abyss Walker" }, giver: { zh: "行者的遗言", en: "Walker's Last Words" },
+      desc: { zh: "到达第 6 层", en: "Reach floor 6" }, kind: "depth", target: 6,
+      reward: { gold: 90, items: ["scroll_arcane", "scroll_arcane"] } },
+    { id: "hoard", name: { zh: "财富试炼", en: "Trial of Wealth" }, giver: { zh: "守财奴", en: "The Miser" },
+      desc: { zh: "同时持有 400 金币", en: "Hold 400 gold at once" }, kind: "gold", target: 400,
+      reward: { gold: 0, items: ["potion_rage", "holy_water"] } },
+    { id: "cleanse", name: { zh: "圣水礼赞", en: "Rite of Cleansing" }, giver: { zh: "苦行僧", en: "The Ascetic" },
+      desc: { zh: "清除 5 次负面状态", en: "Cleanse harmful status 5 times" }, kind: "cleanses", target: 5,
+      reward: { gold: 120, items: ["scroll_arcane"] } },
+    { id: "butcher", name: { zh: "屠夫之道", en: "Way of the Butcher" }, giver: { zh: "屠夫", en: "The Butcher" },
+      desc: { zh: "击杀 30 只怪物", en: "Slay 30 monsters" }, kind: "kills", target: 30,
+      reward: { gold: 200, items: ["bomb_fire", "bomb_fire"] } }
+  ],
   DAILY: {
     name: { zh: "每日挑战", en: "Daily Challenge" },
     modifiers: [
@@ -201,7 +218,9 @@ ABYSS.DATA = {
     fortune:    { name: { zh: "占卜师", en: "Fortune Teller" },
                   desc: { zh: "披着星纹斗篷的老者摊开塔罗牌，牌面映着深渊的倒影。", en: "An elder in a star-patterned cloak spreads tarot cards that mirror the abyss." } },
     library:    { name: { zh: "深渊图书馆", en: "Abyss Library" },
-                  desc: { zh: "一间堆满腐烂典籍的房间，书脊上的文字仍在蠕动。", en: "A room piled with rotting tomes whose letters still writhe." } }
+                  desc: { zh: "一间堆满腐烂典籍的房间，书脊上的文字仍在蠕动。", en: "A room piled with rotting tomes whose letters still writhe." } },
+    questboard: { name: { zh: "悬赏板", en: "Bounty Board" },
+                  desc: { zh: "一块钉满委托卷轴的木板，落款大多是失踪者的名字。", en: "A board thick with bounty scrolls, mostly signed by the missing." } }
   },
 
   /* ---------- ACHIEVEMENTS ---------- */
@@ -229,7 +248,8 @@ ABYSS.DATA = {
     fortune:       { name: { zh: "幸运儿", en: "Lucky One" },              desc: { zh: "在占卜师那里赌赢 3 次", en: "Win 3 bets with the fortune teller" } },
     bookworm:      { name: { zh: "书虫", en: "Bookworm" },                 desc: { zh: "造访深渊图书馆 3 次", en: "Visit the abyss library 3 times" } },
     prestige_1:    { name: { zh: "轮回之始", en: "First Rebirth" },        desc: { zh: "完成第一次转生", en: "Transcend for the first time" } },
-    bestiary:      { name: { zh: "图鉴学家", en: "Codex Scholar" },        desc: { zh: "图鉴中解锁 12 种怪物", en: "Unlock 12 monsters in the codex" } }
+    bestiary:      { name: { zh: "图鉴学家", en: "Codex Scholar" },        desc: { zh: "图鉴中解锁 12 种怪物", en: "Unlock 12 monsters in the codex" } },
+    quest_master:  { name: { zh: "任务达人", en: "Quest Master" },         desc: { zh: "完成 3 个委托任务", en: "Complete 3 quests" } }
   },
 
   /* ---------- ENDINGS ---------- */

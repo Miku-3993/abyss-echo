@@ -85,6 +85,18 @@ ABYSS.UI = (function () {
         case "shop": txt = "🛒 " + ev.text; cls = "log-gold"; break;
         case "ending": txt = "🏁 " + ev.text; cls = "log-gold"; break;
         case "prestige": txt = "🌀 深渊刻印 +" + ev.level + "！你的力量在深渊中回响……"; cls = "log-gold"; break;
+        case "questStart": txt = "📋 " + T("quest_start") + "：" + L.name(D.QUESTS.filter(function (q) { return q.id === ev.quest; })[0]); cls = "log-gold"; break;
+        case "questAbandon": txt = "📋 " + T("quest_abandon") + "：" + L.name(D.QUESTS.filter(function (q) { return q.id === ev.quest; })[0]); break;
+        case "questDone": {
+          var qDen = D.QUESTS.filter(function (q) { return q.id === ev.quest; })[0];
+          txt = "🏆 " + T("quest_done") + "：" + L.name(qDen) + (ev.gold ? "（+🪙" + ev.gold + "）" : "");
+          if (ev.items && ev.items.length) {
+            ev.items.forEach(function (it) { txt += " ［" + T("found_item", { n: L.name(D.items[it]) }) + "］"; });
+          }
+          ABYSS.Audio.achievement();
+          cls = "log-gold";
+          break;
+        }
         case "boss": txt = "💀 " + ev.text; cls = "log-bad"; break;
         default: txt = ev.text || "";
       }
@@ -180,6 +192,18 @@ ABYSS.UI = (function () {
     $("hud-luck").parentNode.title = T("luck");
     $("hud-xp").textContent = p.xp + "/" + Logic.xpNeeded(p.level);
     $("hud-xpbar").style.width = Math.min(100, Math.round(p.xp / Logic.xpNeeded(p.level) * 100)) + "%";
+    /* active quest indicator */
+    var qEl = $("hud-quest");
+    if (qEl) {
+      var q = Logic.questDef(state);
+      if (q) {
+        var qs = state.stats.quests;
+        qEl.textContent = "📋 " + L.name(q) + " " + qs.progress + "/" + q.target;
+        qEl.style.display = "";
+      } else {
+        qEl.style.display = "none";
+      }
+    }
   }
 
   function renderSaveNotify() {
@@ -618,6 +642,36 @@ ABYSS.UI = (function () {
           } },
         { text: T("leave"), fn: function () { r.eventDone = true; saveAndRender(); } }
       ]; break;
+      case "questboard": {
+        var qs = state.stats.quests;
+        var doneIds = (qs && qs.done) || [];
+        var available = D.QUESTS.filter(function (q) { return doneIds.indexOf(q.id) < 0; });
+        if (qs && qs.active) {
+          var cur = Logic.questDef(state);
+          choices.push({
+            text: "📌 " + T("quest_current") + "：" + L.name(cur) + "（" + qs.progress + "/" + cur.target + "）",
+            can: false,
+            fn: function () {}
+          });
+        }
+        /* offer up to 2 random undone quests */
+        var shuffled = available.slice().sort(function () { return Math.random() - 0.5; }).slice(0, 2);
+        shuffled.forEach(function (q) {
+          var rewardTxt = (q.reward.gold ? "🪙" + q.reward.gold + " " : "") + (q.reward.items || []).map(function (it) { return L.name(D.items[it]); }).join("、");
+          choices.push({
+            text: "📋 " + L.name(q) + "（" + L.name(q.giver) + "）：" + L.desc(q) + "　【" + T("reward") + "：" + rewardTxt + "】",
+            fn: function () {
+              var evs = [];
+              Logic.startQuest(state, q.id, evs);
+              r.eventDone = true;
+              consumeEvents(evs);
+              saveAndRender();
+            }
+          });
+        });
+        choices.push({ text: T("leave"), fn: function () { r.eventDone = true; saveAndRender(); } });
+        break;
+      }
     }
 
     if (choices.length === 0) {
@@ -782,6 +836,10 @@ ABYSS.UI = (function () {
   function saveAndRender() {
     saveNow();
     renderSaveNotify();
+    /* quest completion check runs on every state change */
+    var qevs = [];
+    Logic.checkQuest(state, qevs);
+    if (qevs.length) consumeEvents(qevs);
     renderHUD();
     checkFinalDoor();
     showScene();

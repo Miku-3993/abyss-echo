@@ -37,7 +37,8 @@ ABYSS.Logic = (function () {
         playTimeSec: 0, bestDepth: 1, totalKills: 0, totalDeaths: 0,
         achievements: [], endings: [], bossesKilled: {}, reviveUsed: false, fragments: [],
         eliteKills: 0, fortuneWins: 0, libraryVisits: 0, prestige: 0,
-        enemyKilled: {}, collected: {}
+        enemyKilled: {}, collected: {},
+        quests: { active: null, progress: 0, done: [] }
       },
       settings: { sound: true, fastText: false, lang: "zh" }
     };
@@ -229,6 +230,7 @@ ABYSS.Logic = (function () {
           var s = D.statuses[sid];
           if (s && s.kind === "harm") delete p.statuses[sid];
         }
+        questProgress(state, "cleanses", 1);
         events.push({ type: "skill", skill: action.skillId });
       } else {
         var hits = sk.hits || 1;
@@ -381,6 +383,7 @@ ABYSS.Logic = (function () {
     }
     if (it.cure) {
       it.cure.forEach(function (sid) { delete p.statuses[sid]; });
+      questProgress(state, "cleanses", 1);
       events.push({ type: "cure", item: itemId });
     }
     if (it.cureAll && hasHarmful(p.statuses)) {
@@ -388,6 +391,7 @@ ABYSS.Logic = (function () {
         var s = D.statuses[sid];
         if (s && s.kind === "harm") delete p.statuses[sid];
       }
+      questProgress(state, "cleanses", 1);
       events.push({ type: "cureAll", item: itemId });
     }
     if (it.status) {
@@ -425,6 +429,8 @@ ABYSS.Logic = (function () {
     if (elite) {
       state.stats.enemyKilled[enemyId + "__elite"] = true;
     }
+    questProgress(state, "kills", 1);
+    if (elite) questProgress(state, "eliteKills", 1);
   }
 
   function recordCollected(state, itemId) {
@@ -553,6 +559,8 @@ ABYSS.Logic = (function () {
     state.run.eventDone = false;
     state.run.room = null;
     state.run.combat = null;
+    if (state.run.depth > (state.stats.bestDepth || 1)) state.stats.bestDepth = state.run.depth;
+    questProgress(state, "depth", 1);
     return state.run.depth;
   }
 
@@ -596,7 +604,8 @@ ABYSS.Logic = (function () {
       fortune: function () { return st.fortuneWins >= 3; },
       bookworm: function () { return st.libraryVisits >= 3; },
       prestige_1: function () { return (st.prestige || 0) >= 1; },
-      bestiary: function () { return Object.keys(st.enemyKilled || {}).length >= 12; }
+      bestiary: function () { return Object.keys(st.enemyKilled || {}).length >= 12; },
+      quest_master: function () { return (st.quests && st.quests.done && st.quests.done.length) >= 3; }
     };
     for (var id in defs) {
       if (list.indexOf(id) < 0 && defs[id]()) {
@@ -625,6 +634,80 @@ ABYSS.Logic = (function () {
       state.run.frags += 1;
       events.push({ type: "fragment", frag: fragId, count: state.stats.fragments.length });
     }
+  }
+
+  /* ---------- quests ---------- */
+  function questDef(state) {
+    var qs = state.stats.quests;
+    if (!qs || !qs.active) return null;
+    var q = null;
+    for (var i = 0; i < D.QUESTS.length; i++) {
+      if (D.QUESTS[i].id === qs.active) { q = D.QUESTS[i]; break; }
+    }
+    return q;
+  }
+
+  function startQuest(state, questId, events) {
+    var qs = state.stats.quests;
+    qs = qs || { active: null, progress: 0, done: [] };
+    state.stats.quests = qs;
+    if (qs.done.indexOf(questId) >= 0) return events;
+    if (qs.active && qs.active !== questId) {
+      events.push({ type: "questAbandon", quest: qs.active });
+    }
+    qs.active = questId;
+    qs.progress = 0;
+    /* gold quests initialize progress from current gold */
+    var q = null;
+    for (var i = 0; i < D.QUESTS.length; i++) if (D.QUESTS[i].id === questId) q = D.QUESTS[i];
+    if (q && q.kind === "gold") qs.progress = Math.min(q.target, state.player.gold);
+    events.push({ type: "questStart", quest: questId });
+    return events;
+  }
+
+  function questProgress(state, kind, amount) {
+    var qs = state.stats.quests;
+    var q = questDef(state);
+    if (!q || q.kind !== kind) return;
+    amount = amount || 1;
+    if (kind === "gold") {
+      qs.progress = Math.min(q.target, state.player.gold);
+    } else {
+      qs.progress = Math.min(q.target, qs.progress + amount);
+    }
+  }
+
+  function checkQuest(state, events) {
+    events = events || [];
+    var qs = state.stats.quests;
+    var q = questDef(state);
+    if (!q) return events;
+    var done = false;
+    if (q.kind === "gold") {
+      qs.progress = Math.min(q.target, state.player.gold);
+      done = state.player.gold >= q.target;
+    } else {
+      done = qs.progress >= q.target;
+    }
+    if (done) {
+      qs.done = qs.done || [];
+      qs.done.push(q.id);
+      qs.active = null;
+      qs.progress = 0;
+      /* rewards */
+      if (q.reward.gold) state.player.gold += q.reward.gold;
+      var items = q.reward.items || [];
+      var received = [];
+      for (var i = 0; i < items.length; i++) {
+        if (state.player.inventory.length < D.INV_LIMIT) {
+          state.player.inventory.push(items[i]);
+          recordCollected(state, items[i]);
+          received.push(items[i]);
+        }
+      }
+      events.push({ type: "questDone", quest: q.id, gold: q.reward.gold || 0, items: received });
+    }
+    return events;
   }
 
   /* ---------- prestige / rebirth ---------- */
@@ -657,6 +740,8 @@ ABYSS.Logic = (function () {
     /* codex progress persists across rebirths */
     fresh.stats.enemyKilled = JSON.parse(JSON.stringify(state.stats.enemyKilled || {}));
     fresh.stats.collected = JSON.parse(JSON.stringify(state.stats.collected || {}));
+    /* completed quests persist, active quest is dropped */
+    fresh.stats.quests = { active: null, progress: 0, done: ((state.stats.quests && state.stats.quests.done) || []).slice() };
     fresh.player.gold = keep.gold;
     fresh.player.name = state.player.name;
     return fresh;
@@ -682,6 +767,10 @@ ABYSS.Logic = (function () {
     checkAchievements: checkAchievements,
     grantFragment: grantFragment,
     prestige: prestige,
+    startQuest: startQuest,
+    questProgress: questProgress,
+    checkQuest: checkQuest,
+    questDef: questDef,
     applyStatus: applyStatus,
     tickStatuses: tickStatuses,
     hasHarmful: hasHarmful,

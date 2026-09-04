@@ -243,10 +243,11 @@ test("all data references are valid", () => {
     assert.ok(evs.length >= 0, `skill ${sk} should resolve`);
   }
   /* every event id exists; every fragment source is reachable */
-  assert.equal(Object.keys(D.events).length, 12);
-  assert.equal(Object.keys(D.achievements).length, 24);
+  assert.equal(Object.keys(D.events).length, 13);
+  assert.equal(Object.keys(D.achievements).length, 25);
   assert.equal(Object.keys(D.endings).length, 2);
   assert.equal(Object.keys(D.fragments).length, 3);
+  assert.equal(D.QUESTS.length, 5);
 });
 
 test("prestige boosts player stats permanently", () => {
@@ -390,6 +391,55 @@ test("daily elite chance applies to room generation", () => {
   }
   assert.ok(combats > 50, "enough combat rooms sampled");
   assert.ok(elites > 5, "elites should be common with 2x chance, got " + elites);
+});
+
+test("quest: accept, progress and complete elite hunt", () => {
+  const s = Logic.freshState();
+  const evs = [];
+  Logic.startQuest(s, "elite", evs);
+  assert.ok(evs.some((e) => e.type === "questStart"));
+  assert.equal(s.stats.quests.active, "elite");
+  Logic.questProgress(s, "kills", 1);
+  Logic.questProgress(s, "eliteKills", 1);
+  assert.equal(s.stats.quests.progress, 1);
+  Logic.questProgress(s, "eliteKills", 2);
+  const done = Logic.checkQuest(s, []);
+  assert.ok(done.some((e) => e.type === "questDone"));
+  assert.equal(s.stats.quests.active, null);
+  assert.deepEqual(s.stats.quests.done, ["elite"]);
+  assert.ok(s.player.gold >= 150, "reward gold granted");
+  assert.ok(s.player.inventory.indexOf("elixir_life") >= 0, "reward item granted");
+});
+
+test("quest: gold quest completes when holding enough gold", () => {
+  const s = Logic.freshState();
+  Logic.startQuest(s, "hoard", []);
+  s.player.gold = 500;
+  const evs = Logic.checkQuest(s, []);
+  assert.ok(evs.some((e) => e.type === "questDone" && e.quest === "hoard"));
+});
+
+test("quest: abandoned when accepting a new one", () => {
+  const s = Logic.freshState();
+  Logic.startQuest(s, "elite", []);
+  const evs = [];
+  Logic.startQuest(s, "depth", evs);
+  assert.ok(evs.some((e) => e.type === "questAbandon"));
+  assert.equal(s.stats.quests.active, "depth");
+});
+
+test("quest: completed quests survive prestige, active does not", () => {
+  const s = Logic.freshState();
+  s.stats.quests = { active: "elite", progress: 1, done: ["depth"] };
+  const fresh = Logic.prestige(s);
+  assert.equal(fresh.stats.quests.active, null);
+  assert.deepEqual(fresh.stats.quests.done, ["depth"]);
+  const evs = [];
+  Logic.checkAchievements(fresh, evs);
+  /* quest_master needs 3 done */
+  fresh.stats.quests.done = ["depth", "elite", "hoard"];
+  Logic.checkAchievements(fresh, evs);
+  assert.ok(evs.some((e) => e.type === "achievement" && e.id === "quest_master"));
 });
 
 test("elite enemies get 1.5x stats", () => {
