@@ -227,7 +227,8 @@ ABYSS.LANG = {
     "difficulty": { zh: "难度", en: "Difficulty" },
     "difficulty_set": { zh: "难度已设为：{n}（新旅程生效）", en: "Difficulty set to {n} (applies to new journeys)" },
     "daily_streak": { zh: "最佳连续挑战 {n} 天", en: "Best daily streak {n} days" },
-    "daily_streak_now": { zh: "当前 {n} 天", en: "currently {n}" }
+    "daily_streak_now": { zh: "当前 {n} 天", en: "currently {n}" },
+    "vs_equipped": { zh: "对比已装备", en: "vs equipped" }
   }
 };
 
@@ -258,6 +259,7 @@ ABYSS.LANG.desc = function (entry) {
 if (typeof module !== "undefined" && module.exports) {
   module.exports = { ABYSS: ABYSS };
 }
+
 
 
 

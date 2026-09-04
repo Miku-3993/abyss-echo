@@ -1551,6 +1551,23 @@ ABYSS.UI = (function () {
         card.appendChild(nm);
         card.appendChild(dd);
         if (it.type !== "consumable") {
+          var eqIdNow = state.player.equipment[it.slot];
+          if (eqIdNow && eqIdNow !== id) {
+            var cmp = D.items[eqIdNow];
+            var diffParts = [];
+            ["atk", "def", "spd", "luck", "hp"].forEach(function (k) {
+              var a = it[k] || 0, b = cmp[k] || 0;
+              if (a !== b) diffParts.push(k.toUpperCase() + (a > b ? "+" : "") + (a - b));
+            });
+            if (diffParts.length) {
+              var diff = document.createElement("div");
+              diff.className = "inv-diff " + (diffParts.some(function (s) { return s.indexOf("+") > 0; }) ? "" : "");
+              diff.textContent = T("vs_equipped") + "：" + diffParts.join(" ");
+              card.appendChild(diff);
+            }
+          }
+        }
+        if (it.type !== "consumable") {
           var slot = it.slot;
           var eqId = state.player.equipment[slot];
           var isEquipped = eqId === id;
@@ -1801,6 +1818,7 @@ ABYSS.UI = (function () {
 if (typeof module !== "undefined" && module.exports) {
   module.exports = { ABYSS: ABYSS };
 }
+
 
 
 

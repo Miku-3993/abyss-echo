@@ -247,6 +247,7 @@ html, body {
 }
 .inv-name { color: var(--ink); font-weight: 700; margin-bottom: 3px; }
 .inv-desc { color: var(--dim); font-size: 11px; margin-bottom: 6px; }
+.inv-diff { color: var(--teal); font-size: 11px; margin-bottom: 6px; letter-spacing: 0.02em; }
 .inv-card .btn { margin: 2px 4px 0 0; }
 
 .ach-list { display: flex; flex-direction: column; gap: 5px; }
@@ -347,3 +348,4 @@ html, body {
   .title-menu .btn-big { min-width: 0; width: 78vw; max-width: 320px; font-size: 16px; padding: 14px 0; }
   .modal-box { padding: 16px; }
 }
+
