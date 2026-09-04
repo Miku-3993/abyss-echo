@@ -1013,6 +1013,13 @@ ABYSS.UI = (function () {
       if (!prev || prev.date !== cur.date || cur.depth > prev.depth || (cur.depth === prev.depth && cur.kills > prev.kills)) {
         localStorage.setItem("abyss-echo-daily-best", JSON.stringify(cur));
       }
+      /* keep a rolling 14-day history */
+      var hist = [];
+      try { hist = JSON.parse(localStorage.getItem("abyss-echo-daily-history") || "[]"); } catch (e) { hist = []; }
+      var today = hist.filter(function (h) { return h.date === cur.date; });
+      if (today.length === 0) hist.push(cur);
+      hist = hist.filter(function (h) { return h.depth > 0; }).slice(-14);
+      localStorage.setItem("abyss-echo-daily-history", JSON.stringify(hist));
     } catch (e) { /* ignore */ }
   }
 
@@ -1021,12 +1028,19 @@ ABYSS.UI = (function () {
     if (!el) return;
     try {
       var best = JSON.parse(localStorage.getItem("abyss-echo-daily-best") || "null");
+      var lines = [];
       if (best && best.date === todayStr()) {
-        el.textContent = "☀️ " + T("daily_best", { n: best.depth, k: best.kills });
-        el.classList.add("visible");
-      } else {
-        el.classList.remove("visible");
+        lines.push(T("daily_best", { n: best.depth, k: best.kills }));
       }
+      var hist = [];
+      try { hist = JSON.parse(localStorage.getItem("abyss-echo-daily-history") || "[]"); } catch (e) { hist = []; }
+      if (hist.length > 1) {
+        hist.slice(-7).reverse().forEach(function (h) {
+          lines.push("▸ " + h.date + " · " + T("floor", { n: h.depth }) + " · " + T("kills") + " " + h.kills);
+        });
+      }
+      el.innerHTML = lines.join("<br>");
+      el.classList.toggle("visible", lines.length > 0);
     } catch (e) { /* ignore */ }
   }
 

@@ -1,4 +1,4 @@
-# 深渊回响 · Abyss Echo
+﻿# 深渊回响 · Abyss Echo
 
 > 「深渊之下，万物回响。」 / *"Beneath the abyss, everything echoes."*
 
@@ -65,7 +65,7 @@ A **zero-dependency, pure front-end** text-based dungeon RPG. Dark cosmic-fantas
 npm test        # node --test
 ```
 
-54 个单元测试覆盖：状态、属性计算、装备加成、战斗结算、状态异常、技能冷却、掉落、精英怪、转生与难度曲线、图鉴记录、每日挑战规则、委托任务、符文系统、无尽模式与回响 Boss、最终 Boss 流程、升级、房间生成、成就、存档模拟全流程。
+56 个单元测试覆盖：状态、属性计算、装备加成、战斗结算、状态异常、技能冷却、掉落、精英怪、转生与难度曲线、图鉴记录、每日挑战规则、委托任务、符文系统、无尽模式与回响 Boss、最终 Boss 流程、升级、房间生成、成就、存档模拟全流程。
 
 ## 🏗 项目结构 / Structure
 

@@ -9,9 +9,16 @@ const assert = require("node:assert/strict");
 
 /* polyfill browser globals for CommonJS loading */
 global.window = {};
+global.localStorage = {
+  _d: {},
+  getItem: function (k) { return k in this._d ? this._d[k] : null; },
+  setItem: function (k, v) { this._d[k] = String(v); },
+  removeItem: function (k) { delete this._d[k]; }
+};
 require("../js/lang.js");
 require("../js/data.js");
 require("../js/logic.js");
+require("../js/save.js");
 const ABYSS = global.window.ABYSS;
 const Logic = ABYSS.Logic;
 const D = ABYSS.DATA;
@@ -345,6 +352,36 @@ test("final boss loot and record via logic", () => {
   const kill = evs.find((e) => e.type === "kill");
   assert.ok(kill.drops.indexOf("blade_abyss") >= 0, "final boss drops legendary blade");
   assert.ok(kill.drops.indexOf("armor_abyss") >= 0, "final boss drops legendary armor");
+});
+
+test("legacy saves normalize cleanly", () => {
+  const legacy = {
+    version: "1.0.0",
+    player: { name: "旅人", level: 3, hp: 50, mp: 20, gold: 15, kills: 4, deaths: 1, inventory: ["potion_small"] },
+    run: { alive: true, depth: 4, room: null, combat: null, eventDone: false },
+    stats: { playTimeSec: 120, bestDepth: 4, totalKills: 4, totalDeaths: 1, achievements: ["first_step"], endings: [] },
+    settings: { sound: true }
+  };
+  const st = ABYSS.Save.normalizeState(legacy);
+  assert.equal(st.run.floorRooms, 0);
+  assert.equal(st.stats.prestige, 0);
+  assert.deepEqual(st.stats.quests.done, []);
+  assert.equal(typeof st.settings.music, "boolean");
+  assert.ok(st.player.equipment && st.player.equipment.weapon === null);
+  /* normalized save works with engine */
+  st.run.room = Logic.generateRoom(st, Logic.mulberry32(3));
+  assert.ok(st.run.room.type);
+});
+
+test("save round-trips through storage slot", () => {
+  ABYSS.Save.setSlot("test-slot");
+  const s = Logic.freshState();
+  s.player.gold = 777;
+  ABYSS.Save.clear();
+  assert.ok(ABYSS.Save.save(s));
+  const loaded = ABYSS.Save.load();
+  assert.equal(loaded.player.gold, 777);
+  ABYSS.Save.setSlot("main");
 });
 
 test("phoenix feather is obtainable from tier 3 loot", () => {
