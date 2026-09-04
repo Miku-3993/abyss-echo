@@ -122,6 +122,7 @@ body::after {
   font-size: 13px;
 }
 .title-menu { margin-top: 46px; display: flex; flex-direction: column; gap: 16px; align-items: center; }
+.title-version { margin-top: 14px; color: var(--dim); font-size: 11px; letter-spacing: 0.3em; opacity: 0.7; }
 .title-flavor {
   margin-top: 58px; color: var(--purple); opacity: 0.8; font-style: italic;
   font-family: var(--serif); letter-spacing: 0.2em; font-size: 15px;
@@ -695,3 +696,4 @@ body::after {
   box-shadow: 0 0 8px rgba(127, 216, 208, 0.55);
   transition: width 0.35s ease;
 }
+
