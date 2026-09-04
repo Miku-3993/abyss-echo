@@ -1,4 +1,4 @@
-/*
+﻿/*
  * Abyss Echo - core game logic (pure, testable, no DOM)
  * All functions operate on a plain state object and return event lists.
  */
@@ -598,10 +598,17 @@ ABYSS.Logic = (function () {
       if (echo && rng() < 0.8) {
         out.items.push(table.items[Math.floor(rng() * table.items.length)]);
       }
-      /* echo bosses may drop exclusive relics */
-      if (echo && rng() < 0.4) {
-        var relics = ["relic_echo", "relic_shroud", "relic_crown"];
-        out.items.push(relics[Math.floor(rng() * relics.length)]);
+      /* echo bosses may drop exclusive relics (pity: +20% per miss, guaranteed at 3 misses) */
+      if (echo) {
+        state.stats.echoMissStreak = state.stats.echoMissStreak || 0;
+        var pityChance = 0.4 + state.stats.echoMissStreak * 0.2;
+        if (rng() < pityChance) {
+          var relics = ["relic_echo", "relic_shroud", "relic_crown"];
+          out.items.push(relics[Math.floor(rng() * relics.length)]);
+          state.stats.echoMissStreak = 0;
+        } else {
+          state.stats.echoMissStreak += 1;
+        }
       }
     } else if (rng() < 0.32 + (state.run.endless ? 0.18 : 0) + difficultyFx(state).drop) {
       var table2 = LOOT_TABLE.filter(function (l) { return l.tier.indexOf(e.tier) >= 0; })[0] || LOOT_TABLE[0];
@@ -985,6 +992,7 @@ ABYSS.Logic = (function () {
 if (typeof module !== "undefined" && module.exports) {
   module.exports = { ABYSS: ABYSS };
 }
+
 
 
 

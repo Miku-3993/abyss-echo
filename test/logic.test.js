@@ -550,6 +550,27 @@ test("echo relic set bonus grants +10% all stats", () => {
   assert.ok(rawAtk > 0);
 });
 
+test("relic pity guarantees a drop after 3 misses", () => {
+  const s = Logic.freshState();
+  s.stats.echoMissStreak = 3;
+  /* at streak 3 the chance is 1.0 -> any rng drops a relic */
+  const drops = Logic.rollDrops(s, "boss_steel", seqRng([0.99, 0.99, 0.99]), false, true);
+  const relic = drops.items.find((id) => id.indexOf("relic_") === 0);
+  assert.ok(relic, "pity drop guaranteed");
+  assert.equal(s.stats.echoMissStreak, 0, "streak resets on drop");
+  /* missing accumulates */
+  const s2 = Logic.freshState();
+  const rngLow = seqRng([0.99]);
+  Logic.rollDrops(s2, "boss_steel", rngLow, false, true);
+  assert.equal(s2.stats.echoMissStreak, 1, "high rng misses the 0.4 roll, streak increments");
+  let found = 0;
+  for (let i = 0; i < 200 && s2.stats.echoMissStreak < 3; i++) {
+    const d = Logic.rollDrops(s2, "boss_steel", Logic.mulberry32(i), false, true);
+    if (d.items.some((id) => id.indexOf("relic_") === 0)) found += 1;
+  }
+  assert.ok(found > 0, "relics drop over repeated rolls");
+});
+
 test("legacy saves normalize cleanly", () => {
   const legacy = {
     version: "1.0.0",
