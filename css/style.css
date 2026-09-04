@@ -575,7 +575,10 @@ body::after {
   .scene { max-height: 40vh; }
   .btn { padding: 10px 14px; font-size: 15px; min-height: 40px; }
   .btn-small { padding: 8px 10px; font-size: 13px; min-height: 36px; }
-  .skill-row .btn-skill, .item-row .btn-item { min-height: 38px; flex: 1 1 40%; }
+  .skill-row { flex-wrap: nowrap; overflow-x: auto; padding-bottom: 6px; -webkit-overflow-scrolling: touch; scrollbar-width: thin; }
+  .skill-row .btn-skill { min-height: 38px; flex: 0 0 auto; }
+  .item-row .btn-item { min-height: 38px; flex: 1 1 46%; }
+  .skill-row::-webkit-scrollbar { height: 4px; }
   .actions { gap: 8px; }
   .actions .btn { flex: 1 1 30%; }
   .scene-title { font-size: 17px; }
@@ -625,6 +628,7 @@ body::after {
   from { transform: translateX(0); opacity: 1; }
   to { transform: translateX(120%); opacity: 0; }
 }
+
 
 
 
