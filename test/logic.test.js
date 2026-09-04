@@ -143,8 +143,8 @@ test("consumable heals in and out of combat", () => {
   const evs = [];
   Logic.useItem(s, "potion_small", evs, seqRng([0.5]));
   assert.ok(evs.some((e) => e.type === "heal"));
-  assert.equal(s.player.hp, 40);
-  assert.equal(s.player.inventory.filter((id) => id === "potion_small").length, 1, "one potion consumed");
+  assert.equal(s.player.hp, 45, "small potion heals 35");
+  assert.equal(s.player.inventory.filter((id) => id === "potion_small").length, 2, "one potion consumed");
 });
 
 test("revive from phoenix trinket", () => {
@@ -322,6 +322,31 @@ test("runes apply buffs and count toward rune achievement", () => {
   assert.equal(ps.spd, ps0.spd + 6, "haste grants +6 spd");
 });
 
+test("killing Karazes opens the final floor", () => {
+  const s = Logic.freshState();
+  s.run.depth = 12;
+  s.run.combat = { enemyId: "boss_karaz", enemyHp: 1, enemyStatuses: {}, skillCd: {}, guarding: false };
+  const evs = Logic.resolveTurn(s, { type: "attack" }, seqRng([0.5, 0.9, 0.9]));
+  assert.ok(evs.some((e) => e.type === "bossKilled" && e.enemy === "boss_karaz"));
+  assert.equal(s.run.finalOpen, true, "finalOpen must be set by logic");
+  assert.ok(s.stats.bossesKilled.boss_karaz);
+});
+
+test("final boss loot and record via logic", () => {
+  const s = Logic.freshState();
+  s.run.depth = 13;
+  s.run.finalOpen = true;
+  /* rng 0.01 -> room type index 0 (combat) */
+  const room = Logic.generateRoom(s, seqRng([0.01, 0.5]));
+  assert.equal(room.enemyId, "boss_abyss", "floor 13 combat room is the final battle");
+  s.run.combat = { enemyId: "boss_abyss", enemyHp: 1, enemyStatuses: {}, skillCd: {}, guarding: false };
+  const evs = Logic.resolveTurn(s, { type: "attack" }, seqRng([0.5, 0.9, 0.9]));
+  assert.ok(s.stats.bossesKilled.boss_abyss);
+  const kill = evs.find((e) => e.type === "kill");
+  assert.ok(kill.drops.indexOf("blade_abyss") >= 0, "final boss drops legendary blade");
+  assert.ok(kill.drops.indexOf("armor_abyss") >= 0, "final boss drops legendary armor");
+});
+
 test("phoenix feather is obtainable from tier 3 loot", () => {
   const s = Logic.freshState();
   /* force the 28% roll and a pick hitting phoenix by iterating seeds */
@@ -364,7 +389,7 @@ test("prestige resets run but keeps permanent progress", () => {
   assert.equal(fresh.stats.prestige, 3);
   assert.equal(fresh.player.level, 1);
   assert.equal(fresh.player.gold, 100, "20% gold carried over");
-  assert.deepEqual(fresh.player.inventory, ["potion_small", "potion_small", "potion_mana"], "fresh starter kit only");
+  assert.deepEqual(fresh.player.inventory, ["potion_small", "potion_small", "potion_small", "potion_big", "potion_mana"], "fresh starter kit only");
   assert.deepEqual(fresh.stats.achievements, ["first_step", "slayer"]);
   assert.equal(fresh.stats.fragments.length, 2);
   assert.deepEqual(fresh.stats.bossesKilled, { boss_grul: true });
@@ -457,7 +482,8 @@ test("daily gold and healing multipliers apply", () => {
   s.player.hp = 10;
   const evs = [];
   Logic.useItem(s, "potion_small", evs, seqRng([0.5]));
-  assert.equal(s.player.hp, 25, "30 heal halved to 15");
+  assert.equal(s.player.hp, 27, "35 heal halved (floor) -> 17, plus base 10");
+  /* healMult 0.5: amt = floor(35*0.5) = 17 */
 });
 
 test("daily elite chance applies to room generation", () => {

@@ -1,5 +1,12 @@
 /* Abyss Echo - entry point */
 (function () {
+  /* register service worker for offline play & installability (http(s) only) */
+  if ("serviceWorker" in navigator && location.protocol.indexOf("http") === 0) {
+    window.addEventListener("load", function () {
+      navigator.serviceWorker.register("sw.js").catch(function () { /* offline-friendly, not required */ });
+    });
+  }
+
   function start() {
     var autostart = window.ABYSS_AUTOSTART || (window.location && window.location.search.indexOf("autostart=1") >= 0);
     /* ?autostart=1 jumps straight into a fresh run (used by preview & CI screenshots) */

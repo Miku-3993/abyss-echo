@@ -1,0 +1,16 @@
+{
+  "name": "深渊回响 / Abyss Echo",
+  "short_name": "深渊回响",
+  "description": "A zero-dependency text dungeon RPG. 文字地牢冒险。",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#0b0e14",
+  "theme_color": "#0b0e14",
+  "lang": "zh",
+  "icons": [
+    { "src": "icons/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any maskable" },
+    { "src": "icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any maskable" }
+  ]
+}

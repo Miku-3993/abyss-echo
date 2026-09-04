@@ -39,7 +39,7 @@ ABYSS.UI = (function () {
         case "kill": {
           var en = D.enemies[ev.enemy];
           txt = (ev.elite ? "🌟 " : "") + T("victory_msg", { xp: ev.xp, gold: ev.gold });
-          Logic.gainXp(state, ev.xp, events); /* note: gainXp pushes its own levelup events; see below */
+          /* XP is granted inside Logic.resolveTurn; UI only renders */
           if (ev.drops && ev.drops.length) {
             ev.drops.forEach(function (it) {
               addItemSilent(it);
@@ -53,6 +53,9 @@ ABYSS.UI = (function () {
             ABYSS.Audio.boss();
             if (ev.enemy === "boss_abyss") {
               Logic.grantFragment(state, "frag_3", events);
+              /* defeating the final boss triggers the ending */
+              sceneContext = sceneContext || {};
+              sceneContext.ending = "abyss_lord";
             }
           }
           break;
@@ -229,9 +232,20 @@ ABYSS.UI = (function () {
     title.textContent = T("floor", { n: r.depth });
     box.appendChild(title);
 
-    /* room already resolved this floor: offer descent */
+    /* room already resolved this floor: offer more search or descent */
     if (r.room && r.eventDone) {
-      box.appendChild(p("这间房间已搜刮殆尽，深渊在更深处等待。"));
+      var searched = r.floorRooms || 0;
+      box.appendChild(p(searched < 2 ? "这间房间已搜刮殆尽，深渊中还有更多秘密。" : "这间房间已搜刮殆尽，深渊在更深处等待。"));
+      if (searched < 2) {
+        var btnS = mkButton("🔍 " + T("search") + "（" + (2 - searched) + "）", "btn", function () {
+          rng = Logic.mulberry32(Date.now() % 2147483647);
+          r.room = Logic.generateRoom(state, rng);
+          r.eventDone = false;
+          r.floorRooms = (r.floorRooms || 0) + 1;
+          saveAndRender();
+        });
+        box.appendChild(btnS);
+      }
       var btnD = mkButton("⬇ " + T("descend"), "btn-main", function () {
         Logic.descend(state, rng);
         if (state.run.daily && state.run.daily.deepHeal) {
@@ -250,6 +264,7 @@ ABYSS.UI = (function () {
         rng = Logic.mulberry32(Date.now() % 2147483647);
         r.room = Logic.generateRoom(state, rng);
         r.eventDone = false;
+        r.floorRooms = (r.floorRooms || 0) + 1;
         saveAndRender();
       });
       box.appendChild(p("迷雾笼罩着这一层深渊。"));

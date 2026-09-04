@@ -1,4 +1,4 @@
-/*
+﻿/*
  * Abyss Echo - core game logic (pure, testable, no DOM)
  * All functions operate on a plain state object and return event lists.
  */
@@ -24,14 +24,14 @@ ABYSS.Logic = (function () {
       version: D.VERSION,
       player: {
         name: "旅人", level: 1, xp: 0, hp: D.BASE_HP, mp: D.BASE_MP,
-        gold: 20, kills: 0, deaths: 0,
-        inventory: ["potion_small", "potion_small", "potion_mana"],
+        gold: 60, kills: 0, deaths: 0,
+        inventory: ["potion_small", "potion_small", "potion_small", "potion_big", "potion_mana"],
         equipment: { weapon: null, armor: null, trinket: null },
         statuses: {}
       },
       run: {
         alive: true, depth: 1, room: null, combat: null, eventDone: false,
-        finalOpen: false, frags: 0, guards: 0
+        finalOpen: false, frags: 0, guards: 0, floorRooms: 0
       },
       stats: {
         playTimeSec: 0, bestDepth: 1, totalKills: 0, totalDeaths: 0,
@@ -46,7 +46,7 @@ ABYSS.Logic = (function () {
   }
 
   function xpNeeded(level) {
-    return Math.floor(40 * Math.pow(level, 1.35));
+    return 40 + 30 * (level - 1);
   }
 
   /* ---------- derived stats ---------- */
@@ -216,6 +216,11 @@ ABYSS.Logic = (function () {
 
     /* --- player action --- */
     if (action.type === "flee") {
+      if (e.boss) {
+        /* bosses cannot be fled from */
+        events.push({ type: "flee", ok: false, bossLocked: true });
+        return events;
+      }
       var fleeOk = rng() < 0.55 + (ps.spd - es.spd) * 0.02;
       if (fleeOk) {
         events.push({ type: "flee", ok: true });
@@ -290,9 +295,15 @@ ABYSS.Logic = (function () {
       state.stats.totalKills += 1;
       if (c.elite) state.stats.eliteKills += 1;
       p.hp = Math.min(playerStats(state).hp, p.hp);
+      gainXp(state, e.xp * mult, events);
       events.push({ type: "kill", enemy: c.enemyId, xp: e.xp * mult, gold: gGain, drops: drop.items, elite: !!c.elite });
       /* refresher: kill grants xp on a later consolidate call when not in combat */
-      if (e.boss) events.push({ type: "bossKilled", enemy: c.enemyId });
+      if (e.boss) {
+        state.stats.bossesKilled = state.stats.bossesKilled || {};
+        state.stats.bossesKilled[c.enemyId] = true;
+        events.push({ type: "bossKilled", enemy: c.enemyId });
+        if (c.enemyId === "boss_karaz") state.run.finalOpen = true;
+      }
       if (c.echo) {
         state.stats.echoKills = (state.stats.echoKills || 0) + 1;
         events.push({ type: "echoKilled", enemy: c.enemyId });
@@ -371,7 +382,13 @@ ABYSS.Logic = (function () {
       state.stats.totalKills += 1;
       if (c.elite) state.stats.eliteKills += 1;
       events.push({ type: "kill", enemy: c.enemyId, xp: e.xp * mult2, gold: g2, drops: drop2.items, elite: !!c.elite });
-      if (e.boss) events.push({ type: "bossKilled", enemy: c.enemyId });
+      gainXp(state, e.xp * mult2, events);
+      if (e.boss) {
+        state.stats.bossesKilled = state.stats.bossesKilled || {};
+        state.stats.bossesKilled[c.enemyId] = true;
+        events.push({ type: "bossKilled", enemy: c.enemyId });
+        if (c.enemyId === "boss_karaz") state.run.finalOpen = true;
+      }
       if (c.echo) {
         state.stats.echoKills = (state.stats.echoKills || 0) + 1;
         events.push({ type: "echoKilled", enemy: c.enemyId });
@@ -499,7 +516,7 @@ ABYSS.Logic = (function () {
       if (echo && rng() < 0.8) {
         out.items.push(table.items[Math.floor(rng() * table.items.length)]);
       }
-    } else if (rng() < 0.28) {
+    } else if (rng() < 0.32) {
       var table2 = LOOT_TABLE.filter(function (l) { return l.tier.indexOf(e.tier) >= 0; })[0] || LOOT_TABLE[0];
       out.items.push(table2.items[Math.floor(rng() * table2.items.length)]);
     }
@@ -527,7 +544,7 @@ ABYSS.Logic = (function () {
   }
 
   /* ---------- room & encounter generation ---------- */
-  var ROOM_TYPES = ["combat", "combat", "combat", "event", "event", "rest", "chest", "trap"];
+  var ROOM_TYPES = ["combat", "combat", "combat", "event", "event", "rest", "rest", "chest", "trap"];
 
   var ELITE_CHANCE = 0.15;
 
@@ -605,6 +622,7 @@ ABYSS.Logic = (function () {
     state.run.eventDone = false;
     state.run.room = null;
     state.run.combat = null;
+    state.run.floorRooms = 0;
     if (state.run.depth > (state.stats.bestDepth || 1)) state.stats.bestDepth = state.run.depth;
     if (state.run.endless && state.run.depth > (state.stats.bestEndless || 0)) state.stats.bestEndless = state.run.depth;
     questProgress(state, "depth", 1);
@@ -835,3 +853,5 @@ ABYSS.Logic = (function () {
 if (typeof module !== "undefined" && module.exports) {
   module.exports = { ABYSS: ABYSS };
 }
+
+

@@ -1,4 +1,4 @@
-/*
+﻿/*
  * Abyss Echo - game content data
  * All name/desc fields are {zh, en} pairs. Purely declarative.
  */
@@ -53,15 +53,15 @@ ABYSS.DATA = {
     atkPerLvl: 0.04, defPerLvl: 0.04, spdPerLvl: 0.04, goldPerLvl: 0.05,
     desc: { zh: "达成结局后转生，永久获得全属性 +4%/级、金币收益 +5%/级。", en: "After any ending, transcend for permanent +4% stats and +5% gold per mark." }
   },
-  BASE_HP: 60, BASE_MP: 30, BASE_ATK: 10, BASE_DEF: 5, BASE_SPD: 8, BASE_LCK: 5,
-  HP_PER_LVL: 12, MP_PER_LVL: 6, ATK_PER_LVL: 2, DEF_PER_LVL: 1, SPD_PER_LVL: 1,
+  BASE_HP: 70, BASE_MP: 30, BASE_ATK: 11, BASE_DEF: 5, BASE_SPD: 8, BASE_LCK: 5,
+  HP_PER_LVL: 20, MP_PER_LVL: 6, ATK_PER_LVL: 4, DEF_PER_LVL: 2, SPD_PER_LVL: 1,
   XP_PER_LVL: 40,
   INV_LIMIT: 20,
 
   /* ---------- STATUS EFFECTS ---------- */
   statuses: {
     poison:   { name: { zh: "中毒", en: "Poison" },   desc: { zh: "每回合损失生命", en: "Lose HP each turn" },      tick: true,  kind: "harm",  damage: 4 },
-    bleed:    { name: { zh: "流血", en: "Bleeding" }, desc: { zh: "每回合损失生命并减速", en: "Lose HP and speed each turn" }, tick: true, kind: "harm", damage: 5, spdMod: -2 },
+    bleed:    { name: { zh: "流血", en: "Bleeding" }, desc: { zh: "每回合损失生命并减速", en: "Lose HP and speed each turn" }, tick: true, kind: "harm", damage: 4, spdMod: -2 },
     burn:     { name: { zh: "灼烧", en: "Burning" },  desc: { zh: "每回合损失生命", en: "Lose HP each turn" },      tick: true,  kind: "harm",  damage: 6 },
     weaken:   { name: { zh: "虚弱", en: "Weakened" }, desc: { zh: "攻击降低", en: "Attack reduced" },               tick: false, kind: "harm",  atkMod: -0.35 },
     haste:    { name: { zh: "疾风", en: "Hasted" },   desc: { zh: "速度提升", en: "Speed increased" },            tick: false, kind: "buff",  spdMod: 6 },
@@ -72,52 +72,52 @@ ABYSS.DATA = {
 
   /* ---------- ENEMIES ---------- */
   enemies: {
-    rat:        { name: { zh: "深渊巨鼠", en: "Abyssal Rat" },       tier: 1, hp: 18, atk: 7,  def: 1, spd: 9,  xp: 6,  gold: 4,  ability: null,
+    rat:        { name: { zh: "深渊巨鼠", en: "Abyssal Rat" },       tier: 1, hp: 18, atk: 7,  def: 1, spd: 9,  xp: 18, gold: 4,  ability: null,
                   desc: { zh: "啃食深渊尸骸的巨型老鼠，牙齿泛着绿光。", en: "A giant rat gnawing abyss corpses, teeth gleaming green." } },
-    bat:        { name: { zh: "洞穴蝙蝠", en: "Cave Bat" },          tier: 1, hp: 14, atk: 6,  def: 0, spd: 13, xp: 5,  gold: 3,  ability: null,
+    bat:        { name: { zh: "洞穴蝙蝠", en: "Cave Bat" },          tier: 1, hp: 14, atk: 6,  def: 0, spd: 13, xp: 16, gold: 3,  ability: null,
                   desc: { zh: "成群盘旋的盲眼蝙蝠，撕咬声令人头皮发麻。", en: "Blind bats swarming in circles, their screeches pierce the mind." } },
-    slime:      { name: { zh: "腐化史莱姆", en: "Corrupted Slime" }, tier: 1, hp: 26, atk: 6,  def: 3, spd: 4,  xp: 7,  gold: 5,  ability: { status: "poison", chance: 0.3 },
+    slime:      { name: { zh: "腐化史莱姆", en: "Corrupted Slime" }, tier: 1, hp: 26, atk: 6,  def: 3, spd: 4,  xp: 20, gold: 5,  ability: { status: "poison", chance: 0.3 },
                   desc: { zh: "黏稠的黑色软泥，缓慢蠕动着，散发恶臭。", en: "Viscous black sludge that moves slowly, reeking of rot." } },
-    ghoul:      { name: { zh: "饥饿食尸鬼", en: "Starving Ghoul" },  tier: 1, hp: 22, atk: 9,  def: 1, spd: 7,  xp: 8,  gold: 6,  ability: null,
+    ghoul:      { name: { zh: "饥饿食尸鬼", en: "Starving Ghoul" },  tier: 1, hp: 22, atk: 9,  def: 1, spd: 7,  xp: 22, gold: 6,  ability: null,
                   desc: { zh: "只剩本能的苍白腐尸，永远在寻找血肉。", en: "A pale corpse running on instinct alone, forever seeking flesh." } },
-    goblin:     { name: { zh: "石肤地精", en: "Stoneskin Goblin" },  tier: 2, hp: 34, atk: 11, def: 6, spd: 8,  xp: 12, gold: 10, ability: null,
+    goblin:     { name: { zh: "石肤地精", en: "Stoneskin Goblin" },  tier: 2, hp: 26, atk: 9, def: 5, spd: 8,  xp: 32, gold: 10, ability: null,
                   desc: { zh: "披着岩石外壳的狡猾地精，挥舞石制短斧。", en: "A cunning goblin wrapped in rock shell, wielding a stone axe." } },
-    wolf:       { name: { zh: "暗影狼", en: "Shadow Wolf" },         tier: 2, hp: 30, atk: 13, def: 3, spd: 14, xp: 13, gold: 9,  ability: { status: "bleed", chance: 0.35 },
+    wolf:       { name: { zh: "暗影狼", en: "Shadow Wolf" },         tier: 2, hp: 30, atk: 10, def: 3, spd: 14, xp: 34, gold: 9,  ability: { status: "bleed", chance: 0.35 },
                   desc: { zh: "身体由阴影构成的狼群首领，爪子锋利如刃。", en: "A pack leader of shadow-made wolves, claws sharp as blades." } },
-    wraith:     { name: { zh: "墓穴怨灵", en: "Tomb Wraith" },       tier: 2, hp: 27, atk: 14, def: 2, spd: 12, xp: 14, gold: 11, ability: { status: "weaken", chance: 0.4 },
+    wraith:     { name: { zh: "墓穴怨灵", en: "Tomb Wraith" },       tier: 2, hp: 27, atk: 11, def: 2, spd: 12, xp: 36, gold: 11, ability: { status: "weaken", chance: 0.4 },
                   desc: { zh: "被困在坟墓中的灵魂，哀嚎着索取生者的温度。", en: "A soul trapped in tombs, wailing for the warmth of the living." } },
-    skeleton:   { name: { zh: "白骨射手", en: "Bone Archer" },       tier: 2, hp: 32, atk: 12, def: 4, spd: 10, xp: 13, gold: 12, ability: null,
+    skeleton:   { name: { zh: "白骨射手", en: "Bone Archer" },       tier: 2, hp: 32, atk: 10, def: 3, spd: 10, xp: 34, gold: 12, ability: null,
                   desc: { zh: "手持骨弓的不死射手，箭矢由肋骨打磨而成。", en: "An undead archer with a bone bow, arrows carved from ribs." } },
-    minion:     { name: { zh: "深渊魔仆", en: "Abyss Minion" },      tier: 3, hp: 52, atk: 16, def: 7, spd: 9,  xp: 22, gold: 18, ability: { status: "burn", chance: 0.3 },
+    minion:     { name: { zh: "深渊魔仆", en: "Abyss Minion" },      tier: 3, hp: 48, atk: 15, def: 7, spd: 9,  xp: 55, gold: 18, ability: { status: "burn", chance: 0.3 },
                   desc: { zh: "侍奉深渊的低等魔物，体表燃烧着黑色火焰。", en: "A low servant of the abyss wreathed in black fire." } },
-    spider:     { name: { zh: "腐蚀蜘蛛", en: "Corrosive Spider" },  tier: 3, hp: 44, atk: 15, def: 5, spd: 12, xp: 21, gold: 16, ability: { status: "poison", chance: 0.5 },
+    spider:     { name: { zh: "腐蚀蜘蛛", en: "Corrosive Spider" },  tier: 3, hp: 44, atk: 14, def: 4, spd: 12, xp: 54, gold: 16, ability: { status: "poison", chance: 0.5 },
                   desc: { zh: "腹部肿胀的巨蛛，毒液能腐蚀钢铁。", en: "A bloated spider whose venom corrodes steel." } },
-    leech:      { name: { zh: "血蛭", en: "Bleed Leech" },           tier: 3, hp: 50, atk: 17, def: 4, spd: 11, xp: 23, gold: 17, ability: { status: "bleed", chance: 0.45, drain: 0.5 },
+    leech:      { name: { zh: "血蛭", en: "Bleed Leech" },           tier: 3, hp: 50, atk: 15, def: 4, spd: 11, xp: 58, gold: 17, ability: { status: "bleed", chance: 0.45, drain: 0.5 },
                   desc: { zh: "吸血的软体生物，把猎物的血液化为自己的力量。", en: "A bloodsucking leech that turns prey's blood into its own power." } },
-    golem:      { name: { zh: "迷宫魔像", en: "Labyrinth Golem" },   tier: 3, hp: 70, atk: 15, def: 12, spd: 5, xp: 25, gold: 20, ability: null,
+    golem:      { name: { zh: "迷宫魔像", en: "Labyrinth Golem" },   tier: 3, hp: 66, atk: 14, def: 10, spd: 5, xp: 60, gold: 20, ability: null,
                   desc: { zh: "守护迷宫的石之巨像，行动缓慢但坚不可摧。", en: "A stone colossus guarding the maze, slow but unbreakable." } },
-    hunter:     { name: { zh: "虚空猎手", en: "Void Hunter" },       tier: 4, hp: 76, atk: 21, def: 8, spd: 15, xp: 34, gold: 28, ability: { status: "weaken", chance: 0.3 },
+    hunter:     { name: { zh: "虚空猎手", en: "Void Hunter" },       tier: 4, hp: 70, atk: 19, def: 8, spd: 15, xp: 80, gold: 28, ability: { status: "weaken", chance: 0.3 },
                   desc: { zh: "游荡在虚空边缘的猎手，弓弦振动着虚空之力。", en: "A hunter roaming the void's edge, bowstring humming with void power." } },
-    watcher:    { name: { zh: "深渊监视者", en: "Abyss Watcher" },   tier: 4, hp: 84, atk: 20, def: 10, spd: 10, xp: 35, gold: 30, ability: { status: "burn", chance: 0.35 },
+    watcher:    { name: { zh: "深渊监视者", en: "Abyss Watcher" },   tier: 4, hp: 80, atk: 19, def: 10, spd: 10, xp: 84, gold: 30, ability: { status: "burn", chance: 0.35 },
                   desc: { zh: "上千只眼睛组成的监视者，目光所及之处皆为灰烬。", en: "A watcher of a thousand eyes; all it beholds turns to ash." } },
-    soulsucker: { name: { zh: "噬魂者", en: "Soulsucker" },          tier: 4, hp: 72, atk: 22, def: 7, spd: 13, xp: 36, gold: 32, ability: { status: "weaken", chance: 0.4, drain: 0.4 },
+    soulsucker: { name: { zh: "噬魂者", en: "Soulsucker" },          tier: 4, hp: 72, atk: 20, def: 7, spd: 13, xp: 88, gold: 32, ability: { status: "weaken", chance: 0.4, drain: 0.4 },
                   desc: { zh: "吞噬灵魂的恐怖存在，吸取的生机滋养着它的躯体。", en: "A horror that devours souls, nourished by stolen life." } },
-    chaosmage:  { name: { zh: "混沌术士", en: "Chaos Mage" },        tier: 4, hp: 66, atk: 23, def: 6, spd: 12, xp: 37, gold: 34, ability: { status: "burn", chance: 0.4 },
+    chaosmage:  { name: { zh: "混沌术士", en: "Chaos Mage" },        tier: 4, hp: 66, atk: 20, def: 6, spd: 12, xp: 90, gold: 34, ability: { status: "burn", chance: 0.4 },
                   desc: { zh: "操纵混沌魔法的堕落术士，火焰从不按常理燃烧。", en: "A fallen mage of chaos magic whose flames defy reason." } },
     /* Bosses */
-    boss_grul:  { name: { zh: "吞噬者·格鲁尔", en: "Grul the Devourer" }, tier: 1, boss: true, hp: 90, atk: 15, def: 5, spd: 8, xp: 60, gold: 50,
+    boss_grul:  { name: { zh: "吞噬者·格鲁尔", en: "Grul the Devourer" }, tier: 1, boss: true, hp: 74, atk: 13, def: 5, spd: 8, xp: 90, gold: 50,
                   ability: { status: "poison", chance: 0.5 },
                   desc: { zh: "盘踞在三层深渊的巨大蠕虫，吞噬一切坠落的活物。", en: "A colossal worm coiled on floor three, devouring all that falls." } },
-    boss_morg:  { name: { zh: "墓穴女王·莫尔格", en: "Morgue the Tomb Queen" }, tier: 2, boss: true, hp: 130, atk: 19, def: 8, spd: 11, xp: 100, gold: 90,
-                  ability: { status: "bleed", chance: 0.5 },
+    boss_morg:  { name: { zh: "墓穴女王·莫尔格", en: "Morgue the Tomb Queen" }, tier: 2, boss: true, hp: 90, atk: 14, def: 8, spd: 11, xp: 160, gold: 90,
+                  ability: { status: "bleed", chance: 0.35 },
                   desc: { zh: "统御不死军团的女王，王座由白骨堆砌而成。", en: "Queen of the undead legions, throne built of bone." } },
-    boss_steel: { name: { zh: "钢核巨像·铁心", en: "Ironheart the Steel Colossus" }, tier: 3, boss: true, hp: 180, atk: 23, def: 16, spd: 6, xp: 150, gold: 140,
+    boss_steel: { name: { zh: "钢核巨像·铁心", en: "Ironheart the Steel Colossus" }, tier: 3, boss: true, hp: 130, atk: 18, def: 15, spd: 6, xp: 240, gold: 140,
                   ability: null,
                   desc: { zh: "深渊锻造的战争机器，核心是一颗仍在跳动的心脏。", en: "A war engine forged in the abyss, core a still-beating heart." } },
-    boss_karaz: { name: { zh: "虚空领主·卡拉泽斯", en: "Karazes the Void Lord" }, tier: 4, boss: true, hp: 240, atk: 28, def: 12, spd: 13, xp: 220, gold: 200,
+    boss_karaz: { name: { zh: "虚空领主·卡拉泽斯", en: "Karazes the Void Lord" }, tier: 4, boss: true, hp: 170, atk: 22, def: 12, spd: 13, xp: 340, gold: 200,
                   ability: { status: "burn", chance: 0.4 },
                   desc: { zh: "虚空之力的化身，披着星光的毁灭者。", en: "An avatar of void power, a destroyer robed in starlight." } },
-    boss_abyss: { name: { zh: "深渊之主·奥伯斯", en: "Obys, Lord of the Abyss" }, tier: 5, boss: true, final: true, hp: 350, atk: 32, def: 15, spd: 12, xp: 500, gold: 500,
+    boss_abyss: { name: { zh: "深渊之主·奥伯斯", en: "Obys, Lord of the Abyss" }, tier: 5, boss: true, final: true, hp: 235, atk: 26, def: 15, spd: 12, xp: 700, gold: 500,
                   ability: { status: "burn", chance: 0.5 },
                   desc: { zh: "深渊本身孕育的意志。击败它，或成为它。", en: "The will born of the abyss itself. Defeat it, or become it." } }
   },
@@ -164,9 +164,9 @@ ABYSS.DATA = {
                    desc: { zh: "一枚永远渴望更多金币的诅咒金币。", en: "A cursed coin that forever craves more gold." } },
     phoenix:     { name: { zh: "凤凰羽毛", en: "Phoenix Feather" },    type: "trinket", slot: "trinket", revive: true, value: 500,
                    desc: { zh: "救赎之羽：战斗中被击杀时以 30% 生命重生一次。", en: "Feather of salvation: revive at 30% HP once when slain." } },
-    potion_small:{ name: { zh: "治疗药水", en: "Health Potion" },      type: "consumable", heal: 30, value: 20,
+    potion_small:{ name: { zh: "治疗药水", en: "Health Potion" },      type: "consumable", heal: 35, value: 20,
                    desc: { zh: "恢复 30 点生命。", en: "Restores 30 HP." } },
-    potion_big:  { name: { zh: "大治疗药水", en: "Greater Health Potion" }, type: "consumable", heal: 70, value: 55,
+    potion_big:  { name: { zh: "大治疗药水", en: "Greater Health Potion" }, type: "consumable", heal: 80, value: 55,
                    desc: { zh: "恢复 70 点生命。", en: "Restores 70 HP." } },
     potion_mana: { name: { zh: "魔力药水", en: "Mana Potion" },        type: "consumable", mana: 25, value: 40,
                    desc: { zh: "恢复 25 点魔力。", en: "Restores 25 MP." } },
@@ -299,3 +299,11 @@ ABYSS.DATA = {
 if (typeof module !== "undefined" && module.exports) {
   module.exports = { ABYSS: ABYSS };
 }
+
+
+
+
+
+
+
+

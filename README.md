@@ -37,6 +37,8 @@ A **zero-dependency, pure front-end** text-based dungeon RPG. Dark cosmic-fantas
 - 🗡️ **29 件物品** — 武器/护甲/饰品/消耗品（含经验典籍、万灵药），BOSS 固定掉落传说装备 / weapons, armor, trinkets, consumables, boss-only legendaries
 - 🌏 **中英双语** — 设置面板一键切换 / Chinese & English, switchable in settings
 - 🔊 **程序化音效与环境音乐** — Web Audio 实时合成（战斗/探索双场景氛围乐），零音频文件 / procedural SFX + ambient music via Web Audio, zero audio files
+- 📊 **PWA** — 可安装到桌面/手机，离线可玩（manifest + service worker） / installable & offline via PWA
+- 📈 **[平衡性模拟报告](BALANCE.md)** — 3000 局 AI 模拟驱动的数值调优（通关率 14.8%，Boss 通过率 52-98% 平滑曲线）/ balance report driven by 3000-run simulation
 - ⚒ **铁匠与符文** — 铁匠铺事件：付费修复全回复、战斗符文（力量/守护/疾风）、9 折铸造装备 / blacksmith event with repair, combat runes & forged gear
 - 🌪 **无尽深渊** — 转生后解锁：无层数上限，每层敌人 +3%，每 10 层遭遇强化「回响 Boss」 / endless abyss mode with echo bosses every 10 floors
 - 📋 **委托任务系统** — 悬赏板事件可接取 5 种跨房间委托（精英猎杀/深入/财富/净化/屠夫），HUD 实时进度，完成发奖 / bounty quests with live HUD progress
@@ -63,7 +65,7 @@ A **zero-dependency, pure front-end** text-based dungeon RPG. Dark cosmic-fantas
 npm test        # node --test
 ```
 
-52 个单元测试覆盖：状态、属性计算、装备加成、战斗结算、状态异常、技能冷却、掉落、精英怪、转生与难度曲线、图鉴记录、每日挑战规则、委托任务、符文系统、无尽模式与回响 Boss、升级、房间生成、成就、存档模拟全流程。
+54 个单元测试覆盖：状态、属性计算、装备加成、战斗结算、状态异常、技能冷却、掉落、精英怪、转生与难度曲线、图鉴记录、每日挑战规则、委托任务、符文系统、无尽模式与回响 Boss、最终 Boss 流程、升级、房间生成、成就、存档模拟全流程。
 
 ## 🏗 项目结构 / Structure
 
