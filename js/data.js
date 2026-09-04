@@ -5,7 +5,7 @@
 var ABYSS = window.ABYSS = window.ABYSS || {};
 
 ABYSS.DATA = {
-  VERSION: "1.2.0",
+  VERSION: "1.3.0",
   MAX_DEPTH: 12,
   PRESTIGE: {
     name: { zh: "深渊刻印", en: "Abyss Mark" },

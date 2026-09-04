@@ -42,6 +42,8 @@ ABYSS.LANG = {
     "settings": { zh: "设置", en: "Settings" },
     "sound_on": { zh: "音效：开", en: "Sound: On" },
     "sound_off": { zh: "音效：关", en: "Sound: Off" },
+    "music_on": { zh: "音乐：开", en: "Music: On" },
+    "music_off": { zh: "音乐：关", en: "Music: Off" },
     "fast_text": { zh: "快节奏文本", en: "Fast Text" },
     "normal_text": { zh: "打字机效果", en: "Typewriter Effect" },
     "language": { zh: "语言", en: "Language" },

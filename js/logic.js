@@ -96,15 +96,31 @@ ABYSS.Logic = (function () {
     return base;
   }
 
+  function enemyMaxHp(state, enemyId, elite) {
+    var e = D.enemies[enemyId];
+    var maxHp = e.hp;
+    if (elite) maxHp = Math.floor(maxHp * 1.5);
+    var pg = state.stats.prestige || 0;
+    if (pg > 0) maxHp = Math.floor(maxHp * (1 + 0.03 * pg));
+    return maxHp;
+  }
+
   function enemyStats(state) {
     var c = state.run.combat, e = D.enemies[c.enemyId];
     var elite = !!c.elite;
-    var hp = c.enemyHp, maxHp = e.hp, atk = e.atk, def = e.def, spd = e.spd;
+    var maxHp = enemyMaxHp(state, c.enemyId, elite);
+    var hp = c.enemyHp, atk = e.atk, def = e.def, spd = e.spd;
     if (elite) {
-      maxHp = Math.floor(e.hp * 1.5);
       atk = Math.floor(e.atk * 1.5);
       def = Math.floor(e.def * 1.5);
       spd = Math.floor(e.spd * 1.25);
+    }
+    /* rebirth scaling: +3% enemy power per abyss mark keeps late game spicy */
+    var pg = state.stats.prestige || 0;
+    if (pg > 0) {
+      var factor = 1 + 0.03 * pg;
+      atk = Math.floor(atk * factor);
+      def = Math.floor(def * factor);
     }
     var m = statusMods(c.enemyStatuses || {}, "enemy");
     atk = Math.max(1, Math.floor(atk * (1 + m.atk)));
@@ -583,6 +599,7 @@ ABYSS.Logic = (function () {
     xpNeeded: xpNeeded,
     playerStats: playerStats,
     enemyStats: enemyStats,
+    enemyMaxHp: enemyMaxHp,
     equipped: equipped,
     rollDamage: rollDamage,
     resolveTurn: resolveTurn,

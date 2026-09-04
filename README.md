@@ -32,9 +32,11 @@ A **zero-dependency, pure front-end** text-based dungeon RPG. Dark cosmic-fantas
 - 🌀 **转生系统** — 达成结局后可转生，永久获得「深渊刻印」：全属性 +4%/级、金币 +5%/级 / rebirth system granting permanent abyss marks
 - 🗡️ **29 件物品** — 武器/护甲/饰品/消耗品（含经验典籍、万灵药），BOSS 固定掉落传说装备 / weapons, armor, trinkets, consumables, boss-only legendaries
 - 🌏 **中英双语** — 设置面板一键切换 / Chinese & English, switchable in settings
-- 🔊 **程序化音效** — Web Audio 实时合成，零音频文件 / procedural sound via Web Audio, zero audio files
+- 🔊 **程序化音效与环境音乐** — Web Audio 实时合成（战斗/探索双场景氛围乐），零音频文件 / procedural SFX + ambient music via Web Audio, zero audio files
+- 📊 **统计面板** — 击杀、精英击杀、时间、刻印、碎片、Boss 讨伐记录 / full statistics panel
 - 💾 **自动存档** — localStorage + 手动导出/导入 / autosave + manual export/import
 - ⌨️ **快捷键** — 战斗中 1/2/3 快速操作 / keyboard shortcuts in combat
+- 🌀 **转生难度曲线** — 每枚深渊刻印使敌人属性 +3%，永不停歇的挑战 / enemies scale +3% per abyss mark
 
 ## 🎯 快速上手 / Quick Start
 
@@ -52,7 +54,7 @@ A **zero-dependency, pure front-end** text-based dungeon RPG. Dark cosmic-fantas
 npm test        # node --test
 ```
 
-33 个单元测试覆盖：状态、属性计算、装备加成、战斗结算、状态异常、技能冷却、掉落、精英怪、转生、升级、房间生成、成就、存档模拟全流程。
+35 个单元测试覆盖：状态、属性计算、装备加成、战斗结算、状态异常、技能冷却、掉落、精英怪、转生与难度曲线、升级、房间生成、成就、存档模拟全流程。
 
 ## 🏗 项目结构 / Structure
 

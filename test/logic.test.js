@@ -294,6 +294,28 @@ test("prestige achievement unlocks after first rebirth", () => {
   assert.ok(evs.some((e) => e.type === "achievement" && e.id === "prestige_1"));
 });
 
+test("enemyMaxHp accounts for elite and prestige", () => {
+  const s = Logic.freshState();
+  assert.equal(Logic.enemyMaxHp(s, "rat", false), D.enemies.rat.hp);
+  assert.equal(Logic.enemyMaxHp(s, "rat", true), Math.floor(D.enemies.rat.hp * 1.5));
+  s.stats.prestige = 5;
+  assert.equal(Logic.enemyMaxHp(s, "rat", false), Math.floor(D.enemies.rat.hp * 1.15));
+  assert.equal(Logic.enemyMaxHp(s, "rat", true), Math.floor(Math.floor(D.enemies.rat.hp * 1.5) * 1.15));
+});
+
+test("enemy stats scale with prestige marks", () => {
+  const s = Logic.freshState();
+  s.run.combat = { enemyId: "wolf", enemyHp: 1000, enemyStatuses: {}, skillCd: {}, guarding: false };
+  const base = Logic.enemyStats(s);
+  s.stats.prestige = 10;
+  s.run.combat.enemyHp = 1000;
+  const scaled = Logic.enemyStats(s);
+  assert.equal(scaled.atk, Math.floor(D.enemies.wolf.atk * 1.3));
+  assert.equal(scaled.def, Math.floor(D.enemies.wolf.def * 1.3));
+  assert.equal(scaled.maxHp, Math.floor(D.enemies.wolf.hp * 1.3));
+  assert.ok(base.atk < scaled.atk);
+});
+
 test("elite enemies get 1.5x stats", () => {
   const s = Logic.freshState();
   s.run.combat = { enemyId: "rat", enemyHp: Math.floor(D.enemies.rat.hp * 1.5), elite: true, enemyStatuses: {}, skillCd: {}, guarding: false };
