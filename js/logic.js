@@ -36,7 +36,7 @@ ABYSS.Logic = (function () {
       stats: {
         playTimeSec: 0, bestDepth: 1, totalKills: 0, totalDeaths: 0,
         achievements: [], endings: [], bossesKilled: {}, reviveUsed: false, fragments: [],
-        eliteKills: 0, fortuneWins: 0, libraryVisits: 0, prestige: 0,
+        eliteKills: 0, fortuneWins: 0, libraryVisits: 0, prestige: 0, runeUses: 0,
         enemyKilled: {}, collected: {},
         quests: { active: null, progress: 0, done: [] },
         bestEndless: 0, echoKills: 0
@@ -426,6 +426,12 @@ ABYSS.Logic = (function () {
       applyStatus(state, "player", it.status, 3, events);
       events.push({ type: "buffItem", item: itemId });
     }
+    if (it.rune) {
+      var rn = it.rune;
+      applyStatus(state, "player", rn.buff || rn.status, rn.dur || 3, events);
+      state.stats.runeUses = (state.stats.runeUses || 0) + 1;
+      events.push({ type: "buffItem", item: itemId });
+    }
     p.inventory.splice(idx, 1);
     if (p.inventory.length < D.INV_LIMIT && rng() < 0.03 && false) { /* reserved */ }
   }
@@ -469,7 +475,7 @@ ABYSS.Logic = (function () {
   var LOOT_TABLE = [
     { tier: [1], items: ["potion_small", "potion_small", "potion_mana", "sword_rust", "cloth", "charm_luck"], weight: 1 },
     { tier: [2], items: ["potion_big", "bow_hunter", "leather", "dagger_moon", "potion_antidote", "ring_power"], weight: 1 },
-    { tier: [3], items: ["potion_big", "axe_rune", "chainmail", "bomb_fire", "holy_water", "potion_rage", "amulet_life"], weight: 1 },
+    { tier: [3], items: ["potion_big", "axe_rune", "chainmail", "phoenix", "bomb_fire", "holy_water", "potion_rage", "amulet_life"], weight: 1 },
     { tier: [4], items: ["blade_shadow", "rune_armor", "spear_dragon", "hammer_void", "scale_dragon", "elixir_life", "scroll_arcane", "bomb_fire", "potion_big", "coin_greed", "cloak_shadow"], weight: 1 }
   ];
 
@@ -649,7 +655,8 @@ ABYSS.Logic = (function () {
       quest_master: function () { return (st.quests && st.quests.done && st.quests.done.length) >= 3; },
       endless_15: function () { return (st.bestEndless || 0) >= 15; },
       endless_30: function () { return (st.bestEndless || 0) >= 30; },
-      echo_killer: function () { return (st.echoKills || 0) >= 3; }
+      echo_killer: function () { return (st.echoKills || 0) >= 3; },
+      rune_user: function () { return (st.runeUses || 0) >= 5; }
     };
     for (var id in defs) {
       if (list.indexOf(id) < 0 && defs[id]()) {

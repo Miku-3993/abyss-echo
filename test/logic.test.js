@@ -243,8 +243,8 @@ test("all data references are valid", () => {
     assert.ok(evs.length >= 0, `skill ${sk} should resolve`);
   }
   /* every event id exists; every fragment source is reachable */
-  assert.equal(Object.keys(D.events).length, 13);
-  assert.equal(Object.keys(D.achievements).length, 28);
+  assert.equal(Object.keys(D.events).length, 14);
+  assert.equal(Object.keys(D.achievements).length, 29);
   assert.equal(Object.keys(D.endings).length, 2);
   assert.equal(Object.keys(D.fragments).length, 3);
   assert.equal(D.QUESTS.length, 5);
@@ -299,6 +299,39 @@ test("endless achievements unlock", () => {
   s.stats.echoKills = 3;
   Logic.checkAchievements(s, evs);
   assert.ok(evs.some((e) => e.type === "achievement" && e.id === "echo_killer"));
+});
+
+test("runes apply buffs and count toward rune achievement", () => {
+  const s = Logic.freshState();
+  s.player.inventory = ["rune_power", "rune_guard"];
+  const ps0 = Logic.playerStats(s);
+  const evs = [];
+  Logic.useItem(s, "rune_power", evs, seqRng([0.5]));
+  assert.ok(evs.some((e) => e.type === "buffItem"));
+  assert.ok(s.player.statuses.enrage, "enrage applied");
+  assert.equal(s.stats.runeUses, 1, "rune use counted");
+  Logic.useItem(s, "rune_guard", evs, seqRng([0.5]));
+  assert.equal(s.player.statuses.ward, 2);
+  assert.equal(s.stats.runeUses, 2);
+  s.stats.runeUses = 5;
+  Logic.checkAchievements(s, evs);
+  assert.ok(evs.some((e) => e.type === "achievement" && e.id === "rune_user"));
+  /* haste status actually boosts speed */
+  Logic.applyStatus(s, "player", "haste", 3, evs);
+  const ps = Logic.playerStats(s);
+  assert.equal(ps.spd, ps0.spd + 6, "haste grants +6 spd");
+});
+
+test("phoenix feather is obtainable from tier 3 loot", () => {
+  const s = Logic.freshState();
+  /* force the 28% roll and a pick hitting phoenix by iterating seeds */
+  let found = false;
+  for (let i = 0; i < 400; i++) {
+    const rng = Logic.mulberry32(i + 11);
+    const drops = Logic.rollDrops(s, "minion", rng, false);
+    if (drops.items.indexOf("phoenix") >= 0) { found = true; break; }
+  }
+  assert.ok(found, "phoenix should drop from tier 3 enemies eventually");
 });
 
 test("prestige boosts player stats permanently", () => {

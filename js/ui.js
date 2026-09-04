@@ -674,6 +674,61 @@ ABYSS.UI = (function () {
         choices.push({ text: T("leave"), fn: function () { r.eventDone = true; saveAndRender(); } });
         break;
       }
+      case "blacksmith": {
+        var smithStock = ["rune_power", "rune_guard", "rune_wind", "phoenix"];
+        var gearPool = genStock().filter(function (id) { return D.items[id] && D.items[id].type !== "consumable"; });
+        var gearItem = gearPool.length ? gearPool[Math.floor(Math.random() * gearPool.length)] : "chainmail";
+        /* repair service */
+        choices.push({
+          text: "🔧 " + L.desc(D.FORGE) + "（" + T("hp") + " 全恢复）",
+          can: state.player.gold >= D.FORGE.serviceCost,
+          fn: function () {
+            if (state.player.gold < D.FORGE.serviceCost) { pushLog(T("no_gold"), "log-bad"); return; }
+            state.player.gold -= D.FORGE.serviceCost;
+            var ps = Logic.playerStats(state);
+            state.player.hp = ps.hp;
+            var evs = [{ type: "heal", amount: ps.hp }, { type: "eventText", text: "铁匠一锤砸下，你的伤口竟愈合了。" }];
+            ABYSS.Audio.heal();
+            r.eventDone = true; consumeEvents(evs); saveAndRender();
+          }
+        });
+        smithStock.forEach(function (itemId) {
+          var it = D.items[itemId];
+          var price = it.value;
+          var canBuy = state.player.gold >= price && state.player.inventory.length < D.INV_LIMIT;
+          choices.push({
+            text: "🛒 " + L.name(it) + " — " + price + " " + T("gold") + "（" + L.desc(it) + "）",
+            can: canBuy,
+            fn: function () {
+              if (!canBuy && state.player.gold < price) { pushLog(T("no_gold"), "log-bad"); return; }
+              if (!canBuy && state.player.inventory.length >= D.INV_LIMIT) { pushLog(T("full_inventory"), "log-bad"); return; }
+              state.player.gold -= price;
+              addItemSilent(itemId);
+              ABYSS.Audio.item();
+              var evs = [{ type: "shop", text: "你买下了 " + L.name(it) }];
+              r.eventDone = true; consumeEvents(evs); saveAndRender();
+            }
+          });
+        });
+        var git = D.items[gearItem];
+        var gPrice = Math.floor(git.value * 0.8);
+        var canGear = state.player.gold >= gPrice && state.player.inventory.length < D.INV_LIMIT;
+        choices.push({
+          text: "⚒ 铸造装备：" + L.name(git) + " — " + gPrice + " " + T("gold") + "（9 折）",
+          can: canGear,
+          fn: function () {
+            if (!canGear && state.player.gold < gPrice) { pushLog(T("no_gold"), "log-bad"); return; }
+            if (!canGear && state.player.inventory.length >= D.INV_LIMIT) { pushLog(T("full_inventory"), "log-bad"); return; }
+            state.player.gold -= gPrice;
+            addItemSilent(gearItem);
+            ABYSS.Audio.item();
+            var evs = [{ type: "shop", text: "铁匠为你量身打造了 " + L.name(git) }];
+            r.eventDone = true; consumeEvents(evs); saveAndRender();
+          }
+        });
+        choices.push({ text: T("leave"), fn: function () { r.eventDone = true; saveAndRender(); } });
+        break;
+      }
     }
 
     if (choices.length === 0) {

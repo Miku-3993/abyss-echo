@@ -5,8 +5,13 @@
 var ABYSS = window.ABYSS = window.ABYSS || {};
 
 ABYSS.DATA = {
-  VERSION: "1.7.0",
+  VERSION: "1.8.0",
   MAX_DEPTH: 12,
+  FORGE: {
+    name: { zh: "铁匠铺", en: "The Forge" },
+    serviceCost: 50,
+    serviceDesc: { zh: "花 50 金币重铸伤口：完全恢复生命（战斗中可用）。", en: "Pay 50 gold: fully restore HP (usable in combat)." }
+  },
   ENDLESS: {
     name: { zh: "无尽深渊", en: "Endless Abyss" },
     scalePerFloor: 0.03,
@@ -59,6 +64,7 @@ ABYSS.DATA = {
     bleed:    { name: { zh: "流血", en: "Bleeding" }, desc: { zh: "每回合损失生命并减速", en: "Lose HP and speed each turn" }, tick: true, kind: "harm", damage: 5, spdMod: -2 },
     burn:     { name: { zh: "灼烧", en: "Burning" },  desc: { zh: "每回合损失生命", en: "Lose HP each turn" },      tick: true,  kind: "harm",  damage: 6 },
     weaken:   { name: { zh: "虚弱", en: "Weakened" }, desc: { zh: "攻击降低", en: "Attack reduced" },               tick: false, kind: "harm",  atkMod: -0.35 },
+    haste:    { name: { zh: "疾风", en: "Hasted" },   desc: { zh: "速度提升", en: "Speed increased" },            tick: false, kind: "buff",  spdMod: 6 },
     enrage:   { name: { zh: "狂暴", en: "Enraged" },  desc: { zh: "攻击提升，防御降低", en: "Attack up, defense down" }, tick: false, kind: "buff", atkMod: 0.5, defMod: -0.3 },
     ward:     { name: { zh: "守护", en: "Warded" },   desc: { zh: "防御大幅提升", en: "Defense greatly increased" }, tick: false, kind: "buff", defMod: 1.0 },
     blessing: { name: { zh: "祝福", en: "Blessed" },  desc: { zh: "全属性小幅提升", en: "All stats slightly increased" }, tick: false, kind: "buff", atkMod: 0.15, defMod: 0.15, spdMod: 2 }
@@ -175,7 +181,13 @@ ABYSS.DATA = {
     scroll_arcane: { name: { zh: "经验典籍", en: "Arcane Tome" },      type: "consumable", xp: 40, value: 55,
                    desc: { zh: "研读后获得 40 点经验。", en: "Grants 40 XP when read." } },
     elixir_life: { name: { zh: "万灵药", en: "Elixir of Life" },       type: "consumable", heal: 9999, mana: 9999, value: 120,
-                   desc: { zh: "完全恢复生命与魔力。", en: "Fully restores HP and MP." } }
+                   desc: { zh: "完全恢复生命与魔力。", en: "Fully restores HP and MP." } },
+    rune_power:  { name: { zh: "力量符文", en: "Rune of Might" },       type: "consumable", rune: { buff: "enrage", dur: 3 }, value: 60,
+                   desc: { zh: "战斗中使用：攻击 +50%、防御 -30%，持续 3 回合。", en: "In combat: +50% attack, -30% defense for 3 turns." } },
+    rune_guard:  { name: { zh: "守护符文", en: "Rune of Warding" },    type: "consumable", rune: { buff: "ward", dur: 2 }, value: 55,
+                   desc: { zh: "战斗中使用：防御 +100%，持续 2 回合。", en: "In combat: +100% defense for 2 turns." } },
+    rune_wind:   { name: { zh: "疾风符文", en: "Rune of Wind" },       type: "consumable", rune: { status: "haste", dur: 3 }, value: 65,
+                   desc: { zh: "战斗中使用：速度 +6、闪避提升，持续 3 回合。", en: "In combat: +6 speed and better evasion for 3 turns." } }
   },
 
   /* ---------- PLAYER SKILLS ---------- */
@@ -227,7 +239,9 @@ ABYSS.DATA = {
     library:    { name: { zh: "深渊图书馆", en: "Abyss Library" },
                   desc: { zh: "一间堆满腐烂典籍的房间，书脊上的文字仍在蠕动。", en: "A room piled with rotting tomes whose letters still writhe." } },
     questboard: { name: { zh: "悬赏板", en: "Bounty Board" },
-                  desc: { zh: "一块钉满委托卷轴的木板，落款大多是失踪者的名字。", en: "A board thick with bounty scrolls, mostly signed by the missing." } }
+                  desc: { zh: "一块钉满委托卷轴的木板，落款大多是失踪者的名字。", en: "A board thick with bounty scrolls, mostly signed by the missing." } },
+    blacksmith: { name: { zh: "铁匠铺", en: "Blacksmith" },
+                  desc: { zh: "炉火在深渊中静静燃烧，铁锤声像心跳一样规律。", en: "A forge burns quietly in the abyss; hammer strokes beat like a heart." } }
   },
 
   /* ---------- ACHIEVEMENTS ---------- */
@@ -259,7 +273,8 @@ ABYSS.DATA = {
     quest_master:  { name: { zh: "任务达人", en: "Quest Master" },         desc: { zh: "完成 3 个委托任务", en: "Complete 3 quests" } },
     endless_15:    { name: { zh: "无尽者", en: "Endless One" },            desc: { zh: "在无尽深渊到达第 15 层", en: "Reach floor 15 in the endless abyss" } },
     endless_30:    { name: { zh: "深渊化身", en: "Abyss Incarnate" },      desc: { zh: "在无尽深渊到达第 30 层", en: "Reach floor 30 in the endless abyss" } },
-    echo_killer:   { name: { zh: "回响猎手", en: "Echo Hunter" },          desc: { zh: "击败 3 个回响 Boss", en: "Slay 3 echo bosses" } }
+    echo_killer:   { name: { zh: "回响猎手", en: "Echo Hunter" },          desc: { zh: "击败 3 个回响 Boss", en: "Slay 3 echo bosses" } },
+    rune_user:     { name: { zh: "符文觉醒", en: "Rune Awakened" },        desc: { zh: "使用 5 个战斗符文", en: "Use 5 combat runes" } }
   },
 
   /* ---------- ENDINGS ---------- */
