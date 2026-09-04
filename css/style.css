@@ -1,4 +1,4 @@
-/* ============ Abyss Echo theme ============ */
+﻿/* ============ Abyss Echo theme ============ */
 :root {
   --bg: #0b0e14;
   --bg2: #11151f;
@@ -144,6 +144,21 @@ html, body {
 }
 .sum-name { color: var(--gold); font-weight: 700; font-size: 13px; margin-bottom: 3px; }
 .sum-body { color: var(--dim); font-size: 12px; letter-spacing: 0.03em; }
+.boss-warning {
+  border: 1px solid rgba(88, 196, 176, 0.5);
+  border-radius: 6px;
+  padding: 6px 12px;
+  margin: 0 0 10px;
+  max-width: 640px;
+  color: var(--teal);
+  font-size: 13px;
+  background: rgba(88, 196, 176, 0.07);
+  animation: warnPulse 1.6s ease-in-out infinite;
+}
+@keyframes warnPulse {
+  0%, 100% { opacity: 0.75; }
+  50% { opacity: 1; }
+}
 .btn-main { margin-top: 10px; }
 .scene-stats { color: var(--dim); font-size: 13px; margin: 10px 0; }
 .gameover { color: var(--red); text-shadow: 0 0 18px rgba(224, 96, 96, 0.4); }

@@ -271,6 +271,13 @@ ABYSS.UI = (function () {
     title.className = "scene-title";
     title.textContent = T("floor", { n: r.depth }) + (r.endless && state.stats.bestEndless > r.depth ? "  ·  🎯 " + T("best_floor", { n: state.stats.bestEndless }) : "");
     box.appendChild(title);
+    /* echo boss foreshadowing in endless mode */
+    if (r.endless && r.depth >= 13 && r.depth % D.ENDLESS.bossEvery === 9) {
+      var warn = document.createElement("div");
+      warn.className = "boss-warning";
+      warn.textContent = "⚠ " + T("echo_next");
+      box.appendChild(warn);
+    }
 
     /* room already resolved this floor: show combat summary, more search or descent */
     if (r.room && r.eventDone) {
@@ -1751,6 +1758,7 @@ ABYSS.UI = (function () {
 if (typeof module !== "undefined" && module.exports) {
   module.exports = { ABYSS: ABYSS };
 }
+
 
 
 
