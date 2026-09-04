@@ -1,5 +1,11 @@
 ﻿# 深渊回响 · Abyss Echo
 
+![CI](https://img.shields.io/github/actions/workflow/status/Miku-3993/abyss-echo/ci.yml?branch=main&label=CI)
+![Version](https://img.shields.io/github/package-json/v/Miku-3993/abyss-echo)
+![Release](https://img.shields.io/github/v/release/Miku-3993/abyss-echo)
+![License](https://img.shields.io/github/license/Miku-3993/abyss-echo)
+![Language](https://img.shields.io/badge/language-Vanilla%20JS%20·%20zero%20deps-blueviolet)
+
 > 「深渊之下，万物回响。」 / *"Beneath the abyss, everything echoes."*
 
 一个**零依赖、纯前端**的文字地牢冒险 RPG。克苏鲁黑暗奇幻题材，回合制战斗，12 层深渊，Boss、事件、装备、技能、成就、双结局。打开浏览器就能玩，**无构建、无安装、无网络请求**。
@@ -29,12 +35,12 @@ A **zero-dependency, pure front-end** text-based dungeon RPG. Dark cosmic-fantas
 - 🕳️ **12 层深渊** — 每层随机房间：战斗、事件、宝箱、陷阱、营地 / 12 floors of randomized rooms
 - ⚔️ **回合制战斗** — 攻击、防御（格挡）、9 种技能、道具、逃跑；暴击、闪避、异常状态（中毒/流血/灼烧/虚弱） / turn-based combat with crits, dodges, status effects
 - 🌟 **精英怪** — 15% 概率出现，属性 ×1.5、双倍奖励、必掉一件额外战利品 / elite monsters: 1.5x stats, 2x rewards, guaranteed bonus loot
-- 💀 **5 个 Boss** — 每 3 层一位区域 Boss，第 12 层后开启「深渊核心」最终战 / 5 bosses, final boss unlocked after floor 12
+- 💀 **5 个 Boss + 回响 Boss** — 每 3 层一位区域 Boss，第 12 层后开启「深渊核心」最终战 / 5 bosses, final boss unlocked after floor 12
 - 📜 **12 种随机事件** — 商人、喷泉、祭坛、神龛、矿脉、雕像、蛛巢、占卜师、深渊图书馆…… / merchants, fountains, altars, shrines, fortune tellers…
-- 🏆 **22 个成就** — 探索、击杀、等级、收藏、精英猎手、隐藏目标 / achievements for exploration, kills, levels, elites, collection
+- 🏆 **30 个成就** — 探索、击杀、等级、收藏、精英猎手、隐藏目标 / achievements for exploration, kills, levels, elites, collection
 - 💠 **隐藏真结局** — 收集 3 枚「真相碎片」，在深渊核心做出你的选择 / true ending via 3 fragments of truth
 - 🌀 **转生系统** — 达成结局后可转生，永久获得「深渊刻印」：全属性 +4%/级、金币 +5%/级 / rebirth system granting permanent abyss marks
-- 🗡️ **29 件物品** — 武器/护甲/饰品/消耗品（含经验典籍、万灵药），BOSS 固定掉落传说装备 / weapons, armor, trinkets, consumables, boss-only legendaries
+- 🗡️ **32 件物品** — 武器/护甲/饰品/消耗品（含经验典籍、万灵药），BOSS 固定掉落传说装备 / weapons, armor, trinkets, consumables, boss-only legendaries
 - 🌏 **中英双语** — 设置面板一键切换 / Chinese & English, switchable in settings
 - 🔊 **程序化音效与环境音乐** — Web Audio 实时合成（战斗/探索双场景氛围乐），零音频文件 / procedural SFX + ambient music via Web Audio, zero audio files
 - 📊 **PWA** — 可安装到桌面/手机，离线可玩（manifest + service worker） / installable & offline via PWA
@@ -105,5 +111,6 @@ npm test              # 运行测试
 ## 📄 许可 / License
 
 [MIT](LICENSE) © 2026 Miku-3993
+
 
 
