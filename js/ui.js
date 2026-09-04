@@ -605,15 +605,18 @@ ABYSS.UI = (function () {
     /* skills */
     var sk = document.createElement("div");
     sk.className = "skill-row";
+    var skillIndex = 0;
     for (var id in D.skills) {
       (function (skillId) {
         var s = D.skills[skillId];
         var b = mkButton("✦ " + L.name(s) + " (" + s.mp + ")", "btn-skill", function () {
           resolve({ type: "skill", skillId: skillId });
         });
+        if (skillIndex < 6) b.textContent += " [" + (skillIndex + 4) + "]";
+        skillIndex += 1;
         if (c.skillCd && c.skillCd[skillId] > 0) {
           b.classList.add("disabled");
-          b.textContent += "  [" + c.skillCd[skillId] + "]";
+          b.textContent += " ⏳" + c.skillCd[skillId];
         }
         if (state.player.mp < s.mp) b.classList.add("disabled");
         b.title = L.desc(s);
@@ -2050,6 +2053,7 @@ ABYSS.UI = (function () {
 if (typeof module !== "undefined" && module.exports) {
   module.exports = { ABYSS: ABYSS };
 }
+
 
 
 
