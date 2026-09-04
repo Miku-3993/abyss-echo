@@ -570,7 +570,10 @@ ABYSS.UI = (function () {
         var b = mkButton("✦ " + L.name(s) + " (" + s.mp + ")", "btn-skill", function () {
           resolve({ type: "skill", skillId: skillId });
         });
-        if (c.skillCd && c.skillCd[skillId] > 0) b.classList.add("disabled");
+        if (c.skillCd && c.skillCd[skillId] > 0) {
+          b.classList.add("disabled");
+          b.textContent += "  [" + c.skillCd[skillId] + "]";
+        }
         if (state.player.mp < s.mp) b.classList.add("disabled");
         b.title = L.desc(s);
         sk.appendChild(b);
@@ -1981,6 +1984,7 @@ ABYSS.UI = (function () {
 if (typeof module !== "undefined" && module.exports) {
   module.exports = { ABYSS: ABYSS };
 }
+
 
 
 
