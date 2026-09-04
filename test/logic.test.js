@@ -244,10 +244,61 @@ test("all data references are valid", () => {
   }
   /* every event id exists; every fragment source is reachable */
   assert.equal(Object.keys(D.events).length, 13);
-  assert.equal(Object.keys(D.achievements).length, 25);
+  assert.equal(Object.keys(D.achievements).length, 28);
   assert.equal(Object.keys(D.endings).length, 2);
   assert.equal(Object.keys(D.fragments).length, 3);
   assert.equal(D.QUESTS.length, 5);
+});
+
+test("endless mode: echo boss every 10 floors past 12", () => {
+  const s = Logic.freshState();
+  s.run.endless = true;
+  s.run.depth = 20;
+  const pick = Logic.pickEnemy(s, Logic.mulberry32(5), true);
+  assert.ok(pick.echo === true, "floor 20 must be an echo boss");
+  assert.ok(D.enemies[pick.id], "echo boss id valid");
+  s.run.depth = 21;
+  const normal = Logic.pickEnemy(s, Logic.mulberry32(5), true);
+  assert.ok(!normal.echo, "floor 21 is not an echo boss floor");
+});
+
+test("endless mode: enemy power scales with depth", () => {
+  const s = Logic.freshState();
+  s.run.endless = true;
+  s.run.depth = 20;
+  s.run.combat = { enemyId: "hunter", enemyHp: 1000, enemyStatuses: {}, skillCd: {}, guarding: false };
+  const es = Logic.enemyStats(s);
+  const scale = 1 + (20 - 12) * 0.03;
+  assert.equal(es.maxHp, Math.floor(Math.floor(D.enemies.hunter.hp) * scale));
+  assert.equal(es.atk, Math.floor(D.enemies.hunter.atk * scale));
+  s.run.combat.echo = true;
+  s.run.combat.enemyHp = Logic.enemyMaxHp(s, "hunter", false, true);
+  const echo = Logic.enemyStats(s);
+  const ef = 1.15 + Math.min(0.6, 20 * 0.01);
+  assert.equal(echo.atk, Math.floor(Math.floor(D.enemies.hunter.atk * ef) * scale));
+});
+
+test("endless mode: bestEndless recorded on descent and echo kills counted", () => {
+  const s = Logic.freshState();
+  s.run.endless = true;
+  Logic.descend(s, Logic.mulberry32(1));
+  Logic.descend(s, Logic.mulberry32(1));
+  assert.equal(s.stats.bestEndless, 3);
+  s.run.combat = { enemyId: "boss_abyss", enemyHp: 1, echo: true, enemyStatuses: {}, skillCd: {}, guarding: false };
+  const evs = Logic.resolveTurn(s, { type: "attack" }, seqRng([0.5, 0.9, 0.9, 0.9]));
+  assert.ok(evs.some((e) => e.type === "echoKilled"));
+  assert.equal(s.stats.echoKills, 1);
+});
+
+test("endless achievements unlock", () => {
+  const s = Logic.freshState();
+  s.stats.bestEndless = 15;
+  const evs = [];
+  Logic.checkAchievements(s, evs);
+  assert.ok(evs.some((e) => e.type === "achievement" && e.id === "endless_15"));
+  s.stats.echoKills = 3;
+  Logic.checkAchievements(s, evs);
+  assert.ok(evs.some((e) => e.type === "achievement" && e.id === "echo_killer"));
 });
 
 test("prestige boosts player stats permanently", () => {

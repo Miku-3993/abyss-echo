@@ -38,7 +38,8 @@ ABYSS.Logic = (function () {
         achievements: [], endings: [], bossesKilled: {}, reviveUsed: false, fragments: [],
         eliteKills: 0, fortuneWins: 0, libraryVisits: 0, prestige: 0,
         enemyKilled: {}, collected: {},
-        quests: { active: null, progress: 0, done: [] }
+        quests: { active: null, progress: 0, done: [] },
+        bestEndless: 0, echoKills: 0
       },
       settings: { sound: true, fastText: false, lang: "zh" }
     };
@@ -98,27 +99,40 @@ ABYSS.Logic = (function () {
     return base;
   }
 
-  function enemyMaxHp(state, enemyId, elite) {
+  function endlessScale(state) {
+    if (!state.run.endless || state.run.depth <= 12) return 1;
+    return 1 + (state.run.depth - 12) * D.ENDLESS.scalePerFloor;
+  }
+
+  function enemyMaxHp(state, enemyId, elite, echo) {
     var e = D.enemies[enemyId];
     var maxHp = e.hp;
     if (elite) maxHp = Math.floor(maxHp * 1.5);
+    if (echo) maxHp = Math.floor(maxHp * (D.ENDLESS.bossBias + Math.min(0.6, state.run.depth * 0.01)));
     var pg = state.stats.prestige || 0;
     if (pg > 0) maxHp = Math.floor(maxHp * (1 + 0.03 * pg));
     var fx = dailyFx(state);
     if (fx.enemyHp) maxHp = Math.floor(maxHp * fx.enemyHp);
     if (fx.enemyAll) maxHp = Math.floor(maxHp * fx.enemyAll);
+    maxHp = Math.floor(maxHp * endlessScale(state));
     return maxHp;
   }
 
   function enemyStats(state) {
     var c = state.run.combat, e = D.enemies[c.enemyId];
-    var elite = !!c.elite;
-    var maxHp = enemyMaxHp(state, c.enemyId, elite);
+    var elite = !!c.elite, echo = !!c.echo;
+    var maxHp = enemyMaxHp(state, c.enemyId, elite, echo);
     var hp = c.enemyHp, atk = e.atk, def = e.def, spd = e.spd;
     if (elite) {
       atk = Math.floor(e.atk * 1.5);
       def = Math.floor(e.def * 1.5);
       spd = Math.floor(e.spd * 1.25);
+    }
+    if (echo) {
+      var ef = D.ENDLESS.bossBias + Math.min(0.6, state.run.depth * 0.01);
+      atk = Math.floor(e.atk * ef);
+      def = Math.floor(e.def * ef);
+      spd = Math.floor(e.spd * Math.max(1, ef - 0.15));
     }
     /* rebirth scaling: +3% enemy power per abyss mark keeps late game spicy */
     var pg = state.stats.prestige || 0;
@@ -135,7 +149,13 @@ ABYSS.Logic = (function () {
       spd = Math.floor(spd * fx.enemyAll);
     }
     if (fx.enemyAtk) atk = Math.floor(atk * fx.enemyAtk);
-    if (fx.enemyHp && c.enemyHp) { /* hp handled via maxHp; keep current hp ratio sane */ }
+    /* endless depth scaling */
+    var esScale = endlessScale(state);
+    if (esScale !== 1) {
+      atk = Math.floor(atk * esScale);
+      def = Math.floor(def * esScale);
+      spd = Math.max(1, Math.floor(spd * esScale));
+    }
     var m = statusMods(c.enemyStatuses || {}, "enemy");
     atk = Math.max(1, Math.floor(atk * (1 + m.atk)));
     def = Math.max(0, Math.floor(def * (1 + m.def)));
@@ -260,7 +280,7 @@ ABYSS.Logic = (function () {
 
     /* --- enemy death check --- */
     if (c && c.enemyHp <= 0) {
-      var drop = rollDrops(state, c.enemyId, rng, c.elite);
+      var drop = rollDrops(state, c.enemyId, rng, c.elite, c.echo);
       recordKill(state, c.enemyId, c.elite);
       var mult = c.elite ? 2 : 1;
       var gGain = e.gold * mult;
@@ -273,6 +293,10 @@ ABYSS.Logic = (function () {
       events.push({ type: "kill", enemy: c.enemyId, xp: e.xp * mult, gold: gGain, drops: drop.items, elite: !!c.elite });
       /* refresher: kill grants xp on a later consolidate call when not in combat */
       if (e.boss) events.push({ type: "bossKilled", enemy: c.enemyId });
+      if (c.echo) {
+        state.stats.echoKills = (state.stats.echoKills || 0) + 1;
+        events.push({ type: "echoKilled", enemy: c.enemyId });
+      }
       state.run.combat = null;
       state.run.eventDone = true;
       return events;
@@ -338,7 +362,7 @@ ABYSS.Logic = (function () {
       events.push({ type: "tick", who: "enemy", status: t.status, dmg: amount });
     });
     if (c.enemyHp <= 0) {
-      var drop2 = rollDrops(state, c.enemyId, rng, c.elite);
+      var drop2 = rollDrops(state, c.enemyId, rng, c.elite, c.echo);
       recordKill(state, c.enemyId, c.elite);
       var mult2 = c.elite ? 2 : 1;
       var g2 = Math.floor(e.gold * mult2 * drop2.goldMult);
@@ -348,6 +372,10 @@ ABYSS.Logic = (function () {
       if (c.elite) state.stats.eliteKills += 1;
       events.push({ type: "kill", enemy: c.enemyId, xp: e.xp * mult2, gold: g2, drops: drop2.items, elite: !!c.elite });
       if (e.boss) events.push({ type: "bossKilled", enemy: c.enemyId });
+      if (c.echo) {
+        state.stats.echoKills = (state.stats.echoKills || 0) + 1;
+        events.push({ type: "echoKilled", enemy: c.enemyId });
+      }
       state.run.combat = null;
       state.run.eventDone = true;
     }
@@ -445,7 +473,7 @@ ABYSS.Logic = (function () {
     { tier: [4], items: ["blade_shadow", "rune_armor", "spear_dragon", "hammer_void", "scale_dragon", "elixir_life", "scroll_arcane", "bomb_fire", "potion_big", "coin_greed", "cloak_shadow"], weight: 1 }
   ];
 
-  function rollDrops(state, enemyId, rng, elite) {
+  function rollDrops(state, enemyId, rng, elite, echo) {
     var e = D.enemies[enemyId], out = { items: [], goldMult: 1 };
     var eq = equipped(state);
     /* daily challenge modifiers */
@@ -460,6 +488,10 @@ ABYSS.Logic = (function () {
       if (e.final) {
         out.items.push("blade_abyss");
         out.items.push("armor_abyss");
+      }
+      /* echo bosses drop an extra bonus item on top */
+      if (echo && rng() < 0.8) {
+        out.items.push(table.items[Math.floor(rng() * table.items.length)]);
       }
     } else if (rng() < 0.28) {
       var table2 = LOOT_TABLE.filter(function (l) { return l.tier.indexOf(e.tier) >= 0; })[0] || LOOT_TABLE[0];
@@ -530,10 +562,12 @@ ABYSS.Logic = (function () {
       room.eventId = ids[Math.floor(rng() * ids.length)];
     }
     if (type === "combat" || type === "boss") {
-      room.enemyId = pickEnemy(state, rng, type === "boss");
+      var pick = pickEnemy(state, rng, type === "boss");
+      room.enemyId = typeof pick === "string" ? pick : pick.id;
+      room.echo = !!(pick && pick.echo);
       /* elites only spawn on normal combat, never bosses */
       var fx = dailyFx(state);
-      room.elite = type === "combat" && rng() < ELITE_CHANCE * (fx.eliteChance || 1);
+      room.elite = type === "combat" && !room.echo && rng() < ELITE_CHANCE * (fx.eliteChance || 1);
     }
     return room;
   }
@@ -543,13 +577,19 @@ ABYSS.Logic = (function () {
   function pickEnemy(state, rng, forceBoss) {
     var depth = state.run.depth;
     var bossMap = { 3: "boss_grul", 6: "boss_morg", 9: "boss_steel", 12: "boss_karaz" };
-    if (state.run.finalOpen && depth >= 12) return "boss_abyss";
+    if (state.run.finalOpen && depth >= 12 && !state.run.endless) return "boss_abyss";
     if (forceBoss) {
       if (bossMap[depth]) return bossMap[depth];
-      if (depth > 12 && state.run.finalOpen) return "boss_abyss";
+      if (depth > 12 && state.run.finalOpen && !state.run.endless) return "boss_abyss";
     }
     var tier = Math.min(4, Math.ceil(depth / 3));
     var pool = TIER_POOL[tier];
+    /* endless mode: echo boss every N floors past the base 12 */
+    if (state.run.endless && depth >= 13 && depth % D.ENDLESS.bossEvery === 0) {
+      var bossPool = ["boss_grul", "boss_morg", "boss_steel", "boss_karaz", "boss_abyss"];
+      var b = bossPool[Math.floor(rng() * bossPool.length)];
+      return { id: b, echo: true };
+    }
     return pool[Math.floor(rng() * pool.length)];
   }
 
@@ -560,6 +600,7 @@ ABYSS.Logic = (function () {
     state.run.room = null;
     state.run.combat = null;
     if (state.run.depth > (state.stats.bestDepth || 1)) state.stats.bestDepth = state.run.depth;
+    if (state.run.endless && state.run.depth > (state.stats.bestEndless || 0)) state.stats.bestEndless = state.run.depth;
     questProgress(state, "depth", 1);
     return state.run.depth;
   }
@@ -605,7 +646,10 @@ ABYSS.Logic = (function () {
       bookworm: function () { return st.libraryVisits >= 3; },
       prestige_1: function () { return (st.prestige || 0) >= 1; },
       bestiary: function () { return Object.keys(st.enemyKilled || {}).length >= 12; },
-      quest_master: function () { return (st.quests && st.quests.done && st.quests.done.length) >= 3; }
+      quest_master: function () { return (st.quests && st.quests.done && st.quests.done.length) >= 3; },
+      endless_15: function () { return (st.bestEndless || 0) >= 15; },
+      endless_30: function () { return (st.bestEndless || 0) >= 30; },
+      echo_killer: function () { return (st.echoKills || 0) >= 3; }
     };
     for (var id in defs) {
       if (list.indexOf(id) < 0 && defs[id]()) {

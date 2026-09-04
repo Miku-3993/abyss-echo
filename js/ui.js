@@ -85,6 +85,7 @@ ABYSS.UI = (function () {
         case "shop": txt = "🛒 " + ev.text; cls = "log-gold"; break;
         case "ending": txt = "🏁 " + ev.text; cls = "log-gold"; break;
         case "prestige": txt = "🌀 深渊刻印 +" + ev.level + "！你的力量在深渊中回响……"; cls = "log-gold"; break;
+        case "echoKilled": txt = "🌪 回响 Boss 被击碎！" + L.name(D.enemies[ev.enemy]) + " 的残响消散了……"; cls = "log-gold"; ABYSS.Audio.boss(); break;
         case "questStart": txt = "📋 " + T("quest_start") + "：" + L.name(D.QUESTS.filter(function (q) { return q.id === ev.quest; })[0]); cls = "log-gold"; break;
         case "questAbandon": txt = "📋 " + T("quest_abandon") + "：" + L.name(D.QUESTS.filter(function (q) { return q.id === ev.quest; })[0]); break;
         case "questDone": {
@@ -257,7 +258,7 @@ ABYSS.UI = (function () {
     }
     var room = r.room;
     if (room.type === "combat" || room.type === "boss") {
-      if (!r.combat) startCombat(room.enemyId, room.elite);
+      if (!r.combat) startCombat(room.enemyId, room.elite, room.echo);
       renderCombat(box);
       return;
     }
@@ -336,12 +337,13 @@ ABYSS.UI = (function () {
   }
 
   /* ================= combat ================= */
-  function startCombat(enemyId, elite) {
-    var base = Logic.enemyMaxHp(state, enemyId, elite);
-    var c = { enemyId: enemyId, enemyHp: base, elite: !!elite, enemyStatuses: {}, skillCd: {}, guarding: false };
+  function startCombat(enemyId, elite, echo) {
+    var base = Logic.enemyMaxHp(state, enemyId, elite, echo);
+    var c = { enemyId: enemyId, enemyHp: base, elite: !!elite, echo: !!echo, enemyStatuses: {}, skillCd: {}, guarding: false };
     state.run.combat = c;
     ABYSS.Audio.startMusic("combat");
-    if (D.enemies[enemyId].boss) ABYSS.Audio.boss();
+    if (echo) ABYSS.Audio.boss();
+    else if (D.enemies[enemyId].boss) ABYSS.Audio.boss();
   }
 
   function renderCombat(box) {
@@ -351,8 +353,8 @@ ABYSS.UI = (function () {
     var es = Logic.enemyStats(state);
     var ps = Logic.playerStats(state);
     var head = document.createElement("div");
-    head.className = "enemy-card" + (es.elite ? " enemy-elite" : "");
-    head.innerHTML = "<div class='enemy-name'>" + (e.boss ? "💀 " : (es.elite ? "🌟 " : "👹 ")) + (es.elite ? "精英·" : "") + L.name(e) + "</div>" +
+    head.className = "enemy-card" + (es.elite ? " enemy-elite" : "") + (c.echo ? " enemy-echo" : "");
+    head.innerHTML = "<div class='enemy-name'>" + (c.echo ? "🌪 " : "") + (e.boss ? "💀 " : (es.elite ? "🌟 " : "👹 ")) + (c.echo ? "回响·" : es.elite ? "精英·" : "") + L.name(e) + "</div>" +
       "<div class='enemy-hpbar'><div class='enemy-hpfill' style='width:" + Math.max(0, Math.round(es.hp / es.maxHp * 100)) + "%'></div></div>" +
       "<div class='enemy-info'>" + T("atk") + " " + es.atk + " · " + T("def") + " " + es.def + " · " + T("spd") + " " + es.spd + (es.elite ? " · 🌟 " + T("elite_bonus") : "") + "</div>" +
       "<div class='enemy-desc'>" + L.desc(e) + "</div>";
@@ -740,10 +742,11 @@ ABYSS.UI = (function () {
   function showDeath() {
     var box = $("scene");
     box.innerHTML = "";
-    if (state.run.daily) {
+    if (state.run.daily || state.run.endless) {
       recordDailyBest();
       ABYSS.Save.setSlot("main");
       state.run.daily = null;
+      state.run.endless = false;
     }
     var t = document.createElement("div");
     t.className = "scene-title gameover";
@@ -769,10 +772,11 @@ ABYSS.UI = (function () {
     var box = $("scene");
     box.innerHTML = "";
     var en = D.endings[endingId];
-    if (state.run.daily) {
+    if (state.run.daily || state.run.endless) {
       recordDailyBest();
       ABYSS.Save.setSlot("main");
       state.run.daily = null;
+      state.run.endless = false;
     }
     state.stats.endings = state.stats.endings || [];
     if (state.stats.endings.indexOf(endingId) < 0) state.stats.endings.push(endingId);
@@ -880,6 +884,12 @@ ABYSS.UI = (function () {
     $("game-screen").classList.remove("visible");
     ABYSS.Audio.stopMusic();
     showDailyBest();
+    /* endless mode unlocks with first rebirth */
+    var saved = ABYSS.Save.load();
+    var endlessBtn = $("btn-endless");
+    if (endlessBtn) {
+      endlessBtn.style.display = (saved && saved.stats && saved.stats.prestige >= 1) ? "" : "none";
+    }
   }
 
   function autostart() {
@@ -900,11 +910,11 @@ ABYSS.UI = (function () {
   }
 
   /* preview/e2e hook: force a combat scene (used by screenshot tooling) */
-  function debugStartCombat(enemyId, elite) {
-    state.run.room = { type: "combat", enemyId: enemyId, elite: !!elite };
-    var base = D.enemies[enemyId].hp;
-    state.run.combat = { enemyId: enemyId, enemyHp: elite ? Math.floor(base * 1.5) : base, elite: !!elite, enemyStatuses: {}, skillCd: {}, guarding: false };
-    state.run.eventDone = true;
+  function debugStartCombat(enemyId, elite, echo) {
+    state.run.room = { type: "combat", enemyId: enemyId, elite: !!elite, echo: !!echo };
+    var base = Logic.enemyMaxHp(state, enemyId, elite, echo);
+    state.run.combat = { enemyId: enemyId, enemyHp: base, elite: !!elite, echo: !!echo, enemyStatuses: {}, skillCd: {}, guarding: false };
+    state.run.eventDone = false;
     showScene();
     renderHUD();
   }
@@ -959,6 +969,23 @@ ABYSS.UI = (function () {
     intro.forEach(function (t) { pushLog(t, "log-gold"); });
   }
 
+  function startEndless() {
+  var p = ABYSS.Save.load();
+  if (!p || !(p.stats && p.stats.prestige >= 1)) {
+    pushLog("需要至少 1 枚深渊刻印才能进入无尽深渊（先完成一个结局并转生）。", "log-bad");
+    return;
+  }
+  ABYSS.Save.setSlot("endless");
+  state = Logic.freshState();
+  state.settings = defaultSettings();
+  ABYSS.LANG.current = state.settings.lang;
+  state.run.endless = true;
+  hideTitle();
+  newRun();
+  pushLog("🌀 " + L.name(D.ENDLESS) + "！", "log-gold");
+  pushLog(L.desc(D.ENDLESS), "log-gold");
+}
+
   function bindGlobalUI() {
     $("btn-new").addEventListener("click", function () {
       if (ABYSS.Save.load()) {
@@ -973,6 +1000,7 @@ ABYSS.UI = (function () {
       hideTitle();
     });
     $("btn-daily").addEventListener("click", startDaily);
+    $("btn-endless").addEventListener("click", startEndless);
     $("btn-continue").addEventListener("click", function () {
       ABYSS.Save.setSlot("main");
       var saved = ABYSS.Save.load();

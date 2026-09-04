@@ -5,8 +5,15 @@
 var ABYSS = window.ABYSS = window.ABYSS || {};
 
 ABYSS.DATA = {
-  VERSION: "1.6.0",
+  VERSION: "1.7.0",
   MAX_DEPTH: 12,
+  ENDLESS: {
+    name: { zh: "无尽深渊", en: "Endless Abyss" },
+    scalePerFloor: 0.03,
+    bossEvery: 10,
+    bossBias: 1.15,
+    desc: { zh: "转生后解锁：无上限的深渊延续，每层敌人 +3%，每 10 层遭遇回响 Boss。", en: "Unlocked after rebirth: endless descent, +3% enemy power per floor, echo bosses every 10 floors." }
+  },
   QUESTS: [
     { id: "elite", name: { zh: "精英猎杀令", en: "Elite Hunt Order" }, giver: { zh: "猎人格雷", en: "Hunter Grey" },
       desc: { zh: "消灭 3 个精英怪物", en: "Slay 3 elite monsters" }, kind: "eliteKills", target: 3,
@@ -249,7 +256,10 @@ ABYSS.DATA = {
     bookworm:      { name: { zh: "书虫", en: "Bookworm" },                 desc: { zh: "造访深渊图书馆 3 次", en: "Visit the abyss library 3 times" } },
     prestige_1:    { name: { zh: "轮回之始", en: "First Rebirth" },        desc: { zh: "完成第一次转生", en: "Transcend for the first time" } },
     bestiary:      { name: { zh: "图鉴学家", en: "Codex Scholar" },        desc: { zh: "图鉴中解锁 12 种怪物", en: "Unlock 12 monsters in the codex" } },
-    quest_master:  { name: { zh: "任务达人", en: "Quest Master" },         desc: { zh: "完成 3 个委托任务", en: "Complete 3 quests" } }
+    quest_master:  { name: { zh: "任务达人", en: "Quest Master" },         desc: { zh: "完成 3 个委托任务", en: "Complete 3 quests" } },
+    endless_15:    { name: { zh: "无尽者", en: "Endless One" },            desc: { zh: "在无尽深渊到达第 15 层", en: "Reach floor 15 in the endless abyss" } },
+    endless_30:    { name: { zh: "深渊化身", en: "Abyss Incarnate" },      desc: { zh: "在无尽深渊到达第 30 层", en: "Reach floor 30 in the endless abyss" } },
+    echo_killer:   { name: { zh: "回响猎手", en: "Echo Hunter" },          desc: { zh: "击败 3 个回响 Boss", en: "Slay 3 echo bosses" } }
   },
 
   /* ---------- ENDINGS ---------- */
