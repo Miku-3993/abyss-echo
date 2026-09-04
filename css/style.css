@@ -655,3 +655,15 @@ body::after {
 .enemy-statuses { min-height: 20px; margin-bottom: 5px; display: flex; gap: 3px; }
 .status-badge.st-enemy { border-color: rgba(167, 139, 219, 0.55); }
 
+
+.scene.boss-fight {
+  background:
+    radial-gradient(ellipse 70% 55% at 50% 18%, rgba(96, 24, 30, 0.30), transparent 70%),
+    radial-gradient(ellipse 45% 35% at 85% 90%, rgba(80, 16, 24, 0.18), transparent 70%),
+    linear-gradient(180deg, rgba(14, 8, 16, 0.66), rgba(16, 10, 18, 0.5));
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.45), inset 0 0 60px rgba(120, 24, 30, 0.10);
+}
+.scene.boss-fight .scene-title {
+  color: #f0a0a0;
+  text-shadow: 0 0 24px rgba(224, 96, 96, 0.45), 0 2px 0 rgba(0, 0, 0, 0.5);
+}

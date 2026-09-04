@@ -329,6 +329,9 @@ ABYSS.UI = (function () {
     var r = state.run;
     var box = $("scene");
     box.innerHTML = "";
+    /* boss-fight atmosphere */
+    var isBossFight = !!(r.combat && D.enemies[r.combat.enemyId] && D.enemies[r.combat.enemyId].boss);
+    box.classList.toggle("boss-fight", isBossFight);
     if (!r.alive) { showDeath(); return; }
     if (sceneContext && sceneContext.ending) { showEnding(sceneContext.ending); return; }
     if (!r.combat && ABYSS.Audio.musicType !== "explore") {
@@ -1953,6 +1956,7 @@ ABYSS.UI = (function () {
 if (typeof module !== "undefined" && module.exports) {
   module.exports = { ABYSS: ABYSS };
 }
+
 
 
 
