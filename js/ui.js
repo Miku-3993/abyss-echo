@@ -78,7 +78,12 @@ ABYSS.UI = (function () {
         case "noMp": txt = T("no_mp"); cls = "log-bad"; break;
         case "skillCd": txt = T("skill_cd"); cls = "log-bad"; break;
         case "skill": txt = "✦ " + L.name(D.skills[ev.skill]); break;
-        case "achievement": txt = "🏆 " + T("achievement_unlocked", { n: L.name(D.achievements[ev.id]) }); cls = "log-gold"; ABYSS.Audio.achievement(); break;
+        case "achievement":
+          txt = "🏆 " + T("achievement_unlocked", { n: L.name(D.achievements[ev.id]) });
+          cls = "log-gold";
+          ABYSS.Audio.achievement();
+          pushToast(T("achievement_unlocked", { n: L.name(D.achievements[ev.id]) }), T("achievements"), "🏆");
+          break;
         case "fragment": txt = "💠 " + T("found_item", { n: L.name(D.fragments[ev.frag]) }) + "（" + ev.count + "/3）"; cls = "log-gold"; ABYSS.Audio.fragment(); break;
         case "camp": txt = T("camp_rest"); cls = "log-good"; break;
         case "trapDamage": txt = "☠ " + T("trap_hit") + " -" + ev.dmg; cls = "log-bad"; break;
@@ -168,6 +173,34 @@ ABYSS.UI = (function () {
     setTimeout(function () {
       if (el.parentNode) el.parentNode.removeChild(el);
     }, 900);
+  }
+  function pushToast(title, sub, icon) {
+    var host = document.getElementById("toast");
+    if (!host) return;
+    var card = document.createElement("div");
+    card.className = "toast-card";
+    var ic = document.createElement("div");
+    ic.className = "toast-icon";
+    ic.textContent = icon || "🏆";
+    var body = document.createElement("div");
+    body.className = "toast-body";
+    var t = document.createElement("div");
+    t.className = "toast-title";
+    t.textContent = title;
+    var s = document.createElement("div");
+    s.className = "toast-sub";
+    s.textContent = sub || "";
+    body.appendChild(t);
+    body.appendChild(s);
+    card.appendChild(ic);
+    card.appendChild(body);
+    host.appendChild(card);
+    setTimeout(function () {
+      card.classList.add("toast-out");
+      setTimeout(function () {
+        if (card.parentNode) card.parentNode.removeChild(card);
+      }, 420);
+    }, 3200);
   }
   function pushLog(text, cls) {
     var box = $("log");
@@ -1865,6 +1898,8 @@ ABYSS.UI = (function () {
 if (typeof module !== "undefined" && module.exports) {
   module.exports = { ABYSS: ABYSS };
 }
+
+
 
 
 
