@@ -1,4 +1,4 @@
-﻿/*
+/*
  * Abyss Echo - UI rendering & interaction layer
  * Consumes ABYSS.Logic events, renders DOM, wires game feel.
  */
@@ -44,6 +44,10 @@ ABYSS.UI = (function () {
             ev.drops.forEach(function (it) {
               addItemSilent(it);
               txt += " ［" + T("found_item", { n: L.name(D.items[it]) }) + "］";
+              var itd = D.items[it];
+              if (itd && (itd.value >= 300 || it.indexOf("relic_") === 0 || it.indexOf("blade_abyss") === 0 || it.indexOf("armor_abyss") === 0)) {
+                pushToast(T("loot_legend", { n: L.name(itd) }), T("loot_your"), "⚜");
+              }
             });
           }
           ABYSS.Audio.kill();
@@ -1898,6 +1902,7 @@ ABYSS.UI = (function () {
 if (typeof module !== "undefined" && module.exports) {
   module.exports = { ABYSS: ABYSS };
 }
+
 
 
 

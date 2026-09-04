@@ -217,6 +217,8 @@ ABYSS.LANG = {
     "multikill_bosses": { zh: "Boss", en: "bosses" },
     "ach_progress": { zh: "🏆 成就 {n}/{t}", en: "🏆 Achievements {n}/{t}" },
     "charging": { zh: "蓄力重击", en: "winds up a heavy strike" },
+    "loot_legend": { zh: "获得传说战利品：{n}！", en: "Legendary loot: {n}!" },
+    "loot_your": { zh: "深渊对你微笑", en: "The abyss smiles upon you" },
     "ev_vault_left": { zh: "打开左边的黑匣", en: "Open the left chest" },
     "ev_vault_middle": { zh: "打开中间的黑匣", en: "Open the middle chest" },
     "ev_vault_right": { zh: "打开右边的黑匣", en: "Open the right chest" },
@@ -263,6 +265,7 @@ ABYSS.LANG.desc = function (entry) {
 if (typeof module !== "undefined" && module.exports) {
   module.exports = { ABYSS: ABYSS };
 }
+
 
 
 
