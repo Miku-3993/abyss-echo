@@ -8,7 +8,7 @@
 
 > 「深渊之下，万物回响。」 / *"Beneath the abyss, everything echoes."*
 
-一个**零依赖、纯前端**的文字地牢冒险 RPG。克苏鲁黑暗奇幻题材，回合制战斗，12 层深渊，Boss、事件、装备、技能、成就、双结局。打开浏览器就能玩，**无构建、无安装、无网络请求**。
+一个**零依赖、纯前端**的文字地牢冒险 RPG。「哥特星渊」专属视觉——星空粒子背景、玻璃拟态面板、衬线金字。克苏鲁黑暗奇幻题材，回合制战斗，12 层深渊，Boss、事件、装备、技能、成就、双结局。打开浏览器就能玩，**无构建、无安装、无网络请求**。
 
 A **zero-dependency, pure front-end** text-based dungeon RPG. Dark cosmic-fantasy theme, turn-based combat, 12 floors of the abyss, bosses, random events, gear, skills, achievements and two endings. Open it in a browser — **no build step, no install, no network calls**.
 
@@ -111,6 +111,7 @@ npm test              # 运行测试
 ## 📄 许可 / License
 
 [MIT](LICENSE) © 2026 Miku-3993
+
 
 
 
