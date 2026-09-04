@@ -377,6 +377,24 @@ test("bossPhase event fires once per fight", () => {
   assert.equal(s.run.combat.enraged, true);
 });
 
+test("combat summary tracks damage and heals", () => {
+  const s = Logic.freshState();
+  s.run.combat = { enemyId: "rat", enemyHp: 8, enemyStatuses: {}, skillCd: {}, guarding: false };
+  s.player.hp = 20;
+  const evs = Logic.resolveTurn(s, { type: "attack" }, seqRng([0.5, 0.6, 0.9]));
+  assert.ok(s.run.combatSummary, "summary written after kill");
+  assert.ok(s.run.combatSummary.stats.dmgDealt >= 8, "dealt at least enemy hp");
+  assert.ok(s.run.combatSummary.stats.turns >= 1);
+  assert.ok(s.run.combatSummary.stats.dmgTaken >= 0);
+  /* heal counting */
+  const s2 = Logic.freshState();
+  s2.run.combat = { enemyId: "rat", enemyHp: 50, enemyStatuses: {}, skillCd: {}, guarding: false };
+  s2.player.hp = 20;
+  s2.player.inventory = ["potion_small"];
+  Logic.resolveTurn(s2, { type: "item", itemId: "potion_small" }, seqRng([0.5, 0.6]));
+  assert.ok(s2.run.combat.stats.heals >= 35, "healing tracked in combat stats");
+});
+
 test("legacy saves normalize cleanly", () => {
   const legacy = {
     version: "1.0.0",

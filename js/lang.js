@@ -191,7 +191,11 @@ ABYSS.LANG = {
     "elite_prefix": { zh: "精英·", en: "Elite " },
     "echo_prefix": { zh: "回响·", en: "Echo " },
     "tutorial_moves": { zh: "使用底部按钮移动，⚔攻击 / 🛡防御 / ✦技能 / 🏃逃跑。每 3 层会出现一个 Boss。", en: "Use the buttons below. ⚔Attack / 🛡Guard / ✦Skills / 🏃Flee. A boss awaits every 3 floors." },
-    "boss_enraged": { zh: "进入了狂暴形态", en: "enters its enraged form" }
+    "boss_enraged": { zh: "进入了狂暴形态", en: "enters its enraged form" },
+    "combat_summary": { zh: "战斗总结", en: "Combat Summary" },
+    "turns": { zh: "{n} 回合", en: "{n} turns" },
+    "dmg_dealt": { zh: "输出 {n}", en: "dealt {n}" },
+    "dmg_taken": { zh: "承伤 {n}", en: "taken {n}" }
   }
 };
 

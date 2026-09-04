@@ -1,4 +1,4 @@
-/*
+﻿/*
  * Abyss Echo - core game logic (pure, testable, no DOM)
  * All functions operate on a plain state object and return event lists.
  */
@@ -138,8 +138,7 @@ ABYSS.Logic = (function () {
     var enraged = false;
     if (e.boss && maxHp > 0 && hp / maxHp < 0.5) {
       enraged = true;
-      atk = Math.floor(atk * 1.35);
-      spd = Math.max(spd, Math.floor(spd * 1.15));
+      atk = Math.floor(atk * 1.15);
     }
     /* rebirth scaling: +3% enemy power per abyss mark keeps late game spicy */
     var pg = state.stats.prestige || 0;
@@ -220,6 +219,8 @@ ABYSS.Logic = (function () {
     if (!c) return events;
     var e = D.enemies[c.enemyId];
     var ps = playerStats(state), es = enemyStats(state);
+    c.stats = c.stats || { turns: 0, dmgDealt: 0, dmgTaken: 0, heals: 0 };
+    c.stats.turns += 1;
 
     /* --- player action --- */
     if (action.type === "flee") {
@@ -269,6 +270,7 @@ ABYSS.Logic = (function () {
         for (var i = 0; i < hits && c.enemyHp > 0; i++) {
           var r = rollDamage(ps.atk, es.def, ps.luck, sk.power, rng);
           c.enemyHp -= r.dmg;
+          c.stats.dmgDealt += r.dmg;
           events.push({ type: "hit", target: "enemy", dmg: r.dmg, crit: r.crit, skill: action.skillId });
         }
         if (sk.status && c.enemyHp > 0 && rng() < 0.75) {
@@ -279,6 +281,7 @@ ABYSS.Logic = (function () {
           var fxH = dailyFx(state);
           if (fxH.healMult) healed = Math.max(0, Math.floor(healed * fxH.healMult));
           p.hp = Math.min(ps.hp, p.hp + healed);
+          c.stats.heals += healed;
           events.push({ type: "drain", amount: healed });
         }
       }
@@ -287,6 +290,7 @@ ABYSS.Logic = (function () {
     } else { /* attack */
       var rr = rollDamage(ps.atk, es.def, ps.luck, 1, rng);
       c.enemyHp -= rr.dmg;
+      c.stats.dmgDealt += rr.dmg;
       events.push({ type: "hit", target: "enemy", dmg: rr.dmg, crit: rr.crit });
     }
 
@@ -310,11 +314,16 @@ ABYSS.Logic = (function () {
         state.stats.bossesKilled[c.enemyId] = true;
         events.push({ type: "bossKilled", enemy: c.enemyId });
         if (c.enemyId === "boss_karaz") state.run.finalOpen = true;
+        /* defeating a boss grants a breather: restore 25% max HP */
+        var bossHeal = Math.floor(playerStats(state).hp * 0.15);
+        p.hp = Math.min(playerStats(state).hp, p.hp + bossHeal);
+        events.push({ type: "heal", amount: bossHeal });
       }
       if (c.echo) {
         state.stats.echoKills = (state.stats.echoKills || 0) + 1;
         events.push({ type: "echoKilled", enemy: c.enemyId });
       }
+      state.run.combatSummary = { enemy: c.enemyId, elite: !!c.elite, echo: !!c.echo, stats: c.stats };
       state.run.combat = null;
       state.run.eventDone = true;
       return events;
@@ -329,6 +338,7 @@ ABYSS.Logic = (function () {
     ticks.forEach(function (t) {
       var amount = Math.max(0, Math.min(p.hp, Math.floor((D.statuses[t.status].damage + 0) * (0.85 + rng() * 0.3))));
       p.hp -= amount;
+      c.stats.dmgTaken += amount;
       events.push({ type: "tick", who: "player", status: t.status, dmg: amount });
       if (p.hp <= 0) return;
     });
@@ -354,6 +364,7 @@ ABYSS.Logic = (function () {
       var er = rollDamage(es.atk, def, 0, 1, rng);
       var dealt = Math.max(0, Math.min(p.hp, er.dmg));
       p.hp -= dealt;
+      c.stats.dmgTaken += dealt;
       events.push({ type: "hit", target: "player", dmg: er.dmg, crit: er.crit, blocked: c.guarding && er.dmg > 0 });
       if (p.hp <= 0) {
         handleDeath(state, events);
@@ -399,11 +410,16 @@ ABYSS.Logic = (function () {
         state.stats.bossesKilled[c.enemyId] = true;
         events.push({ type: "bossKilled", enemy: c.enemyId });
         if (c.enemyId === "boss_karaz") state.run.finalOpen = true;
+        /* defeating a boss grants a breather: restore 25% max HP */
+        var bossHeal = Math.floor(playerStats(state).hp * 0.15);
+        p.hp = Math.min(playerStats(state).hp, p.hp + bossHeal);
+        events.push({ type: "heal", amount: bossHeal });
       }
       if (c.echo) {
         state.stats.echoKills = (state.stats.echoKills || 0) + 1;
         events.push({ type: "echoKilled", enemy: c.enemyId });
       }
+      state.run.combatSummary = { enemy: c.enemyId, elite: !!c.elite, echo: !!c.echo, stats: c.stats };
       state.run.combat = null;
       state.run.eventDone = true;
     }
@@ -420,6 +436,7 @@ ABYSS.Logic = (function () {
       var amt = fx.healMult ? Math.floor(it.heal * fx.healMult) : it.heal;
       var healed = Math.min(ps.hp - p.hp, amt);
       p.hp += healed;
+      if (state.run.combat && state.run.combat.stats) state.run.combat.stats.heals += Math.max(0, healed);
       events.push({ type: "heal", amount: Math.max(0, healed), item: itemId });
     }
     if (it.mana) {
@@ -864,5 +881,9 @@ ABYSS.Logic = (function () {
 if (typeof module !== "undefined" && module.exports) {
   module.exports = { ABYSS: ABYSS };
 }
+
+
+
+
 
 

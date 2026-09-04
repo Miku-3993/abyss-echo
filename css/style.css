@@ -131,6 +131,19 @@ html, body {
   text-shadow: 0 0 12px rgba(232, 194, 106, 0.25);
 }
 .scene-text { margin: 8px 0; color: var(--ink); max-width: 720px; }
+
+/* combat summary card */
+.combat-summary {
+  border: 1px solid var(--line);
+  border-left: 3px solid var(--gold);
+  border-radius: 6px;
+  background: rgba(232, 194, 106, 0.06);
+  padding: 8px 12px;
+  margin: 8px 0 10px;
+  max-width: 640px;
+}
+.sum-name { color: var(--gold); font-weight: 700; font-size: 13px; margin-bottom: 3px; }
+.sum-body { color: var(--dim); font-size: 12px; letter-spacing: 0.03em; }
 .btn-main { margin-top: 10px; }
 .scene-stats { color: var(--dim); font-size: 13px; margin: 10px 0; }
 .gameover { color: var(--red); text-shadow: 0 0 18px rgba(224, 96, 96, 0.4); }

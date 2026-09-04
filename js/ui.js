@@ -238,8 +238,27 @@ ABYSS.UI = (function () {
     title.textContent = T("floor", { n: r.depth });
     box.appendChild(title);
 
-    /* room already resolved this floor: offer more search or descent */
+    /* room already resolved this floor: show combat summary, more search or descent */
     if (r.room && r.eventDone) {
+      if (r.combatSummary && (r.room.type === "combat" || r.room.type === "boss")) {
+        var sum = r.combatSummary;
+        var card = document.createElement("div");
+        card.className = "combat-summary";
+        var sn = D.enemies[sum.enemy];
+        var sHead = document.createElement("div");
+        sHead.className = "sum-name";
+        sHead.textContent = "⚔ " + T("combat_summary") + "：" + (sum.echo ? "🌪 " : "") + (sum.elite ? "🌟 " : "") + (sn.boss ? "💀 " : "👹 ") + L.name(sn);
+        card.appendChild(sHead);
+        var sBody = document.createElement("div");
+        sBody.className = "sum-body";
+        sBody.innerHTML = "🕐 " + T("turns", { n: sum.stats.turns }) +
+          " · ⚔ " + T("dmg_dealt", { n: sum.stats.dmgDealt }) +
+          " · 🛡 " + T("dmg_taken", { n: sum.stats.dmgTaken }) +
+          (sum.stats.heals ? " · 💚 " + T("healed", { n: sum.stats.heals }) : "");
+        card.appendChild(sBody);
+        box.appendChild(card);
+        r.combatSummary = null;
+      }
       var searched = r.floorRooms || 0;
       box.appendChild(p(searched < 2 ? T("room_searched_more") : T("room_searched_done")));
       if (searched < 2) {
