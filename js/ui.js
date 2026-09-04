@@ -52,6 +52,9 @@ ABYSS.UI = (function () {
             });
           }
           ABYSS.Audio.kill();
+          if (ev.first) {
+            pushToast(T("codex_new", { n: L.name(en) }), T("codex_new_sub"), "📜");
+          }
           if (ev.enemy.indexOf("boss") === 0) {
             state.stats.bossesKilled = state.stats.bossesKilled || {};
             state.stats.bossesKilled[ev.enemy] = true;
@@ -1988,6 +1991,7 @@ ABYSS.UI = (function () {
 if (typeof module !== "undefined" && module.exports) {
   module.exports = { ABYSS: ABYSS };
 }
+
 
 
 

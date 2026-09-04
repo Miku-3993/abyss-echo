@@ -338,6 +338,7 @@ ABYSS.Logic = (function () {
     /* --- enemy death check --- */
     if (c && c.enemyHp <= 0) {
       var drop = rollDrops(state, c.enemyId, rng, c.elite, c.echo);
+      var firstKill = !(state.stats.enemyKilled && state.stats.enemyKilled[c.enemyId]);
       recordKill(state, c.enemyId, c.elite);
       var mult = c.elite ? 2 : 1;
       var gGain = e.gold * mult;
@@ -348,7 +349,7 @@ ABYSS.Logic = (function () {
       if (c.elite) state.stats.eliteKills += 1;
       p.hp = Math.min(playerStats(state).hp, p.hp);
       gainXp(state, e.xp * mult, events);
-      events.push({ type: "kill", enemy: c.enemyId, xp: e.xp * mult, gold: gGain, drops: drop.items, elite: !!c.elite });
+      events.push({ type: "kill", enemy: c.enemyId, xp: e.xp * mult, gold: gGain, drops: drop.items, elite: !!c.elite, first: firstKill });
       /* refresher: kill grants xp on a later consolidate call when not in combat */
       if (e.boss) {
         state.stats.bossesKilled = state.stats.bossesKilled || {};
@@ -449,6 +450,7 @@ ABYSS.Logic = (function () {
     });
     if (c.enemyHp <= 0) {
       var drop2 = rollDrops(state, c.enemyId, rng, c.elite, c.echo);
+      var firstKill2 = !(state.stats.enemyKilled && state.stats.enemyKilled[c.enemyId]);
       recordKill(state, c.enemyId, c.elite);
       var mult2 = c.elite ? 2 : 1;
       var g2 = Math.floor(e.gold * mult2 * drop2.goldMult);
@@ -456,7 +458,7 @@ ABYSS.Logic = (function () {
       p.kills += 1;
       state.stats.totalKills += 1;
       if (c.elite) state.stats.eliteKills += 1;
-      events.push({ type: "kill", enemy: c.enemyId, xp: e.xp * mult2, gold: g2, drops: drop2.items, elite: !!c.elite });
+      events.push({ type: "kill", enemy: c.enemyId, xp: e.xp * mult2, gold: g2, drops: drop2.items, elite: !!c.elite, first: firstKill2 });
       gainXp(state, e.xp * mult2, events);
       if (e.boss) {
         state.stats.bossesKilled = state.stats.bossesKilled || {};
@@ -993,6 +995,8 @@ ABYSS.Logic = (function () {
 if (typeof module !== "undefined" && module.exports) {
   module.exports = { ABYSS: ABYSS };
 }
+
+
 
 
 

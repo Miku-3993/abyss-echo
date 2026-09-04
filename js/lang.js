@@ -232,6 +232,8 @@ ABYSS.LANG = {
     "dies_to": { zh: "死于 {n} 之手", en: "Slain by {n}" },
     "ms_50": { zh: "深渊权柄：无尽第 {n} 层！", en: "Abyss Authority: endless floor {n}!" },
     "ms_50_sub": { zh: "你的名字回荡在深渊的每一层", en: "Your name echoes through every floor" },
+    "codex_new": { zh: "图鉴新增记录：{n}", en: "Codex entry added: {n}" },
+    "codex_new_sub": { zh: "深渊记住了它", en: "The abyss remembers" },
     "ev_vault_left": { zh: "打开左边的黑匣", en: "Open the left chest" },
     "ev_vault_middle": { zh: "打开中间的黑匣", en: "Open the middle chest" },
     "ev_vault_right": { zh: "打开右边的黑匣", en: "Open the right chest" },
@@ -278,6 +280,7 @@ ABYSS.LANG.desc = function (entry) {
 if (typeof module !== "undefined" && module.exports) {
   module.exports = { ABYSS: ABYSS };
 }
+
 
 
 
