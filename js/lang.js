@@ -220,6 +220,11 @@ ABYSS.LANG = {
     "loot_legend": { zh: "获得传说战利品：{n}！", en: "Legendary loot: {n}!" },
     "loot_your": { zh: "深渊对你微笑", en: "The abyss smiles upon you" },
     "winrate": { zh: "战斗胜率", en: "Win Rate" },
+    "inv_filter_all": { zh: "全部", en: "All" },
+    "inv_filter_weapon": { zh: "武器", en: "Weapons" },
+    "inv_filter_armor": { zh: "护甲", en: "Armor" },
+    "inv_filter_trinket": { zh: "饰品", en: "Trinkets" },
+    "inv_filter_consumable": { zh: "消耗品", en: "Consumables" },
     "ev_vault_left": { zh: "打开左边的黑匣", en: "Open the left chest" },
     "ev_vault_middle": { zh: "打开中间的黑匣", en: "Open the middle chest" },
     "ev_vault_right": { zh: "打开右边的黑匣", en: "Open the right chest" },
@@ -266,6 +271,7 @@ ABYSS.LANG.desc = function (entry) {
 if (typeof module !== "undefined" && module.exports) {
   module.exports = { ABYSS: ABYSS };
 }
+
 
 
 

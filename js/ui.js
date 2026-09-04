@@ -1641,9 +1641,27 @@ ABYSS.UI = (function () {
       });
       c.appendChild(slots);
 
+      /* filter tags */
+      var filterRow = document.createElement("div");
+      filterRow.className = "inv-filters";
+      var filters = ["all", "weapon", "armor", "trinket", "consumable"];
+      filters.forEach(function (ft) {
+        var b = mkButton(T("inv_filter_" + ft), "btn btn-small" + (openInventory.filter === ft ? " btn-active" : ""), function () {
+          openInventory.filter = ft;
+          openInventory();
+        });
+        filterRow.appendChild(b);
+      });
+      c.appendChild(filterRow);
+
       var grid = document.createElement("div");
       grid.className = "inv-grid";
-      state.player.inventory.forEach(function (id) {
+      var curFilter = openInventory.filter || "all";
+      state.player.inventory.filter(function (id) {
+        if (curFilter === "all") return true;
+        var it = D.items[id];
+        return it && it.type === curFilter;
+      }).forEach(function (id) {
         var it = D.items[id];
         var card = document.createElement("div");
         card.className = "inv-card";

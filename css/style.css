@@ -634,6 +634,8 @@ body::after {
 
 
 /* status badges */
+.inv-filters { display: flex; gap: 6px; margin-bottom: 10px; flex-wrap: wrap; }
+.inv-filters .btn-active { border-color: var(--gold); color: var(--gold); }
 .status-row { display: inline-flex; gap: 3px; align-items: center; }
 .status-badge {
   display: inline-flex;
@@ -652,3 +654,4 @@ body::after {
 .status-badge.st-good { border-color: rgba(127, 216, 208, 0.6); box-shadow: 0 0 10px rgba(127, 216, 208, 0.3); }
 .enemy-statuses { min-height: 20px; margin-bottom: 5px; display: flex; gap: 3px; }
 .status-badge.st-enemy { border-color: rgba(167, 139, 219, 0.55); }
+
