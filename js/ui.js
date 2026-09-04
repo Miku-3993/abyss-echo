@@ -91,6 +91,12 @@ ABYSS.UI = (function () {
         case "echoKilled": txt = T("echo_shattered", { n: L.name(D.enemies[ev.enemy]) }); cls = "log-gold"; ABYSS.Audio.boss(); break;
         case "questStart": txt = "📋 " + T("quest_start") + "：" + L.name(D.QUESTS.filter(function (q) { return q.id === ev.quest; })[0]); cls = "log-gold"; break;
         case "questAbandon": txt = "📋 " + T("quest_abandon") + "：" + L.name(D.QUESTS.filter(function (q) { return q.id === ev.quest; })[0]); break;
+        case "bossPhase": {
+          txt = "🌋 " + L.name(D.enemies[ev.enemy]) + " " + T("boss_enraged") + "！";
+          cls = "log-bad";
+          ABYSS.Audio.boss();
+          break;
+        }
         case "questDone": {
           var qDen = D.QUESTS.filter(function (q) { return q.id === ev.quest; })[0];
           txt = "🏆 " + T("quest_done") + "：" + L.name(qDen) + (ev.gold ? "（+🪙" + ev.gold + "）" : "");
@@ -368,8 +374,8 @@ ABYSS.UI = (function () {
     var es = Logic.enemyStats(state);
     var ps = Logic.playerStats(state);
     var head = document.createElement("div");
-    head.className = "enemy-card" + (es.elite ? " enemy-elite" : "") + (c.echo ? " enemy-echo" : "");
-    head.innerHTML = "<div class='enemy-name'>" + (c.echo ? "🌪 " : "") + (e.boss ? "💀 " : (es.elite ? "🌟 " : "👹 ")) + (c.echo ? T("echo_prefix") : es.elite ? T("elite_prefix") : "") + L.name(e) + "</div>" +
+    head.className = "enemy-card" + (es.elite ? " enemy-elite" : "") + (c.echo ? " enemy-echo" : "") + (es.enraged ? " enemy-enraged" : "");
+    head.innerHTML = "<div class='enemy-name'>" + (c.echo ? "🌪 " : "") + (e.boss ? "💀 " : (es.elite ? "🌟 " : "👹 ")) + (c.echo ? T("echo_prefix") : es.elite ? T("elite_prefix") : "") + L.name(e) + (es.enraged ? " 🌋" : "") + "</div>" +
       "<div class='enemy-hpbar'><div class='enemy-hpfill' style='width:" + Math.max(0, Math.round(es.hp / es.maxHp * 100)) + "%'></div></div>" +
       "<div class='enemy-info'>" + T("atk") + " " + es.atk + " · " + T("def") + " " + es.def + " · " + T("spd") + " " + es.spd + (es.elite ? " · 🌟 " + T("elite_bonus") : "") + "</div>" +
       "<div class='enemy-desc'>" + L.desc(e) + "</div>";

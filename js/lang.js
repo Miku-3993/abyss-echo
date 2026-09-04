@@ -190,7 +190,8 @@ ABYSS.LANG = {
     "endless": { zh: "🌀 无尽深渊", en: "🌀 Endless Abyss" },
     "elite_prefix": { zh: "精英·", en: "Elite " },
     "echo_prefix": { zh: "回响·", en: "Echo " },
-    "tutorial_moves": { zh: "使用底部按钮移动，⚔攻击 / 🛡防御 / ✦技能 / 🏃逃跑。每 3 层会出现一个 Boss。", en: "Use the buttons below. ⚔Attack / 🛡Guard / ✦Skills / 🏃Flee. A boss awaits every 3 floors." }
+    "tutorial_moves": { zh: "使用底部按钮移动，⚔攻击 / 🛡防御 / ✦技能 / 🏃逃跑。每 3 层会出现一个 Boss。", en: "Use the buttons below. ⚔Attack / 🛡Guard / ✦Skills / 🏃Flee. A boss awaits every 3 floors." },
+    "boss_enraged": { zh: "进入了狂暴形态", en: "enters its enraged form" }
   }
 };
 

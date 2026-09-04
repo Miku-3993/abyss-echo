@@ -354,6 +354,29 @@ test("final boss loot and record via logic", () => {
   assert.ok(kill.drops.indexOf("armor_abyss") >= 0, "final boss drops legendary armor");
 });
 
+test("boss second phase enrages below 50% hp", () => {
+  const s = Logic.freshState();
+  s.run.combat = { enemyId: "boss_morg", enemyHp: 40, enemyStatuses: {}, skillCd: {}, guarding: false };
+  const full = Logic.enemyStats(s);
+  assert.equal(full.enraged, true, "below 50% hp must enrage");
+  s.run.combat.enemyHp = 80;
+  const calm = Logic.enemyStats(s);
+  assert.equal(calm.enraged, false);
+  assert.ok(full.atk > calm.atk, "enraged attack higher");
+});
+
+test("bossPhase event fires once per fight", () => {
+  const s = Logic.freshState();
+  s.run.combat = { enemyId: "boss_grul", enemyHp: 10, enemyStatuses: {}, skillCd: {}, guarding: false };
+  const evs = Logic.resolveTurn(s, { type: "guard" }, seqRng([0.99, 0.99, 0.99]));
+  const phases = evs.filter((e) => e.type === "bossPhase");
+  assert.equal(phases.length, 1, "exactly one phase event");
+  /* second turn shouldn't re-fire */
+  const evs2 = Logic.resolveTurn(s, { type: "guard" }, seqRng([0.99, 0.99, 0.99]));
+  assert.equal(evs2.filter((e) => e.type === "bossPhase").length, 0);
+  assert.equal(s.run.combat.enraged, true);
+});
+
 test("legacy saves normalize cleanly", () => {
   const legacy = {
     version: "1.0.0",

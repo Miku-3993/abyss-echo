@@ -1,4 +1,4 @@
-﻿/*
+/*
  * Abyss Echo - core game logic (pure, testable, no DOM)
  * All functions operate on a plain state object and return event lists.
  */
@@ -134,6 +134,13 @@ ABYSS.Logic = (function () {
       def = Math.floor(e.def * ef);
       spd = Math.floor(e.spd * Math.max(1, ef - 0.15));
     }
+    /* boss second phase: enraged below 50% HP */
+    var enraged = false;
+    if (e.boss && maxHp > 0 && hp / maxHp < 0.5) {
+      enraged = true;
+      atk = Math.floor(atk * 1.35);
+      spd = Math.max(spd, Math.floor(spd * 1.15));
+    }
     /* rebirth scaling: +3% enemy power per abyss mark keeps late game spicy */
     var pg = state.stats.prestige || 0;
     if (pg > 0) {
@@ -160,7 +167,7 @@ ABYSS.Logic = (function () {
     atk = Math.max(1, Math.floor(atk * (1 + m.atk)));
     def = Math.max(0, Math.floor(def * (1 + m.def)));
     spd = Math.max(1, spd + m.spd);
-    return { hp: hp, maxHp: maxHp, atk: atk, def: def, spd: spd, name: e.name, elite: elite };
+    return { hp: hp, maxHp: maxHp, atk: atk, def: def, spd: spd, name: e.name, elite: elite, enraged: enraged };
   }
 
   /* ---------- damage ---------- */
@@ -338,6 +345,10 @@ ABYSS.Logic = (function () {
     }
 
     /* --- enemy turn --- */
+    if (e.boss && !c.enraged && c.enemyHp / enemyMaxHp(state, c.enemyId, c.elite, c.echo) < 0.5) {
+      c.enraged = true;
+      events.push({ type: "bossPhase", enemy: c.enemyId });
+    }
     if (rng() >= dodgeChance(ps.spd, es.spd)) {
       var def = c.guarding ? ps.def * 2 : ps.def;
       var er = rollDamage(es.atk, def, 0, 1, rng);
