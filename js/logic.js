@@ -36,7 +36,8 @@ ABYSS.Logic = (function () {
       stats: {
         playTimeSec: 0, bestDepth: 1, totalKills: 0, totalDeaths: 0,
         achievements: [], endings: [], bossesKilled: {}, reviveUsed: false, fragments: [],
-        eliteKills: 0, fortuneWins: 0, libraryVisits: 0, prestige: 0
+        eliteKills: 0, fortuneWins: 0, libraryVisits: 0, prestige: 0,
+        enemyKilled: {}, collected: {}
       },
       settings: { sound: true, fastText: false, lang: "zh" }
     };
@@ -243,6 +244,7 @@ ABYSS.Logic = (function () {
     /* --- enemy death check --- */
     if (c && c.enemyHp <= 0) {
       var drop = rollDrops(state, c.enemyId, rng, c.elite);
+      recordKill(state, c.enemyId, c.elite);
       var mult = c.elite ? 2 : 1;
       var gGain = e.gold * mult;
       if (drop.goldMult) gGain = Math.floor(gGain * drop.goldMult);
@@ -320,6 +322,7 @@ ABYSS.Logic = (function () {
     });
     if (c.enemyHp <= 0) {
       var drop2 = rollDrops(state, c.enemyId, rng, c.elite);
+      recordKill(state, c.enemyId, c.elite);
       var mult2 = c.elite ? 2 : 1;
       var g2 = Math.floor(e.gold * mult2 * drop2.goldMult);
       p.gold += g2;
@@ -399,6 +402,19 @@ ABYSS.Logic = (function () {
   }
 
   /* ---------- loot ---------- */
+  function recordKill(state, enemyId, elite) {
+    state.stats.enemyKilled = state.stats.enemyKilled || {};
+    state.stats.enemyKilled[enemyId] = true;
+    if (elite) {
+      state.stats.enemyKilled[enemyId + "__elite"] = true;
+    }
+  }
+
+  function recordCollected(state, itemId) {
+    state.stats.collected = state.stats.collected || {};
+    state.stats.collected[itemId] = true;
+  }
+
   var LOOT_TABLE = [
     { tier: [1], items: ["potion_small", "potion_small", "potion_mana", "sword_rust", "cloth", "charm_luck"], weight: 1 },
     { tier: [2], items: ["potion_big", "bow_hunter", "leather", "dagger_moon", "potion_antidote", "ring_power"], weight: 1 },
@@ -530,7 +546,8 @@ ABYSS.Logic = (function () {
       elite_hunter: function () { return st.eliteKills >= 10; },
       fortune: function () { return st.fortuneWins >= 3; },
       bookworm: function () { return st.libraryVisits >= 3; },
-      prestige_1: function () { return (st.prestige || 0) >= 1; }
+      prestige_1: function () { return (st.prestige || 0) >= 1; },
+      bestiary: function () { return Object.keys(st.enemyKilled || {}).length >= 12; }
     };
     for (var id in defs) {
       if (list.indexOf(id) < 0 && defs[id]()) {
@@ -588,6 +605,9 @@ ABYSS.Logic = (function () {
     fresh.stats.eliteKills = 0;
     fresh.stats.fortuneWins = 0;
     fresh.stats.libraryVisits = 0;
+    /* codex progress persists across rebirths */
+    fresh.stats.enemyKilled = JSON.parse(JSON.stringify(state.stats.enemyKilled || {}));
+    fresh.stats.collected = JSON.parse(JSON.stringify(state.stats.collected || {}));
     fresh.player.gold = keep.gold;
     fresh.player.name = state.player.name;
     return fresh;
@@ -616,6 +636,7 @@ ABYSS.Logic = (function () {
     tickStatuses: tickStatuses,
     hasHarmful: hasHarmful,
     collectCount: collectCount,
+    recordCollected: recordCollected,
     rollDrops: rollDrops,
     TIER_POOL: TIER_POOL
   };

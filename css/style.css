@@ -220,6 +220,18 @@ html, body {
 .ach-desc { color: var(--dim); font-size: 11px; }
 
 .help-line { margin: 6px 0; color: var(--ink); font-size: 13px; }
+
+/* codex */
+.codex-tabs { display: flex; gap: 8px; margin-bottom: 14px; }
+.codex-tabs .btn-active { border-color: var(--gold); color: var(--gold); }
+.codex-list { display: flex; flex-direction: column; gap: 6px; max-height: 46vh; overflow-y: auto; }
+.codex-item { border: 1px solid var(--line); border-radius: 6px; padding: 8px 12px; background: var(--panel2); }
+.codex-item.codex-got { border-color: #2f3d4f; }
+.codex-item.codex-locked { opacity: 0.55; }
+.codex-name { font-weight: 700; color: var(--ink); }
+.codex-name.codex-unknown { color: var(--dim); letter-spacing: 0.2em; }
+.codex-desc { color: var(--dim); font-size: 11px; margin: 2px 0; }
+.codex-meta { color: var(--teal); font-size: 11px; }
 .export-box {
   width: 100%; height: 90px; margin-top: 10px;
   background: #0a0d14; color: var(--teal);

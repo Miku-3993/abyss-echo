@@ -5,7 +5,7 @@
 var ABYSS = window.ABYSS = window.ABYSS || {};
 
 ABYSS.DATA = {
-  VERSION: "1.3.0",
+  VERSION: "1.4.0",
   MAX_DEPTH: 12,
   PRESTIGE: {
     name: { zh: "深渊刻印", en: "Abyss Mark" },
@@ -216,7 +216,8 @@ ABYSS.DATA = {
     elite_hunter:  { name: { zh: "精英猎手", en: "Elite Hunter" },         desc: { zh: "击杀 10 个精英怪物", en: "Slay 10 elite monsters" } },
     fortune:       { name: { zh: "幸运儿", en: "Lucky One" },              desc: { zh: "在占卜师那里赌赢 3 次", en: "Win 3 bets with the fortune teller" } },
     bookworm:      { name: { zh: "书虫", en: "Bookworm" },                 desc: { zh: "造访深渊图书馆 3 次", en: "Visit the abyss library 3 times" } },
-    prestige_1:    { name: { zh: "轮回之始", en: "First Rebirth" },        desc: { zh: "完成第一次转生", en: "Transcend for the first time" } }
+    prestige_1:    { name: { zh: "轮回之始", en: "First Rebirth" },        desc: { zh: "完成第一次转生", en: "Transcend for the first time" } },
+    bestiary:      { name: { zh: "图鉴学家", en: "Codex Scholar" },        desc: { zh: "图鉴中解锁 12 种怪物", en: "Unlock 12 monsters in the codex" } }
   },
 
   /* ---------- ENDINGS ---------- */

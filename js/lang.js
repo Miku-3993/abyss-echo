@@ -97,7 +97,11 @@ ABYSS.LANG = {
     "healed": { zh: "恢复了 {n} 点生命", en: "restored {n} HP" },
     "mp_restore": { zh: "恢复了 {n} 点魔力", en: "restored {n} MP" },
     "skills_tab": { zh: "技能", en: "Skills" },
-    "tutorial": { zh: "教程", en: "Tutorial" }
+    "tutorial": { zh: "教程", en: "Tutorial" },
+    "codex": { zh: "深渊图鉴", en: "Abyss Codex" },
+    "monsters": { zh: "怪物", en: "Monsters" },
+    "items": { zh: "物品", en: "Items" },
+    "codex_unknown": { zh: "尚未遭遇。深入深渊以解锁此条目。", en: "Not yet encountered. Descend deeper to unlock." }
   }
 };
 

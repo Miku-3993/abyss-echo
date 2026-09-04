@@ -119,6 +119,7 @@ ABYSS.UI = (function () {
   function addItemSilent(itemId) {
     if (state.player.inventory.length >= D.INV_LIMIT) return false;
     state.player.inventory.push(itemId);
+    Logic.recordCollected(state, itemId);
     return true;
   }
 
@@ -862,6 +863,7 @@ ABYSS.UI = (function () {
     $("btn-inv").addEventListener("click", openInventory);
     $("btn-ach").addEventListener("click", openAchievements);
     $("btn-stats").addEventListener("click", openStats);
+    $("btn-codex").addEventListener("click", openCodex);
     $("btn-help").addEventListener("click", openHelp);
     $("modal-close").addEventListener("click", closeModal);
 
@@ -1182,6 +1184,89 @@ ABYSS.UI = (function () {
       st.className = "scene-stats";
       st.textContent = unlocked.length + "/" + Object.keys(D.achievements).length + " " + T("achievements");
       c.appendChild(st);
+    });
+  }
+
+  function openCodex() {
+    openModal(T("codex"), function (c) {
+      var tabs = document.createElement("div");
+      tabs.className = "codex-tabs";
+      var enemyTab = mkButton("👹 " + T("monsters"), "btn btn-small", null);
+      var itemTab = mkButton("🎒 " + T("items"), "btn btn-small", null);
+      tabs.appendChild(enemyTab);
+      tabs.appendChild(itemTab);
+      c.appendChild(tabs);
+
+      var list = document.createElement("div");
+      list.className = "codex-list";
+      c.appendChild(list);
+
+      var knownEnemies = Object.keys(state.stats.enemyKilled || {}).filter(function (k) { return k.indexOf("__elite") < 0; });
+      var knownItems = Object.keys(state.stats.collected || {});
+
+      function renderEnemies() {
+        list.innerHTML = "";
+        enemyTab.classList.add("btn-active");
+        itemTab.classList.remove("btn-active");
+        var progress = document.createElement("p");
+        progress.className = "scene-stats";
+        progress.textContent = knownEnemies.length + "/" + Object.keys(D.enemies).length + " " + T("monsters");
+        list.appendChild(progress);
+        for (var id in D.enemies) {
+          (function (eid) {
+            var got = knownEnemies.indexOf(eid) >= 0;
+            var el = document.createElement("div");
+            el.className = "codex-item " + (got ? "codex-got" : "codex-locked");
+            if (got) {
+              var e = D.enemies[eid];
+              el.innerHTML = "<div class='codex-name'>" + (e.boss ? "💀 " : "👹 ") + L.name(e) + "</div>" +
+                "<div class='codex-desc'>" + L.desc(e) + "</div>" +
+                "<div class='codex-meta'>❤" + e.hp + " ⚔" + e.atk + " 🛡" + e.def + " ⚡" + e.spd + " · " + T("xp") + " " + e.xp + " · 🪙" + e.gold + "</div>";
+            } else {
+              el.innerHTML = "<div class='codex-name codex-unknown'>？？？</div><div class='codex-desc'>" + T("codex_unknown") + "</div>";
+            }
+            list.appendChild(el);
+          })(id);
+        }
+      }
+
+      function renderItems() {
+        list.innerHTML = "";
+        itemTab.classList.add("btn-active");
+        enemyTab.classList.remove("btn-active");
+        var progress = document.createElement("p");
+        progress.className = "scene-stats";
+        progress.textContent = knownItems.length + "/" + Object.keys(D.items).length + " " + T("items");
+        list.appendChild(progress);
+        for (var id in D.items) {
+          (function (iid) {
+            var got = knownItems.indexOf(iid) >= 0;
+            var el = document.createElement("div");
+            el.className = "codex-item " + (got ? "codex-got" : "codex-locked");
+            if (got) {
+              var it = D.items[iid];
+              var meta = "";
+              if (it.atk) meta += "⚔+" + it.atk + " ";
+              if (it.def) meta += "🛡+" + it.def + " ";
+              if (it.spd) meta += "⚡+" + it.spd + " ";
+              if (it.luck) meta += "🍀+" + it.luck + " ";
+              if (it.heal) meta += "💚" + (it.heal >= 9999 ? "∞" : it.heal) + " ";
+              if (it.mana) meta += "💙" + (it.mana >= 9999 ? "∞" : it.mana) + " ";
+              if (it.xp) meta += "📖+" + it.xp + "XP ";
+              el.innerHTML = "<div class='codex-name'>" + L.name(it) + "</div>" +
+                "<div class='codex-desc'>" + L.desc(it) + "</div>" +
+                (meta ? "<div class='codex-meta'>" + meta + "</div>" : "");
+            } else {
+              el.innerHTML = "<div class='codex-name codex-unknown'>？？？</div><div class='codex-desc'>" + T("codex_unknown") + "</div>";
+            }
+            list.appendChild(el);
+          })(id);
+        }
+      }
+
+      enemyTab.addEventListener("click", renderEnemies);
+      itemTab.addEventListener("click", renderItems);
+      renderEnemies();
     });
   }
 

@@ -244,7 +244,7 @@ test("all data references are valid", () => {
   }
   /* every event id exists; every fragment source is reachable */
   assert.equal(Object.keys(D.events).length, 12);
-  assert.equal(Object.keys(D.achievements).length, 23);
+  assert.equal(Object.keys(D.achievements).length, 24);
   assert.equal(Object.keys(D.endings).length, 2);
   assert.equal(Object.keys(D.fragments).length, 3);
 });
@@ -314,6 +314,32 @@ test("enemy stats scale with prestige marks", () => {
   assert.equal(scaled.def, Math.floor(D.enemies.wolf.def * 1.3));
   assert.equal(scaled.maxHp, Math.floor(D.enemies.wolf.hp * 1.3));
   assert.ok(base.atk < scaled.atk);
+});
+
+test("kills are recorded in the codex", () => {
+  const s = Logic.freshState();
+  s.run.combat = { enemyId: "rat", enemyHp: 5, enemyStatuses: {}, skillCd: {}, guarding: false };
+  Logic.resolveTurn(s, { type: "attack" }, seqRng([0.5, 0.5]));
+  assert.ok(s.stats.enemyKilled.rat, "rat should be in codex after kill");
+  s.run.combat = { enemyId: "wolf", enemyHp: 5, elite: true, enemyStatuses: {}, skillCd: {}, guarding: false };
+  Logic.resolveTurn(s, { type: "attack" }, seqRng([0.5, 0.5]));
+  assert.ok(s.stats.enemyKilled.wolf);
+  assert.ok(s.stats.enemyKilled.wolf__elite, "elite variant recorded separately");
+});
+
+test("collected items are tracked", () => {
+  const s = Logic.freshState();
+  Logic.recordCollected(s, "blade_abyss");
+  assert.ok(s.stats.collected.blade_abyss);
+});
+
+test("codex progress survives prestige", () => {
+  const s = Logic.freshState();
+  s.stats.enemyKilled = { rat: true, wolf: true, slime: true };
+  s.stats.collected = { potion_big: true };
+  const fresh = Logic.prestige(s);
+  assert.deepEqual(fresh.stats.enemyKilled, { rat: true, wolf: true, slime: true });
+  assert.deepEqual(fresh.stats.collected, { potion_big: true });
 });
 
 test("elite enemies get 1.5x stats", () => {
