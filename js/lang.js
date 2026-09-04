@@ -221,7 +221,8 @@ ABYSS.LANG = {
     "ev_vault_middle": { zh: "打开中间的黑匣", en: "Open the middle chest" },
     "ev_vault_right": { zh: "打开右边的黑匣", en: "Open the right chest" },
     "ev_vault_bless": { zh: "匣中涌出一团温暖的光。", en: "Warm light pours from the chest." },
-    "ev_vault_curse": { zh: "黑匣张开利齿咬住了你的手！", en: "The chest snaps its fangs around your hand!" }
+    "ev_vault_curse": { zh: "黑匣张开利齿咬住了你的手！", en: "The chest snaps its fangs around your hand!" },
+    "ms_25": { zh: "里程碑：无尽第 {n} 层！", en: "Milestone: endless floor {n}!" }
   }
 };
 
@@ -252,6 +253,7 @@ ABYSS.LANG.desc = function (entry) {
 if (typeof module !== "undefined" && module.exports) {
   module.exports = { ABYSS: ABYSS };
 }
+
 
 
 

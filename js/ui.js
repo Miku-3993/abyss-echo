@@ -1,4 +1,4 @@
-/*
+﻿/*
  * Abyss Echo - UI rendering & interaction layer
  * Consumes ABYSS.Logic events, renders DOM, wires game feel.
  */
@@ -310,6 +310,10 @@ ABYSS.UI = (function () {
         if (state.run.daily && state.run.daily.deepHeal) {
           var ps = Logic.playerStats(state);
           state.player.hp = Math.min(ps.hp, state.player.hp + Math.floor(ps.hp * state.run.daily.deepHeal));
+        }
+        if (state.run.endless && state.run.depth > 0 && state.run.depth % 25 === 0) {
+          pushLog("🎉 " + T("ms_25", { n: state.run.depth }), "log-gold");
+          ABYSS.Audio.achievement();
         }
         saveAndRender();
       });
@@ -1649,7 +1653,7 @@ ABYSS.UI = (function () {
         itemTab.classList.remove("btn-active");
         var progress = document.createElement("p");
         progress.className = "scene-stats";
-        progress.textContent = knownEnemies.length + "/" + Object.keys(D.enemies).length + " " + T("monsters");
+        progress.textContent = knownEnemies.length + "/" + Object.keys(D.enemies).length + " " + T("monsters") + " (" + Math.round(knownEnemies.length / Object.keys(D.enemies).length * 100) + "%)";
         list.appendChild(progress);
         for (var id in D.enemies) {
           (function (eid) {
@@ -1675,7 +1679,7 @@ ABYSS.UI = (function () {
         enemyTab.classList.remove("btn-active");
         var progress = document.createElement("p");
         progress.className = "scene-stats";
-        progress.textContent = knownItems.length + "/" + Object.keys(D.items).length + " " + T("items");
+        progress.textContent = knownItems.length + "/" + Object.keys(D.items).length + " " + T("items") + " (" + Math.round(knownItems.length / Object.keys(D.items).length * 100) + "%)";
         list.appendChild(progress);
         for (var id in D.items) {
           (function (iid) {
@@ -1747,6 +1751,8 @@ ABYSS.UI = (function () {
 if (typeof module !== "undefined" && module.exports) {
   module.exports = { ABYSS: ABYSS };
 }
+
+
 
 
 
