@@ -271,6 +271,16 @@ ABYSS.UI = (function () {
     title.className = "scene-title";
     title.textContent = T("floor", { n: r.depth }) + (r.endless && state.stats.bestEndless > r.depth ? "  ·  🎯 " + T("best_floor", { n: state.stats.bestEndless }) : "");
     box.appendChild(title);
+    /* daily modifiers persistent tag */
+    if (r.daily && r.daily.mods && r.daily.mods.length) {
+      var dtag = document.createElement("div");
+      dtag.className = "daily-tag";
+      dtag.textContent = "☀️ " + r.daily.mods.map(function (mid) {
+        var m = D.DAILY.modifiers.filter(function (x) { return x.id === mid; })[0];
+        return m ? L.name(m) : mid;
+      }).join(" · ");
+      box.appendChild(dtag);
+    }
     /* echo boss foreshadowing in endless mode */
     if (r.endless && r.depth >= 13 && r.depth % D.ENDLESS.bossEvery === 9) {
       var warn = document.createElement("div");
@@ -1818,6 +1828,7 @@ ABYSS.UI = (function () {
 if (typeof module !== "undefined" && module.exports) {
   module.exports = { ABYSS: ABYSS };
 }
+
 
 
 
