@@ -223,7 +223,9 @@ ABYSS.LANG = {
     "ev_vault_bless": { zh: "匣中涌出一团温暖的光。", en: "Warm light pours from the chest." },
     "ev_vault_curse": { zh: "黑匣张开利齿咬住了你的手！", en: "The chest snaps its fangs around your hand!" },
     "ms_25": { zh: "里程碑：无尽第 {n} 层！", en: "Milestone: endless floor {n}!" },
-    "echo_next": { zh: "下一层将遭遇回响 Boss——做好准备！", en: "An echo boss awaits on the next floor — prepare!" }
+    "echo_next": { zh: "下一层将遭遇回响 Boss——做好准备！", en: "An echo boss awaits on the next floor — prepare!" },
+    "difficulty": { zh: "难度", en: "Difficulty" },
+    "difficulty_set": { zh: "难度已设为：{n}（新旅程生效）", en: "Difficulty set to {n} (applies to new journeys)" }
   }
 };
 
@@ -254,6 +256,7 @@ ABYSS.LANG.desc = function (entry) {
 if (typeof module !== "undefined" && module.exports) {
   module.exports = { ABYSS: ABYSS };
 }
+
 
 
 

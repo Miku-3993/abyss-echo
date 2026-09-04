@@ -1,12 +1,17 @@
-﻿/*
+/*
  * Abyss Echo - game content data
  * All name/desc fields are {zh, en} pairs. Purely declarative.
  */
 var ABYSS = window.ABYSS = window.ABYSS || {};
 
 ABYSS.DATA = {
-  VERSION: "1.8.0",
+  VERSION: "1.30.0",
   MAX_DEPTH: 12,
+  DIFFICULTY: {
+    easy:   { name: { zh: "简单", en: "Easy" },   enemy: 0.85, gold: 1.2, elite: 1,   drop: 0.10, desc: { zh: "敌人更弱，收益更高。", en: "Weaker foes, richer floors." } },
+    normal: { name: { zh: "标准", en: "Normal" }, enemy: 1,    gold: 1,   elite: 1,   drop: 0,    desc: { zh: "数据驱动的标准体验。", en: "The tuned baseline." } },
+    abyss:  { name: { zh: "深渊", en: "Abyss" },  enemy: 1.2,  gold: 0.9, elite: 1.5, drop: 0,    desc: { zh: "敌人强化，精英横行，金币缩水。", en: "Deadlier foes, elite infestations, thinner purses." } }
+  },
   FORGE: {
     name: { zh: "铁匠铺", en: "The Forge" },
     serviceCost: 50,
@@ -318,6 +323,7 @@ ABYSS.DATA = {
 if (typeof module !== "undefined" && module.exports) {
   module.exports = { ABYSS: ABYSS };
 }
+
 
 
 

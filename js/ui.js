@@ -1393,6 +1393,24 @@ ABYSS.UI = (function () {
       rowMusic.appendChild(chkMusic);
       c.appendChild(rowMusic);
 
+      var diffRow = document.createElement("div");
+      diffRow.className = "setting-row";
+      diffRow.appendChild(document.createElement("span")).textContent = T("difficulty") + "：";
+      var diffSel = document.createElement("select");
+      Object.keys(D.DIFFICULTY).forEach(function (id) {
+        var o = document.createElement("option");
+        o.value = id;
+        o.textContent = L.name(D.DIFFICULTY[id]) + " — " + L.desc(D.DIFFICULTY[id]);
+        if (state.settings.difficulty === id || (!state.settings.difficulty && id === "normal")) o.selected = true;
+        diffSel.appendChild(o);
+      });
+      diffSel.addEventListener("change", function () {
+        state.settings.difficulty = diffSel.value;
+        saveNow();
+        pushLog(T("difficulty_set", { n: L.name(D.DIFFICULTY[state.settings.difficulty]) }), "log-gold");
+      });
+      diffRow.appendChild(diffSel);
+      c.appendChild(diffRow);
       var chkFast = document.createElement("input");
       chkFast.type = "checkbox";
       chkFast.checked = state.settings.fastText;
@@ -1764,6 +1782,7 @@ ABYSS.UI = (function () {
 if (typeof module !== "undefined" && module.exports) {
   module.exports = { ABYSS: ABYSS };
 }
+
 
 
 

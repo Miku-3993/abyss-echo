@@ -7,6 +7,12 @@ var ABYSS = window.ABYSS = window.ABYSS || {};
 ABYSS.Logic = (function () {
   var D = ABYSS.DATA;
 
+  /* ---------- difficulty ---------- */
+  function difficultyFx(state) {
+    var d = D.DIFFICULTY[state.settings && state.settings.difficulty];
+    if (!d) d = D.DIFFICULTY.normal;
+    return d;
+  }
   /* ---------- deterministic RNG helpers (seeded) ---------- */
   function mulberry32(seed) {
     var a = seed >>> 0;
@@ -115,6 +121,7 @@ ABYSS.Logic = (function () {
     if (fx.enemyHp) maxHp = Math.floor(maxHp * fx.enemyHp);
     if (fx.enemyAll) maxHp = Math.floor(maxHp * fx.enemyAll);
     maxHp = Math.floor(maxHp * endlessScale(state));
+    maxHp = Math.floor(maxHp * difficultyFx(state).enemy);
     return maxHp;
   }
 
@@ -146,6 +153,13 @@ ABYSS.Logic = (function () {
       var factor = 1 + 0.03 * pg;
       atk = Math.floor(atk * factor);
       def = Math.floor(def * factor);
+    }
+    /* difficulty */
+    var dfx = difficultyFx(state);
+    if (dfx.enemy !== 1) {
+      atk = Math.floor(atk * dfx.enemy);
+      def = Math.floor(def * dfx.enemy);
+      spd = Math.max(1, Math.floor(spd * dfx.enemy));
     }
     /* daily challenge modifiers */
     var fx = dailyFx(state);
@@ -537,7 +551,7 @@ ABYSS.Logic = (function () {
     /* daily challenge modifiers */
     var fx = dailyFx(state);
     var prestigeGold = 1 + (D.PRESTIGE.goldPerLvl * (state.stats.prestige || 0));
-    out.goldMult = (eq.goldMult || 1) * prestigeGold * (fx.goldMult || 1);
+    out.goldMult = (eq.goldMult || 1) * prestigeGold * (fx.goldMult || 1) * difficultyFx(state).gold;
     if (e.boss) {
       /* boss guaranteed drop from its tier */
       var t = Math.min(4, e.tier + 1);
@@ -556,7 +570,7 @@ ABYSS.Logic = (function () {
         var relics = ["relic_echo", "relic_shroud", "relic_crown"];
         out.items.push(relics[Math.floor(rng() * relics.length)]);
       }
-    } else if (rng() < 0.32 + (state.run.endless ? 0.18 : 0)) {
+    } else if (rng() < 0.32 + (state.run.endless ? 0.18 : 0) + difficultyFx(state).drop) {
       var table2 = LOOT_TABLE.filter(function (l) { return l.tier.indexOf(e.tier) >= 0; })[0] || LOOT_TABLE[0];
       out.items.push(table2.items[Math.floor(rng() * table2.items.length)]);
     }
@@ -630,7 +644,7 @@ ABYSS.Logic = (function () {
       room.echo = !!(pick && pick.echo);
       /* elites only spawn on normal combat, never bosses */
       var fx = dailyFx(state);
-      room.elite = type === "combat" && !room.echo && rng() < ELITE_CHANCE * (fx.eliteChance || 1);
+      room.elite = type === "combat" && !room.echo && rng() < ELITE_CHANCE * (fx.eliteChance || 1) * difficultyFx(state).elite;
     }
     return room;
   }
@@ -909,6 +923,7 @@ ABYSS.Logic = (function () {
     grantFragment: grantFragment,
     prestige: prestige,
     endlessSetup: endlessSetup,
+    difficultyFx: difficultyFx,
     startQuest: startQuest,
     questProgress: questProgress,
     checkQuest: checkQuest,
@@ -926,6 +941,8 @@ ABYSS.Logic = (function () {
 if (typeof module !== "undefined" && module.exports) {
   module.exports = { ABYSS: ABYSS };
 }
+
+
 
 
 

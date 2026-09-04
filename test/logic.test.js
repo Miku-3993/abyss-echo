@@ -482,6 +482,23 @@ test("heavy strike charges every 3rd turn for tier-3+ foes", () => {
   assert.equal(charged2, 0, "rat never charges");
 });
 
+test("difficulty multipliers apply across the game", () => {
+  const s = Logic.freshState();
+  s.settings.difficulty = "easy";
+  s.run.combat = { enemyId: "rat", enemyHp: Logic.enemyMaxHp(s, "rat", false, false), enemyStatuses: {}, skillCd: {}, guarding: false };
+  const es = Logic.enemyStats(s);
+  const base = D.enemies.rat;
+  assert.equal(es.maxHp, Math.floor(Math.floor(base.hp) * 0.85));
+  assert.equal(es.atk, Math.max(1, Math.floor(base.atk * 0.85)), "easy cuts enemy atk");
+  const drops = Logic.rollDrops(s, "rat", seqRng([0.9]));
+  assert.ok(Math.abs(drops.goldMult - 1.2) < 0.001, "easy boosts gold 1.2x");
+  /* abyss difficulty */
+  s.settings.difficulty = "abyss";
+  s.run.combat.enemyHp = 999;
+  const es2 = Logic.enemyStats(s);
+  assert.ok(es2.atk > base.atk, "abyss raises enemy attack");
+});
+
 test("legacy saves normalize cleanly", () => {
   const legacy = {
     version: "1.0.0",
