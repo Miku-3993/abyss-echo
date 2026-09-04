@@ -293,6 +293,25 @@ html, body {
 .stat-cell .stat-label { color: var(--dim); font-size: 11px; letter-spacing: 0.06em; }
 .stat-cell .stat-value { color: var(--gold); font-size: 18px; font-weight: 700; margin-top: 2px; }
 
+/* floating damage numbers */
+.float-dmg {
+  position: absolute;
+  pointer-events: none;
+  font-weight: 700;
+  font-size: 15px;
+  color: #ffb36b;
+  text-shadow: 0 1px 2px #000, 0 0 6px rgba(255, 150, 60, 0.5);
+  animation: floatUp 0.85s ease-out forwards;
+  z-index: 30;
+}
+.float-crit { font-size: 20px; color: #ff8a5c; text-shadow: 0 0 10px rgba(255, 120, 60, 0.8); }
+.float-taken { color: #e88989; font-size: 14px; }
+@keyframes floatUp {
+  0% { transform: translateY(0); opacity: 1; }
+  100% { transform: translateY(-46px); opacity: 0; }
+}
+.scene { position: relative; }
+
 /* scrollbars */
 ::-webkit-scrollbar { width: 8px; }
 ::-webkit-scrollbar-track { background: var(--bg); }
