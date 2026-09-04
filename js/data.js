@@ -1,4 +1,4 @@
-﻿/*
+/*
  * Abyss Echo - game content data
  * All name/desc fields are {zh, en} pairs. Purely declarative.
  */
@@ -23,6 +23,24 @@ ABYSS.DATA = {
     bossEvery: 10,
     bossBias: 1.15,
     desc: { zh: "转生后解锁：无上限的深渊延续，每层敌人 +3%，每 10 层遭遇回响 Boss。", en: "Unlocked after rebirth: endless descent, +3% enemy power per floor, echo bosses every 10 floors." }
+  },
+  FLAVOR: {
+    mist: [
+      { zh: "迷雾笼罩着这一层深渊。", en: "Mist shrouds this floor of the abyss." },
+      { zh: "黑暗在耳边低语，仿佛认识你的名字。", en: "The dark whispers as if it knows your name." },
+      { zh: "脚下是湿冷的石地，前方是无尽的深黑。", en: "Cold wet stone underfoot; endless black ahead." },
+      { zh: "空气中飘着古老灰尘的气息。", en: "The air tastes of ancient dust." }
+    ],
+    search: [
+      { zh: "你在阴影中摸索着前行。", en: "You grope forward through the shadows." },
+      { zh: "火光已熄，只剩你的心跳。", en: "The flames are dead; only your heartbeat remains." },
+      { zh: "某处传来滴水声，规律如钟。", en: "Somewhere, water drips like a clock." }
+    ],
+    descend: [
+      { zh: "你向更深处走去，阶梯在身后崩塌。", en: "You descend; the stairs crumble behind you." },
+      { zh: "深渊张开了新的喉舌。", en: "The abyss opens a new throat." },
+      { zh: "更深处的寒气迎面扑来。", en: "Colder air rushes up from below." }
+    ]
   },
   QUESTS: [
     { id: "elite", name: { zh: "精英猎杀令", en: "Elite Hunt Order" }, giver: { zh: "猎人格雷", en: "Hunter Grey" },
@@ -326,6 +344,7 @@ ABYSS.DATA = {
 if (typeof module !== "undefined" && module.exports) {
   module.exports = { ABYSS: ABYSS };
 }
+
 
 
 

@@ -1,4 +1,4 @@
-/*
+﻿/*
  * Abyss Echo - UI rendering & interaction layer
  * Consumes ABYSS.Logic events, renders DOM, wires game feel.
  */
@@ -166,6 +166,11 @@ ABYSS.UI = (function () {
     return true;
   }
 
+  function flavorText(kind) {
+    var pool = D.FLAVOR && D.FLAVOR[kind];
+    if (!pool || !pool.length) return "";
+    return pool[Math.floor(Math.random() * pool.length)][ABYSS.LANG.current === "en" ? "en" : "zh"] || "";
+  }
   function enemyStatusBadges(statuses) {
     var parts = [];
     for (var sid in statuses || {}) {
@@ -386,6 +391,7 @@ ABYSS.UI = (function () {
         box.appendChild(btnS);
       }
       var btnD = mkButton("⬇ " + T("descend"), "btn-main", function () {
+        pushLog("🕯 " + flavorText("descend"), "log-event");
         Logic.descend(state, rng);
         if (state.run.daily && state.run.daily.deepHeal) {
           var ps = Logic.playerStats(state);
@@ -410,7 +416,7 @@ ABYSS.UI = (function () {
         r.floorRooms = (r.floorRooms || 0) + 1;
         saveAndRender();
       });
-      box.appendChild(p(T("mist_floor")));
+      box.appendChild(p(flavorText("mist")));
       box.appendChild(btn);
       return;
     }
@@ -1947,6 +1953,8 @@ ABYSS.UI = (function () {
 if (typeof module !== "undefined" && module.exports) {
   module.exports = { ABYSS: ABYSS };
 }
+
+
 
 
 
