@@ -1,4 +1,4 @@
-/*
+﻿/*
  * Abyss Echo - UI rendering & interaction layer
  * Consumes ABYSS.Logic events, renders DOM, wires game feel.
  */
@@ -91,6 +91,7 @@ ABYSS.UI = (function () {
         case "echoKilled": txt = T("echo_shattered", { n: L.name(D.enemies[ev.enemy]) }); cls = "log-gold"; ABYSS.Audio.boss(); break;
         case "questStart": txt = "📋 " + T("quest_start") + "：" + L.name(D.QUESTS.filter(function (q) { return q.id === ev.quest; })[0]); cls = "log-gold"; break;
         case "questAbandon": txt = "📋 " + T("quest_abandon") + "：" + L.name(D.QUESTS.filter(function (q) { return q.id === ev.quest; })[0]); break;
+        case "charge": txt = "💢 " + L.name(D.enemies[ev.enemy]) + " " + T("charging") + "！"; cls = "log-bad"; ABYSS.Audio.boss(); break;
         case "bossPhase": {
           txt = "🌋 " + L.name(D.enemies[ev.enemy]) + " " + T("boss_enraged") + "！";
           cls = "log-bad";
@@ -1709,6 +1710,7 @@ ABYSS.UI = (function () {
 if (typeof module !== "undefined" && module.exports) {
   module.exports = { ABYSS: ABYSS };
 }
+
 
 
 

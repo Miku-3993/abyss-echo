@@ -215,7 +215,8 @@ ABYSS.LANG = {
     "best": { zh: "最佳", en: "best" },
     "elite_kills": { zh: "精英", en: "elites" },
     "multikill_bosses": { zh: "Boss", en: "bosses" },
-    "ach_progress": { zh: "🏆 成就 {n}/{t}", en: "🏆 Achievements {n}/{t}" }
+    "ach_progress": { zh: "🏆 成就 {n}/{t}", en: "🏆 Achievements {n}/{t}" },
+    "charging": { zh: "蓄力重击", en: "winds up a heavy strike" }
   }
 };
 
@@ -246,5 +247,6 @@ ABYSS.LANG.desc = function (entry) {
 if (typeof module !== "undefined" && module.exports) {
   module.exports = { ABYSS: ABYSS };
 }
+
 
 

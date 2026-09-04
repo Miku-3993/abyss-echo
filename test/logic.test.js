@@ -451,6 +451,37 @@ test("endless depth scaling compounds past floor 13", () => {
   assert.equal(es.maxHp, Math.floor(D.enemies.hunter.hp * scale));
 });
 
+test("heavy strike charges every 3rd turn for tier-3+ foes", () => {
+  /* tier-3 enemy (golem) sustains enough rounds to charge */
+  const s = Logic.freshState();
+  s.player.gold = 50;
+  s.player.inventory = ["potion_big", "potion_big", "potion_big", "potion_big", "potion_big"];
+  s.player.hp = Logic.playerStats(s).hp;
+  s.run.combat = { enemyId: "golem", enemyHp: 500, enemyStatuses: {}, skillCd: {}, guarding: false };
+  let charged = 0, heavyHit = null;
+  let guard = 0;
+  while (s.run.combat && s.run.alive && guard < 30) {
+    guard++;
+    const evs = Logic.resolveTurn(s, { type: "guard" }, Logic.mulberry32(guard + 3));
+    if (evs.some((e) => e.type === "charge")) charged += 1;
+    const hit = evs.find((e) => e.type === "hit" && e.target === "player");
+    if (hit && hit.heavy) heavyHit = hit;
+    s.player.hp = Math.max(1, Math.min(Logic.playerStats(s).hp, s.player.hp));
+  }
+  assert.ok(charged >= 2, "charge events should fire periodically, got " + charged);
+  assert.ok(heavyHit && heavyHit.dmg > 6, "heavy hits deal boosted damage");
+  /* low-tier foes never charge */
+  const s2 = Logic.freshState();
+  s2.run.combat = { enemyId: "rat", enemyHp: 999, enemyStatuses: {}, skillCd: {}, guarding: false };
+  s2.player.hp = 9999;
+  let charged2 = 0;
+  for (let i = 0; i < 12; i++) {
+    const evs = Logic.resolveTurn(s2, { type: "guard" }, Logic.mulberry32(i + 1));
+    if (evs.some((e) => e.type === "charge")) charged2 += 1;
+  }
+  assert.equal(charged2, 0, "rat never charges");
+});
+
 test("legacy saves normalize cleanly", () => {
   const legacy = {
     version: "1.0.0",

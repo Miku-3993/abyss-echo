@@ -1,4 +1,4 @@
-/*
+﻿/*
  * Abyss Echo - core game logic (pure, testable, no DOM)
  * All functions operate on a plain state object and return event lists.
  */
@@ -359,13 +359,20 @@ ABYSS.Logic = (function () {
       c.enraged = true;
       events.push({ type: "bossPhase", enemy: c.enemyId });
     }
+    /* heavy strike: every 3rd enemy turn, tough foes may power up */
+    c.enemyTurns = (c.enemyTurns || 0) + 1;
+    var heavy = false;
+    if (c.enemyTurns % 3 === 0 && rng() < 0.4 && e.tier >= 3) {
+      heavy = true;
+      events.push({ type: "charge", enemy: c.enemyId });
+    }
     if (rng() >= dodgeChance(ps.spd, es.spd)) {
       var def = c.guarding ? ps.def * 2 : ps.def;
-      var er = rollDamage(es.atk, def, 0, 1, rng);
+      var er = rollDamage(es.atk, def, 0, heavy ? 1.9 : 1, rng);
       var dealt = Math.max(0, Math.min(p.hp, er.dmg));
       p.hp -= dealt;
       c.stats.dmgTaken += dealt;
-      events.push({ type: "hit", target: "player", dmg: er.dmg, crit: er.crit, blocked: c.guarding && er.dmg > 0 });
+      events.push({ type: "hit", target: "player", dmg: er.dmg, crit: er.crit, blocked: c.guarding && er.dmg > 0, heavy: heavy });
       if (p.hp <= 0) {
         handleDeath(state, events);
         return events;
@@ -919,6 +926,7 @@ ABYSS.Logic = (function () {
 if (typeof module !== "undefined" && module.exports) {
   module.exports = { ABYSS: ABYSS };
 }
+
 
 
 
