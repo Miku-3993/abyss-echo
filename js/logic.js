@@ -35,7 +35,8 @@ ABYSS.Logic = (function () {
       },
       stats: {
         playTimeSec: 0, bestDepth: 1, totalKills: 0, totalDeaths: 0,
-        achievements: [], endings: [], bossesKilled: {}, reviveUsed: false, fragments: []
+        achievements: [], endings: [], bossesKilled: {}, reviveUsed: false, fragments: [],
+        eliteKills: 0, fortuneWins: 0, libraryVisits: 0
       },
       settings: { sound: true, fastText: false, lang: "zh" }
     };
@@ -90,12 +91,19 @@ ABYSS.Logic = (function () {
 
   function enemyStats(state) {
     var c = state.run.combat, e = D.enemies[c.enemyId];
-    var hp = c.enemyHp, atk = e.atk, def = e.def, spd = e.spd;
+    var elite = !!c.elite;
+    var hp = c.enemyHp, maxHp = e.hp, atk = e.atk, def = e.def, spd = e.spd;
+    if (elite) {
+      maxHp = Math.floor(e.hp * 1.5);
+      atk = Math.floor(e.atk * 1.5);
+      def = Math.floor(e.def * 1.5);
+      spd = Math.floor(e.spd * 1.25);
+    }
     var m = statusMods(c.enemyStatuses || {}, "enemy");
     atk = Math.max(1, Math.floor(atk * (1 + m.atk)));
     def = Math.max(0, Math.floor(def * (1 + m.def)));
     spd = Math.max(1, spd + m.spd);
-    return { hp: hp, maxHp: e.hp, atk: atk, def: def, spd: spd, name: e.name };
+    return { hp: hp, maxHp: maxHp, atk: atk, def: def, spd: spd, name: e.name, elite: elite };
   }
 
   /* ---------- damage ---------- */
@@ -211,14 +219,16 @@ ABYSS.Logic = (function () {
 
     /* --- enemy death check --- */
     if (c && c.enemyHp <= 0) {
-      var drop = rollDrops(state, c.enemyId, rng);
-      var gGain = e.gold;
+      var drop = rollDrops(state, c.enemyId, rng, c.elite);
+      var mult = c.elite ? 2 : 1;
+      var gGain = e.gold * mult;
       if (drop.goldMult) gGain = Math.floor(gGain * drop.goldMult);
       p.gold += gGain;
       p.kills += 1;
       state.stats.totalKills += 1;
+      if (c.elite) state.stats.eliteKills += 1;
       p.hp = Math.min(playerStats(state).hp, p.hp);
-      events.push({ type: "kill", enemy: c.enemyId, xp: e.xp, gold: gGain, drops: drop.items });
+      events.push({ type: "kill", enemy: c.enemyId, xp: e.xp * mult, gold: gGain, drops: drop.items, elite: !!c.elite });
       /* refresher: kill grants xp on a later consolidate call when not in combat */
       if (e.boss) events.push({ type: "bossKilled", enemy: c.enemyId });
       state.run.combat = null;
@@ -286,12 +296,14 @@ ABYSS.Logic = (function () {
       events.push({ type: "tick", who: "enemy", status: t.status, dmg: amount });
     });
     if (c.enemyHp <= 0) {
-      var drop2 = rollDrops(state, c.enemyId, rng);
-      var g2 = Math.floor(e.gold * drop2.goldMult);
+      var drop2 = rollDrops(state, c.enemyId, rng, c.elite);
+      var mult2 = c.elite ? 2 : 1;
+      var g2 = Math.floor(e.gold * mult2 * drop2.goldMult);
       p.gold += g2;
       p.kills += 1;
       state.stats.totalKills += 1;
-      events.push({ type: "kill", enemy: c.enemyId, xp: e.xp, gold: g2, drops: drop2.items });
+      if (c.elite) state.stats.eliteKills += 1;
+      events.push({ type: "kill", enemy: c.enemyId, xp: e.xp * mult2, gold: g2, drops: drop2.items, elite: !!c.elite });
       if (e.boss) events.push({ type: "bossKilled", enemy: c.enemyId });
       state.run.combat = null;
       state.run.eventDone = true;
@@ -319,6 +331,10 @@ ABYSS.Logic = (function () {
       var c = state.run.combat;
       c.enemyHp -= it.damage;
       events.push({ type: "hit", target: "enemy", dmg: it.damage, item: itemId });
+    }
+    if (it.xp) {
+      gainXp(state, it.xp, events);
+      events.push({ type: "xpGain", amount: it.xp, item: itemId });
     }
     if (it.cure) {
       it.cure.forEach(function (sid) { delete p.statuses[sid]; });
@@ -364,10 +380,10 @@ ABYSS.Logic = (function () {
     { tier: [1], items: ["potion_small", "potion_small", "potion_mana", "sword_rust", "cloth", "charm_luck"], weight: 1 },
     { tier: [2], items: ["potion_big", "bow_hunter", "leather", "dagger_moon", "potion_antidote", "ring_power"], weight: 1 },
     { tier: [3], items: ["potion_big", "axe_rune", "chainmail", "bomb_fire", "holy_water", "potion_rage", "amulet_life"], weight: 1 },
-    { tier: [4], items: ["blade_shadow", "rune_armor", "spear_dragon", "hammer_void", "scale_dragon", "bomb_fire", "potion_big", "coin_greed", "cloak_shadow"], weight: 1 }
+    { tier: [4], items: ["blade_shadow", "rune_armor", "spear_dragon", "hammer_void", "scale_dragon", "elixir_life", "scroll_arcane", "bomb_fire", "potion_big", "coin_greed", "cloak_shadow"], weight: 1 }
   ];
 
-  function rollDrops(state, enemyId, rng) {
+  function rollDrops(state, enemyId, rng, elite) {
     var e = D.enemies[enemyId], out = { items: [], goldMult: 1 };
     var eq = equipped(state);
     if (eq.goldMult > 1) out.goldMult = eq.goldMult;
@@ -383,6 +399,11 @@ ABYSS.Logic = (function () {
     } else if (rng() < 0.28) {
       var table2 = LOOT_TABLE.filter(function (l) { return l.tier.indexOf(e.tier) >= 0; })[0] || LOOT_TABLE[0];
       out.items.push(table2.items[Math.floor(rng() * table2.items.length)]);
+    }
+    /* elites always drop a bonus item */
+    if (elite) {
+      var table3 = LOOT_TABLE.filter(function (l) { return l.tier.indexOf(e.tier) >= 0; })[0] || LOOT_TABLE[0];
+      out.items.push(table3.items[Math.floor(rng() * table3.items.length)]);
     }
     return out;
   }
@@ -405,18 +426,22 @@ ABYSS.Logic = (function () {
   /* ---------- room & encounter generation ---------- */
   var ROOM_TYPES = ["combat", "combat", "combat", "event", "event", "rest", "chest", "trap"];
 
+  var ELITE_CHANCE = 0.15;
+
   function generateRoom(state, rng) {
     rng = rng || Math.random;
     var depth = state.run.depth;
     var isBossFloor = depth % 3 === 0;
     var type = isBossFloor ? "boss" : ROOM_TYPES[Math.floor(rng() * ROOM_TYPES.length)];
-    var room = { type: type, eventId: null, explored: false };
+    var room = { type: type, eventId: null, explored: false, elite: false };
     if (type === "event") {
       var ids = Object.keys(D.events);
       room.eventId = ids[Math.floor(rng() * ids.length)];
     }
     if (type === "combat" || type === "boss") {
       room.enemyId = pickEnemy(state, rng, type === "boss");
+      /* elites only spawn on normal combat, never bosses */
+      room.elite = type === "combat" && rng() < ELITE_CHANCE;
     }
     return room;
   }
@@ -477,7 +502,10 @@ ABYSS.Logic = (function () {
       rich: function () { return p.gold >= 500; },
       collector: function () { return collectCount(state) >= 12; },
       survivor: function () { return !!st.reviveUsed; },
-      truth: function () { return st.fragments && st.fragments.length >= 3; }
+      truth: function () { return st.fragments && st.fragments.length >= 3; },
+      elite_hunter: function () { return st.eliteKills >= 10; },
+      fortune: function () { return st.fortuneWins >= 3; },
+      bookworm: function () { return st.libraryVisits >= 3; }
     };
     for (var id in defs) {
       if (list.indexOf(id) < 0 && defs[id]()) {

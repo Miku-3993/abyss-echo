@@ -74,6 +74,7 @@ ABYSS.LANG = {
     "floor": { zh: "第 {n} 层", en: "Floor {n}" },
     "floor_name_depth": { zh: "深渊第 {n} 层", en: "Abyss Floor {n}" },
     "enemy": { zh: "敌人", en: "Enemy" },
+    "elite_bonus": { zh: "双倍奖励", en: "2x Rewards" },
     "dmg": { zh: "造成 {n} 点伤害", en: "dealt {n} damage" },
     "take_dmg": { zh: "受到 {n} 点伤害", en: "took {n} damage" },
     "crit": { zh: "暴击！", en: "Critical!" },

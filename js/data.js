@@ -5,7 +5,7 @@
 var ABYSS = window.ABYSS = window.ABYSS || {};
 
 ABYSS.DATA = {
-  VERSION: "1.0.0",
+  VERSION: "1.1.0",
   MAX_DEPTH: 12,
   BASE_HP: 60, BASE_MP: 30, BASE_ATK: 10, BASE_DEF: 5, BASE_SPD: 8, BASE_LCK: 5,
   HP_PER_LVL: 12, MP_PER_LVL: 6, ATK_PER_LVL: 2, DEF_PER_LVL: 1, SPD_PER_LVL: 1,
@@ -130,7 +130,11 @@ ABYSS.DATA = {
     potion_rage: { name: { zh: "狂暴药剂", en: "Berserk Draught" },    type: "consumable", status: "enrage", value: 35,
                    desc: { zh: "使你进入狂暴状态。", en: "Enter an enraged state." } },
     holy_water:  { name: { zh: "圣水", en: "Holy Water" },             type: "consumable", cureAll: true, value: 40,
-                   desc: { zh: "清除所有负面状态。", en: "Clears all negative statuses." } }
+                   desc: { zh: "清除所有负面状态。", en: "Clears all negative statuses." } },
+    scroll_arcane: { name: { zh: "经验典籍", en: "Arcane Tome" },      type: "consumable", xp: 40, value: 55,
+                   desc: { zh: "研读后获得 40 点经验。", en: "Grants 40 XP when read." } },
+    elixir_life: { name: { zh: "万灵药", en: "Elixir of Life" },       type: "consumable", heal: 9999, mana: 9999, value: 120,
+                   desc: { zh: "完全恢复生命与魔力。", en: "Fully restores HP and MP." } }
   },
 
   /* ---------- PLAYER SKILLS ---------- */
@@ -176,7 +180,11 @@ ABYSS.DATA = {
     spidernest: { name: { zh: "蛛巢", en: "Spider Nest" },
                   desc: { zh: "蛛网覆盖了整个房间，中央传来窸窣声。", en: "Webs cover the whole room; rustling comes from the center." } },
     supply:     { name: { zh: "补给箱", en: "Supply Cache" },
-                  desc: { zh: "一个标记着古老军徽的木箱，也许是某个远征队留下的。", en: "A crate marked with an old legion crest, left by some expedition." } }
+                  desc: { zh: "一个标记着古老军徽的木箱，也许是某个远征队留下的。", en: "A crate marked with an old legion crest, left by some expedition." } },
+    fortune:    { name: { zh: "占卜师", en: "Fortune Teller" },
+                  desc: { zh: "披着星纹斗篷的老者摊开塔罗牌，牌面映着深渊的倒影。", en: "An elder in a star-patterned cloak spreads tarot cards that mirror the abyss." } },
+    library:    { name: { zh: "深渊图书馆", en: "Abyss Library" },
+                  desc: { zh: "一间堆满腐烂典籍的房间，书脊上的文字仍在蠕动。", en: "A room piled with rotting tomes whose letters still writhe." } }
   },
 
   /* ---------- ACHIEVEMENTS ---------- */
@@ -199,7 +207,10 @@ ABYSS.DATA = {
     rich:          { name: { zh: "深渊财主", en: "Abyss Tycoon" },         desc: { zh: "同时持有 500 金币", en: "Hold 500 gold at once" } },
     collector:     { name: { zh: "收藏家", en: "Collector" },              desc: { zh: "收集 12 种不同物品", en: "Collect 12 distinct items" } },
     survivor:      { name: { zh: "劫后余生", en: "Survivor" },             desc: { zh: "从死亡边缘被复活", en: "Be revived from the brink" } },
-    truth:         { name: { zh: "真相之眼", en: "Eye of Truth" },         desc: { zh: "集齐全部真相碎片", en: "Gather all fragments of truth" } }
+    truth:         { name: { zh: "真相之眼", en: "Eye of Truth" },         desc: { zh: "集齐全部真相碎片", en: "Gather all fragments of truth" } },
+    elite_hunter:  { name: { zh: "精英猎手", en: "Elite Hunter" },         desc: { zh: "击杀 10 个精英怪物", en: "Slay 10 elite monsters" } },
+    fortune:       { name: { zh: "幸运儿", en: "Lucky One" },              desc: { zh: "在占卜师那里赌赢 3 次", en: "Win 3 bets with the fortune teller" } },
+    bookworm:      { name: { zh: "书虫", en: "Bookworm" },                 desc: { zh: "造访深渊图书馆 3 次", en: "Visit the abyss library 3 times" } }
   },
 
   /* ---------- ENDINGS ---------- */

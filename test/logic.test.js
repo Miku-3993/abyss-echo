@@ -243,10 +243,77 @@ test("all data references are valid", () => {
     assert.ok(evs.length >= 0, `skill ${sk} should resolve`);
   }
   /* every event id exists; every fragment source is reachable */
-  assert.equal(Object.keys(D.events).length, 10);
-  assert.equal(Object.keys(D.achievements).length, 19);
+  assert.equal(Object.keys(D.events).length, 12);
+  assert.equal(Object.keys(D.achievements).length, 22);
   assert.equal(Object.keys(D.endings).length, 2);
   assert.equal(Object.keys(D.fragments).length, 3);
+});
+
+test("elite enemies get 1.5x stats", () => {
+  const s = Logic.freshState();
+  s.run.combat = { enemyId: "rat", enemyHp: Math.floor(D.enemies.rat.hp * 1.5), elite: true, enemyStatuses: {}, skillCd: {}, guarding: false };
+  const es = Logic.enemyStats(s);
+  assert.equal(es.maxHp, Math.floor(D.enemies.rat.hp * 1.5));
+  assert.equal(es.atk, Math.floor(D.enemies.rat.atk * 1.5));
+  assert.equal(es.def, Math.floor(D.enemies.rat.def * 1.5));
+  assert.equal(es.elite, true);
+});
+
+test("elite kill grants double rewards and bonus drop", () => {
+  const s = Logic.freshState();
+  s.run.combat = { enemyId: "rat", enemyHp: 5, elite: true, enemyStatuses: {}, skillCd: {}, guarding: false };
+  const rng = seqRng([0.5, 0.5, 0.5, 0.5, 0.5]);
+  const evs = Logic.resolveTurn(s, { type: "attack" }, rng);
+  const kill = evs.find((e) => e.type === "kill");
+  assert.ok(kill, "expected kill");
+  assert.equal(kill.xp, D.enemies.rat.xp * 2);
+  assert.equal(kill.gold, D.enemies.rat.gold * 2);
+  assert.ok(kill.elite);
+  assert.ok(kill.drops.length >= 1, "elite always drops a bonus item");
+  assert.equal(s.stats.eliteKills, 1);
+});
+
+test("elite never appears on boss floors", () => {
+  const s = Logic.freshState();
+  s.run.depth = 3;
+  const room = Logic.generateRoom(s, seqRng([0.99, 0.99]));
+  assert.equal(room.type, "boss");
+  assert.equal(room.elite, false);
+});
+
+test("elite generation is random but possible", () => {
+  const s = Logic.freshState();
+  s.run.depth = 2;
+  let elites = 0;
+  for (let i = 0; i < 200; i++) {
+    const rng = Logic.mulberry32(i + 7);
+    const room = Logic.generateRoom(s, rng);
+    if (room.type === "combat" && room.elite) elites += 1;
+  }
+  assert.ok(elites > 5, "expected some elite rooms in 200 rolls, got " + elites);
+});
+
+test("arcane tome grants xp through useItem", () => {
+  const s = Logic.freshState();
+  s.player.inventory = ["scroll_arcane"];
+  const evs = [];
+  Logic.useItem(s, "scroll_arcane", evs, seqRng([0.5]));
+  assert.ok(evs.some((e) => e.type === "xpGain"));
+  /* 40 XP == exactly the level-1 threshold -> levels up to 2 */
+  assert.equal(s.player.level, 2);
+  assert.equal(s.player.inventory.length, 0);
+});
+
+test("elixir fully restores hp and mp", () => {
+  const s = Logic.freshState();
+  const ps = Logic.playerStats(s);
+  s.player.hp = 5;
+  s.player.mp = 2;
+  s.player.inventory = ["elixir_life"];
+  const evs = [];
+  Logic.useItem(s, "elixir_life", evs, seqRng([0.5]));
+  assert.equal(s.player.hp, ps.hp);
+  assert.equal(s.player.mp, ps.mp);
 });
 
 test("seeded rng is deterministic", () => {

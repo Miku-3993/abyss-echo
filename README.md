@@ -22,11 +22,12 @@ A **zero-dependency, pure front-end** text-based dungeon RPG. Dark cosmic-fantas
 
 - 🕳️ **12 层深渊** — 每层随机房间：战斗、事件、宝箱、陷阱、营地 / 12 floors of randomized rooms
 - ⚔️ **回合制战斗** — 攻击、防御（格挡）、9 种技能、道具、逃跑；暴击、闪避、异常状态（中毒/流血/灼烧/虚弱） / turn-based combat with crits, dodges, status effects
+- 🌟 **精英怪** — 15% 概率出现，属性 ×1.5、双倍奖励、必掉一件额外战利品 / elite monsters: 1.5x stats, 2x rewards, guaranteed bonus loot
 - 💀 **5 个 Boss** — 每 3 层一位区域 Boss，第 12 层后开启「深渊核心」最终战 / 5 bosses, final boss unlocked after floor 12
-- 📜 **10 种随机事件** — 商人、喷泉、祭坛、神龛、矿脉、雕像、蛛巢…… / wandering merchant, fountains, altars, shrines…
-- 🏆 **19 个成就** — 探索、击杀、等级、收藏、隐藏目标 / achievements for exploration, kills, levels, collection
+- 📜 **12 种随机事件** — 商人、喷泉、祭坛、神龛、矿脉、雕像、蛛巢、占卜师、深渊图书馆…… / merchants, fountains, altars, shrines, fortune tellers…
+- 🏆 **22 个成就** — 探索、击杀、等级、收藏、精英猎手、隐藏目标 / achievements for exploration, kills, levels, elites, collection
 - 💠 **隐藏真结局** — 收集 3 枚「真相碎片」，在深渊核心做出你的选择 / true ending via 3 fragments of truth
-- 🗡️ **26 件物品** — 武器/护甲/饰品/消耗品，BOSS 固定掉落传说装备 / weapons, armor, trinkets, consumables, boss-only legendaries
+- 🗡️ **29 件物品** — 武器/护甲/饰品/消耗品（含经验典籍、万灵药），BOSS 固定掉落传说装备 / weapons, armor, trinkets, consumables, boss-only legendaries
 - 🌏 **中英双语** — 设置面板一键切换 / Chinese & English, switchable in settings
 - 🔊 **程序化音效** — Web Audio 实时合成，零音频文件 / procedural sound via Web Audio, zero audio files
 - 💾 **自动存档** — localStorage + 手动导出/导入 / autosave + manual export/import
@@ -48,7 +49,7 @@ A **zero-dependency, pure front-end** text-based dungeon RPG. Dark cosmic-fantas
 npm test        # node --test
 ```
 
-23 个单元测试覆盖：状态、属性计算、装备加成、战斗结算、状态异常、技能冷却、掉落、升级、房间生成、成就、存档模拟全流程。
+29 个单元测试覆盖：状态、属性计算、装备加成、战斗结算、状态异常、技能冷却、掉落、精英怪、升级、房间生成、成就、存档模拟全流程。
 
 ## 🏗 项目结构 / Structure
 

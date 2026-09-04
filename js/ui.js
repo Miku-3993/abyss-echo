@@ -32,7 +32,7 @@ ABYSS.UI = (function () {
         case "guard": txt = T("guard") + "…"; break;
         case "kill": {
           var en = D.enemies[ev.enemy];
-          txt = T("victory_msg", { xp: ev.xp, gold: ev.gold });
+          txt = (ev.elite ? "🌟 " : "") + T("victory_msg", { xp: ev.xp, gold: ev.gold });
           Logic.gainXp(state, ev.xp, events); /* note: gainXp pushes its own levelup events; see below */
           if (ev.drops && ev.drops.length) {
             ev.drops.forEach(function (it) {
@@ -64,6 +64,7 @@ ABYSS.UI = (function () {
         case "mpRestore": txt = "💙 " + T("mp_restore", { n: ev.amount }); cls = "log-good"; break;
         case "cure": case "cureAll": txt = "✨ " + L.name(D.items[ev.item]) + " 生效"; cls = "log-good"; break;
         case "buffItem": txt = "🔥 " + L.name(D.items[ev.item]) + " 生效"; break;
+        case "xpGain": txt = "📖 " + T("found_item", { n: L.name(D.items[ev.item]) }) + " +" + ev.amount + " XP"; cls = "log-gold"; break;
         case "flee": txt = ev.ok ? T("fled") : "逃跑失败！"; cls = ev.ok ? "log-good" : "log-bad"; break;
         case "noMp": txt = T("no_mp"); cls = "log-bad"; break;
         case "skillCd": txt = "技能冷却中"; cls = "log-bad"; break;
@@ -187,7 +188,7 @@ ABYSS.UI = (function () {
     }
     var room = r.room;
     if (room.type === "combat" || room.type === "boss") {
-      startCombat(room.enemyId);
+      startCombat(room.enemyId, room.elite);
       renderCombat(box);
       return;
     }
@@ -266,8 +267,9 @@ ABYSS.UI = (function () {
   }
 
   /* ================= combat ================= */
-  function startCombat(enemyId) {
-    var c = { enemyId: enemyId, enemyHp: D.enemies[enemyId].hp, enemyStatuses: {}, skillCd: {}, guarding: false };
+  function startCombat(enemyId, elite) {
+    var base = D.enemies[enemyId].hp;
+    var c = { enemyId: enemyId, enemyHp: elite ? Math.floor(base * 1.5) : base, elite: !!elite, enemyStatuses: {}, skillCd: {}, guarding: false };
     state.run.combat = c;
     if (D.enemies[enemyId].boss) ABYSS.Audio.boss();
   }
@@ -279,10 +281,10 @@ ABYSS.UI = (function () {
     var es = Logic.enemyStats(state);
     var ps = Logic.playerStats(state);
     var head = document.createElement("div");
-    head.className = "enemy-card";
-    head.innerHTML = "<div class='enemy-name'>" + (e.boss ? "💀 " : "👹 ") + L.name(e) + "</div>" +
+    head.className = "enemy-card" + (es.elite ? " enemy-elite" : "");
+    head.innerHTML = "<div class='enemy-name'>" + (e.boss ? "💀 " : (es.elite ? "🌟 " : "👹 ")) + (es.elite ? "精英·" : "") + L.name(e) + "</div>" +
       "<div class='enemy-hpbar'><div class='enemy-hpfill' style='width:" + Math.max(0, Math.round(es.hp / es.maxHp * 100)) + "%'></div></div>" +
-      "<div class='enemy-info'>" + T("atk") + " " + es.atk + " · " + T("def") + " " + es.def + " · " + T("spd") + " " + es.spd + "</div>" +
+      "<div class='enemy-info'>" + T("atk") + " " + es.atk + " · " + T("def") + " " + es.def + " · " + T("spd") + " " + es.spd + (es.elite ? " · 🌟 " + T("elite_bonus") : "") + "</div>" +
       "<div class='enemy-desc'>" + L.desc(e) + "</div>";
     box.appendChild(head);
 
@@ -509,6 +511,67 @@ ABYSS.UI = (function () {
           } },
         { text: T("leave"), fn: function () { r.eventDone = true; saveAndRender(); } }
       ]; break;
+      case "fortune": choices = [
+        { text: "支付 50 金币，求一道吉运（祝福 3 回合）", can: state.player.gold >= 50, fn: function () {
+            state.player.gold -= 50;
+            Logic.applyStatus(state, "player", "blessing", 3, []);
+            state.stats.fortuneWins += 1;
+            var evs = [{ type: "eventText", text: "塔罗牌泛起金光，命运向你微笑。" }, { type: "status", who: "player", status: "blessing" }];
+            r.eventDone = true; consumeEvents(evs); saveAndRender();
+          } },
+        { text: "免费听一段预言（40% 得金币 / 30% 得祝福 / 30% 遭诅咒）", fn: function () {
+            var evs = [];
+            var roll = Math.random();
+            if (roll < 0.4) {
+              state.player.gold += 30;
+              state.stats.fortuneWins += 1;
+              evs.push({ type: "gold", amount: 30 });
+              evs.push({ type: "eventText", text: "「你口袋里的硬币会变多。」——预言应验了。" });
+            } else if (roll < 0.7) {
+              Logic.applyStatus(state, "player", "blessing", 3, evs);
+              state.stats.fortuneWins += 1;
+              evs.push({ type: "eventText", text: "「你命中有贵人相助。」——一阵暖意笼罩了你。" });
+            } else {
+              Logic.applyStatus(state, "player", "weaken", 3, evs);
+              evs.push({ type: "eventText", text: "「你……你身上缠绕着不祥。」老者脸色大变。" });
+            }
+            r.eventDone = true; consumeEvents(evs); saveAndRender();
+          } },
+        { text: T("leave"), fn: function () { r.eventDone = true; saveAndRender(); } }
+      ]; break;
+      case "library": choices = [
+        { text: "支付 80 金币，研读《经验典籍》（+40 XP）", can: state.player.gold >= 80, fn: function () {
+            state.player.gold -= 80;
+            state.stats.libraryVisits += 1;
+            var evs = [];
+            Logic.gainXp(state, 40, evs);
+            evs.push({ type: "xpGain", amount: 40, item: "scroll_arcane" });
+            evs.push({ type: "eventText", text: "书页上的文字化为流光涌入你的脑海。" });
+            r.eventDone = true; consumeEvents(evs); saveAndRender();
+          } },
+        { text: "支付 60 金币，抄录两张魔力药水配方", can: state.player.gold >= 60, fn: function () {
+            state.player.gold -= 60;
+            state.stats.libraryVisits += 1;
+            var evs = [];
+            if (addItemSilent("potion_mana") && addItemSilent("potion_mana")) evs.push({ type: "found", item: "potion_mana" });
+            else evs.push({ type: "eventText", text: T("full_inventory") });
+            evs.push({ type: "eventText", text: "你小心翼翼地拓印了两页配方。" });
+            r.eventDone = true; consumeEvents(evs); saveAndRender();
+          } },
+        { text: "免费翻阅残卷（30% 发现一件小物品）", fn: function () {
+            state.stats.libraryVisits += 1;
+            var evs = [];
+            if (Math.random() < 0.3) {
+              var it = ["potion_small", "potion_mana", "scroll_arcane"][Math.floor(Math.random() * 3)];
+              if (addItemSilent(it)) evs.push({ type: "found", item: it });
+              else evs.push({ type: "eventText", text: T("full_inventory") });
+            } else {
+              evs.push({ type: "eventText", text: "残卷已经腐烂得无法辨认。" });
+            }
+            r.eventDone = true; consumeEvents(evs); saveAndRender();
+          } },
+        { text: T("leave"), fn: function () { r.eventDone = true; saveAndRender(); } }
+      ]; break;
     }
 
     if (choices.length === 0) {
@@ -564,7 +627,7 @@ ABYSS.UI = (function () {
     if (depth <= 3) pool = ["sword_rust", "bow_hunter", "cloth", "leather", "charm_luck", "potion_small", "potion_mana", "potion_antidote"];
     else if (depth <= 6) pool = ["dagger_moon", "axe_rune", "chainmail", "ring_power", "potion_big", "potion_mana", "potion_antidote"];
     else if (depth <= 9) pool = ["blade_shadow", "rune_armor", "amulet_life", "potion_big", "bomb_fire", "holy_water"];
-    else pool = ["spear_dragon", "hammer_void", "scale_dragon", "cloak_shadow", "coin_greed", "potion_big", "bomb_fire", "potion_rage"];
+    else pool = ["spear_dragon", "hammer_void", "scale_dragon", "cloak_shadow", "coin_greed", "elixir_life", "scroll_arcane", "potion_big", "bomb_fire", "potion_rage"];
     var stock = [];
     while (stock.length < 4) {
       var pick = pool[Math.floor(Math.random() * pool.length)];
@@ -692,9 +755,10 @@ ABYSS.UI = (function () {
   }
 
   /* preview/e2e hook: force a combat scene (used by screenshot tooling) */
-  function debugStartCombat(enemyId) {
-    state.run.room = { type: "combat", enemyId: enemyId };
-    state.run.combat = { enemyId: enemyId, enemyHp: D.enemies[enemyId].hp, enemyStatuses: {}, skillCd: {}, guarding: false };
+  function debugStartCombat(enemyId, elite) {
+    state.run.room = { type: "combat", enemyId: enemyId, elite: !!elite };
+    var base = D.enemies[enemyId].hp;
+    state.run.combat = { enemyId: enemyId, enemyHp: elite ? Math.floor(base * 1.5) : base, elite: !!elite, enemyStatuses: {}, skillCd: {}, guarding: false };
     state.run.eventDone = true;
     showScene();
     renderHUD();
