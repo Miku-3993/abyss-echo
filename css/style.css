@@ -640,6 +640,23 @@ body::after {
 .inv-filters { display: flex; gap: 6px; margin-bottom: 10px; flex-wrap: wrap; }
 .inv-filters .btn-active { border-color: var(--gold); color: var(--gold); }
 .status-row { display: inline-flex; gap: 3px; align-items: center; }
+#btn-ach { position: relative; }
+.ach-new-dot {
+  position: absolute;
+  top: -4px;
+  right: -6px;
+  min-width: 17px;
+  height: 17px;
+  line-height: 17px;
+  padding: 0 4px;
+  border-radius: 9px;
+  background: linear-gradient(180deg, #ff6b6b, #d43d3d);
+  color: #fff;
+  font-size: 10px;
+  font-weight: 700;
+  text-align: center;
+  box-shadow: 0 0 10px rgba(224, 96, 96, 0.6);
+}
 #hud-mode, #hud-diff { font-size: 11px; border-radius: 10px; padding: 1px 8px; }
 #hud-mode { border: 1px solid rgba(127, 216, 208, 0.5); color: var(--teal); background: rgba(127, 216, 208, 0.08); }
 #hud-diff.diff-hard { border: 1px solid rgba(224, 96, 96, 0.55); color: var(--red); background: rgba(224, 96, 96, 0.08); }
@@ -696,4 +713,5 @@ body::after {
   box-shadow: 0 0 8px rgba(127, 216, 208, 0.55);
   transition: width 0.35s ease;
 }
+
 

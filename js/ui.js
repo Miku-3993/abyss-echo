@@ -94,6 +94,8 @@ ABYSS.UI = (function () {
           cls = "log-gold";
           ABYSS.Audio.achievement();
           pushToast(T("achievement_unlocked", { n: L.name(D.achievements[ev.id]) }), T("achievements"), "🏆");
+          achUnseen = (achUnseen || 0) + 1;
+          updateAchDot();
           break;
         case "fragment": txt = "💠 " + T("found_item", { n: L.name(D.fragments[ev.frag]) }) + "（" + ev.count + "/3）"; cls = "log-gold"; ABYSS.Audio.fragment(); break;
         case "camp": txt = T("camp_rest"); cls = "log-good"; break;
@@ -206,6 +208,24 @@ ABYSS.UI = (function () {
       if (el.parentNode) el.parentNode.removeChild(el);
     }, 900);
   }
+  var achUnseen = 0;
+
+  function updateAchDot() {
+    var dot = document.getElementById("ach-new-dot");
+    if (!dot) return;
+    if (achUnseen > 0) {
+      dot.style.display = "";
+      dot.textContent = achUnseen > 9 ? "9+" : String(achUnseen);
+    } else {
+      dot.style.display = "none";
+    }
+  }
+
+  function clearAchDot() {
+    achUnseen = 0;
+    updateAchDot();
+  }
+
   function pushToast(title, sub, icon) {
     var host = document.getElementById("toast");
     if (!host) return;
@@ -1879,6 +1899,7 @@ ABYSS.UI = (function () {
   }
 
   function openAchievements() {
+    clearAchDot();
     openModal(T("achievements"), function (c) {
       var list = document.createElement("div");
       list.className = "ach-list";
@@ -2024,6 +2045,9 @@ ABYSS.UI = (function () {
 if (typeof module !== "undefined" && module.exports) {
   module.exports = { ABYSS: ABYSS };
 }
+
+
+
 
 
 
