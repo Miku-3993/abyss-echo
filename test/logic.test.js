@@ -250,7 +250,7 @@ test("all data references are valid", () => {
     assert.ok(evs.length >= 0, `skill ${sk} should resolve`);
   }
   /* every event id exists; every fragment source is reachable */
-  assert.equal(Object.keys(D.events).length, 16);
+  assert.equal(Object.keys(D.events).length, 17);
   assert.equal(Object.keys(D.achievements).length, 30);
   assert.equal(Object.keys(D.endings).length, 2);
   assert.equal(Object.keys(D.fragments).length, 3);

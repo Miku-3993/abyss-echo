@@ -256,6 +256,8 @@ ABYSS.DATA = {
                   desc: { zh: "雾中浮现出一座废弃的营地，篝火仍在燃烧，却空无一人。", en: "A deserted camp materializes in the mist — fire burning, no one home." } },
     battlefield: { name: { zh: "远古战场", en: "Ancient Battlefield" },
                   desc: { zh: "遍地甲胄残骸的战场，空气里还飘着数百年未散的杀意。", en: "A field of rusted armor; the air still hums with centuries-old slaughter." } },
+    vault:      { name: { zh: "神秘宝匣", en: "Mysterious Vault" },
+                  desc: { zh: "三只一模一样的黑匣摆在祭台上，只有一只装着宝物——另外两只装着别的东西。", en: "Three identical black chests sit on the dais. One holds treasure. The other two hold something else." } },
     blacksmith: { name: { zh: "铁匠铺", en: "Blacksmith" },
                   desc: { zh: "炉火在深渊中静静燃烧，铁锤声像心跳一样规律。", en: "A forge burns quietly in the abyss; hammer strokes beat like a heart." } }
   },
@@ -316,6 +318,7 @@ ABYSS.DATA = {
 if (typeof module !== "undefined" && module.exports) {
   module.exports = { ABYSS: ABYSS };
 }
+
 
 
 

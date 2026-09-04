@@ -1,4 +1,4 @@
-﻿/*
+/*
  * Abyss Echo - UI rendering & interaction layer
  * Consumes ABYSS.Logic events, renders DOM, wires game feel.
  */
@@ -853,6 +853,43 @@ ABYSS.UI = (function () {
           } },
         { text: T("leave"), fn: function () { r.eventDone = true; saveAndRender(); } }
       ]; break;
+      case "vault": {
+        /* left / middle / right chest: 60% treasure, 40% curse */
+        var prize = Math.random();
+        var reveal = function (label) {
+          var evs = [];
+          if (prize < 0.6) {
+            var roll = Math.random();
+            if (roll < 0.4) {
+              var it = ["potion_big", "rune_power", "scroll_arcane", "potion_rage"][Math.floor(Math.random() * 4)];
+              if (addItemSilent(it)) evs.push({ type: "found", item: it });
+              else evs.push({ type: "eventText", text: T("full_inventory") });
+            } else if (roll < 0.7) {
+              var g = 80 + Math.floor(Math.random() * 70);
+              state.player.gold += g;
+              evs.push({ type: "gold", amount: g });
+            } else {
+              Logic.applyStatus(state, "player", "blessing", 5, evs);
+              evs.push({ type: "eventText", text: T("ev_vault_bless") });
+            }
+            ABYSS.Audio.chest();
+          } else {
+            state.player.hp = Math.max(1, state.player.hp - 15);
+            Logic.applyStatus(state, "player", Math.random() < 0.5 ? "weaken" : "poison", 3, evs);
+            evs.push({ type: "trapDamage", dmg: 15 });
+            evs.push({ type: "eventText", text: T("ev_vault_curse") });
+            ABYSS.Audio.trap();
+          }
+          r.eventDone = true; consumeEvents(evs); saveAndRender();
+        };
+        choices = [
+          { text: T("ev_vault_left"), fn: function () { reveal("left"); } },
+          { text: T("ev_vault_middle"), fn: function () { reveal("middle"); } },
+          { text: T("ev_vault_right"), fn: function () { reveal("right"); } },
+          { text: T("leave"), fn: function () { r.eventDone = true; saveAndRender(); } }
+        ];
+        break;
+      }
     }
 
     if (choices.length === 0) {
